@@ -3,794 +3,1458 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
-  <title>Panel Admin • Radio Coravox</title>
+  <title>Panel Pro • Radio Coravox</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{
       font-family:system-ui,-apple-system,Roboto,Segoe UI,Arial,sans-serif;
-      background:#070707; color:#f5c85b;
-      min-height:100vh;
+      background:#070707;color:#fff;min-height:100vh;
     }
-    a{color:#7ad9ff;text-decoration:none}
-    .wrap{max-width:1100px;margin:0 auto;padding:16px}
+    .wrap{max-width:1180px;margin:0 auto;padding:16px}
     .topbar{
       display:flex;align-items:center;justify-content:space-between;gap:12px;
       padding:12px 14px;border:1px solid rgba(245,200,91,.18);
       border-radius:14px;background:rgba(0,0,0,.35);
-      box-shadow:0 0 18px rgba(0,0,0,.55);
-      margin-bottom:14px;
+      box-shadow:0 0 18px rgba(0,0,0,.55);margin-bottom:14px;
     }
-    .brand{font-weight:900;letter-spacing:.06em}
+    .brand{font-weight:900;letter-spacing:.06em;color:#f5c85b}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
     .pill{
       display:inline-flex;align-items:center;gap:8px;
       padding:8px 10px;border-radius:999px;
       border:1px solid rgba(245,200,91,.25);
-      background:rgba(0,0,0,.25); color:#fff;
-      font-size:12px;
+      background:rgba(0,0,0,.25);color:#fff;font-size:12px
     }
+    .pill b{color:#f5c85b}
     .btn{
       border:none;border-radius:12px;padding:10px 12px;
-      font-weight:900;cursor:pointer;
-      background:#f5c85b;color:#000;
-      box-shadow:0 0 10px rgba(0,0,0,.5);
+      font-weight:900;cursor:pointer;background:#f5c85b;color:#000;
+      box-shadow:0 0 10px rgba(0,0,0,.55);
     }
     .btn.secondary{
-      background:rgba(245,200,91,.12); color:#f5c85b;
-      border:1px solid rgba(245,200,91,.35);
-      box-shadow:none;
+      background:rgba(245,200,91,.12);color:#f5c85b;
+      border:1px solid rgba(245,200,91,.35);box-shadow:none;
     }
     .btn.danger{
-      background:rgba(255,107,107,.15); color:#ff6b6b;
-      border:1px solid rgba(255,107,107,.35);
-      box-shadow:none;
+      background:rgba(255,107,107,.18);color:#ff7a7a;
+      border:1px solid rgba(255,107,107,.35);box-shadow:none;
     }
     .btn.small{padding:7px 9px;border-radius:10px;font-size:12px}
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:14px;
-    }
-    @media (max-width:900px){
-      .grid{grid-template-columns:1fr}
-    }
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    @media (max-width:980px){.grid{grid-template-columns:1fr}}
     .card{
       border:1px solid rgba(245,200,91,.18);
       border-radius:14px;background:rgba(0,0,0,.35);
       box-shadow:0 0 18px rgba(0,0,0,.55);
       overflow:hidden;
-      min-height:140px;
     }
     .card h3{
-      padding:12px 14px;
-      border-bottom:1px solid rgba(245,200,91,.14);
-      font-size:14px; color:#fff;
-      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      padding:12px 14px;border-bottom:1px solid rgba(245,200,91,.14);
+      font-size:14px;color:#fff;display:flex;align-items:center;justify-content:space-between;gap:10px;
     }
     .card .body{padding:12px 14px}
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .muted{opacity:.85;color:#fff}
-    .smalltxt{font-size:12px;opacity:.9;color:#fff}
+    .muted{opacity:.82;color:#fff;font-size:12px}
     .field{
-      width:100%;
-      background:#000;border:1px solid rgba(245,200,91,.28);
-      border-radius:12px;padding:10px 12px;color:#f5c85b;
-      outline:none;
+      width:100%;background:#000;border:1px solid rgba(245,200,91,.28);
+      border-radius:12px;padding:10px 12px;color:#f5c85b;outline:none;
     }
     .field::placeholder{color:rgba(245,200,91,.55)}
-    .split{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-    }
-    @media (max-width:520px){
-      .split{grid-template-columns:1fr}
-    }
-    .list{
-      display:flex;flex-direction:column;gap:8px;
-      max-height:320px;overflow:auto;padding-right:6px;
-    }
+    .split{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media (max-width:520px){.split{grid-template-columns:1fr}}
+    .list{display:flex;flex-direction:column;gap:8px;max-height:360px;overflow:auto;padding-right:6px}
     .item{
-      display:flex;justify-content:space-between;align-items:center;gap:10px;
-      padding:10px 10px;border-radius:12px;
-      background:rgba(0,0,0,.25);
+      display:flex;justify-content:space-between;align-items:flex-start;gap:10px;
+      padding:10px;border-radius:12px;background:rgba(0,0,0,.25);
       border:1px solid rgba(245,200,91,.12);
     }
     .item b{color:#fff}
     .badge{
-      font-size:11px;font-weight:900;
-      padding:5px 8px;border-radius:999px;
-      border:1px solid rgba(245,200,91,.25);
-      background:rgba(245,200,91,.12);
-      color:#f5c85b;
-      white-space:nowrap;
+      font-size:11px;font-weight:900;padding:5px 8px;border-radius:999px;
+      border:1px solid rgba(245,200,91,.25);background:rgba(245,200,91,.12);
+      color:#f5c85b;white-space:nowrap
     }
     .badge.on{border-color:rgba(157,255,122,.35);background:rgba(157,255,122,.12);color:#9dff7a}
     .badge.off{border-color:rgba(255,107,107,.35);background:rgba(255,107,107,.12);color:#ff6b6b}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+    .tab{
+      border:1px solid rgba(245,200,91,.18);
+      background:rgba(0,0,0,.25);
+      color:#fff;border-radius:999px;padding:8px 10px;
+      font-weight:900;font-size:12px;cursor:pointer
+    }
+    .tab.active{background:#f5c85b;color:#000;border-color:#f5c85b}
     .toast{
       position:fixed;left:50%;bottom:18px;transform:translateX(-50%);
-      background:rgba(0,0,0,.88);
-      border:1px solid rgba(245,200,91,.25);
-      color:#fff;border-radius:14px;
-      padding:10px 12px;
+      background:rgba(0,0,0,.88);border:1px solid rgba(245,200,91,.25);
+      color:#fff;border-radius:14px;padding:10px 12px;
       box-shadow:0 0 20px rgba(0,0,0,.75);
-      display:none;z-index:99999;
-      max-width:92%; text-align:center;
-      font-size:13px;
+      display:none;z-index:99999;max-width:92%;text-align:center;font-size:13px;
     }
-    .divider{height:1px;background:rgba(245,200,91,.14);margin:10px 0}
+    .hr{height:1px;background:rgba(245,200,91,.14);margin:10px 0}
     .toggle{
-      display:flex;align-items:center;gap:10px;
-      padding:10px;border-radius:12px;
-      border:1px solid rgba(245,200,91,.12);
-      background:rgba(0,0,0,.25);
-      color:#fff;
+      display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;
+      border:1px solid rgba(245,200,91,.12);background:rgba(0,0,0,.25);color:#fff;
     }
     .toggle input{transform:scale(1.1)}
-    .loginCard{
-      max-width:520px;margin:9vh auto 0;
-    }
-    .code{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      font-size:12px;color:#fff;opacity:.9;
+    textarea.field{min-height:38px;resize:vertical;color:#fff}
+    .miniBtn{
+      border:1px solid rgba(245,200,91,.25);
       background:rgba(0,0,0,.35);
-      border:1px solid rgba(245,200,91,.12);
-      border-radius:12px;
-      padding:10px;
-      overflow:auto;
+      color:#f5c85b;border-radius:10px;
+      padding:7px 9px;font-weight:900;cursor:pointer;font-size:12px;
     }
+    .miniBtn.danger{border-color:rgba(255,107,107,.35);color:#ff7a7a}
+    .kbd{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:#fff;opacity:.9}
+    .twoCol{display:grid;grid-template-columns:1.2fr .8fr;gap:12px}
+    @media(max-width:980px){.twoCol{grid-template-columns:1fr}}
   </style>
 </head>
 
 <body>
-  <div class="wrap">
-    <!-- TOPBAR -->
-    <div class="topbar">
-      <div class="brand">🎛️ Panel Admin • Radio Coravox</div>
-      <div class="row">
-        <div id="who" class="pill">No autenticado</div>
-        <button id="btnLogout" class="btn secondary small" style="display:none">Salir</button>
-      </div>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand">🎛️ Panel Pro • Radio Coravox</div>
+    <div class="row">
+      <div id="who" class="pill">No autenticado</div>
+      <button id="btnLogout" class="btn secondary small" style="display:none">Salir</button>
     </div>
+  </div>
 
-    <!-- LOGIN -->
-    <div id="loginView" class="card loginCard">
-      <h3>🔐 Iniciar sesión</h3>
-      <div class="body">
-        <div class="smalltxt muted" style="margin-bottom:10px">
-          Solo el admin autorizado puede entrar.
-        </div>
-        <div class="split">
-          <input id="email" class="field" type="email" placeholder="Correo" value="vis-party@hotmail.com" />
-          <input id="pass" class="field" type="password" placeholder="Contraseña" />
-        </div>
-        <div class="row" style="margin-top:10px">
-          <button id="btnLogin" class="btn">Entrar</button>
-          <button id="btnReset" class="btn secondary">Olvidé mi contraseña</button>
-        </div>
-        <div class="divider"></div>
-        <div class="smalltxt muted">
-          Si te falla el login, revisa en Firebase → Authentication que “Correo/contraseña” esté habilitado.
-        </div>
+  <!-- LOGIN -->
+  <div id="loginView" class="card">
+    <h3>🔐 Iniciar sesión <span class="badge">Firebase Auth</span></h3>
+    <div class="body">
+      <div class="split">
+        <input id="email" class="field" type="email" placeholder="Correo" value="vis-party@hotmail.com" />
+        <input id="pass"  class="field" type="password" placeholder="Contraseña" />
       </div>
-    </div>
-
-    <!-- DASHBOARD -->
-    <div id="dashView" style="display:none">
-      <div class="grid">
-
-        <!-- CONFIG GLOBAL -->
-        <div class="card">
-          <h3>
-            ⚙️ Configuración global (config/global)
-            <span id="cfgBadge" class="badge">cargando…</span>
-          </h3>
-          <div class="body">
-            <div class="row" style="margin-bottom:10px">
-              <div class="pill">DJ activo: <b id="activeDjLabel" style="color:#fff">—</b></div>
-              <button id="btnReloadCfg" class="btn secondary small">Recargar</button>
-            </div>
-
-            <div class="split">
-              <div class="toggle">
-                <input id="togChat" type="checkbox" />
-                <label for="togChat"><b>Chat</b> habilitado</label>
-              </div>
-              <div class="toggle">
-                <input id="togLikes" type="checkbox" />
-                <label for="togLikes"><b>Likes</b> habilitados</label>
-              </div>
-              <div class="toggle">
-                <input id="togReq" type="checkbox" />
-                <label for="togReq"><b>Peticiones</b> habilitadas</label>
-              </div>
-              <div class="toggle">
-                <input id="togPresence" type="checkbox" />
-                <label for="togPresence"><b>Presence</b> habilitado</label>
-              </div>
-            </div>
-
-            <div class="row" style="margin-top:10px">
-              <button id="btnSaveCfg" class="btn">Guardar cambios</button>
-              <span class="smalltxt muted">*Se guarda en config/global</span>
-            </div>
-
-            <div class="divider"></div>
-            <div class="smalltxt muted">
-              Nota: Estos switches solo controlan lo que tú decidas respetar desde la app (si ya lo tienes conectado).
-            </div>
-          </div>
-        </div>
-
-        <!-- DJ MANAGEMENT -->
-        <div class="card">
-          <h3>
-            🎧 DJs / Programas (djs/*)
-            <span class="badge">activar / poner en vivo</span>
-          </h3>
-          <div class="body">
-            <div class="row" style="margin-bottom:10px">
-              <input id="djSearch" class="field" placeholder="Buscar DJ..." />
-              <button id="btnReloadDjs" class="btn secondary small">Recargar</button>
-            </div>
-            <div id="djList" class="list"></div>
-            <div class="divider"></div>
-            <div class="smalltxt muted">
-              “Activar” = cambia el campo <b>active</b> en djs/{id}.  
-              “Poner DJ activo” = escribe <b>activeDj</b> y <b>currentProgram</b> en config/global.
-            </div>
-          </div>
-        </div>
-
-        <!-- CONNECTED USERS -->
-        <div class="card">
-          <h3>
-            🟢 Conectados (presence)
-            <span id="onlineBadge" class="badge">0</span>
-          </h3>
-          <div class="body">
-            <div class="row" style="margin-bottom:10px">
-              <button id="btnReloadPresence" class="btn secondary small">Refrescar</button>
-              <span class="smalltxt muted">Se muestra quien “pingueó” en los últimos ~90s</span>
-            </div>
-            <div id="presenceList" class="list"></div>
-            <div class="divider"></div>
-            <div class="smalltxt muted">
-              Si aquí no aparece nadie, revisa que tu app esté enviando <b>lastSeen</b> a /presence.
-            </div>
-          </div>
-        </div>
-
-        <!-- CHAT MODERATION -->
-        <div class="card">
-          <h3>
-            💬 Chat (mensajes-chat)
-            <span class="badge">moderar</span>
-          </h3>
-          <div class="body">
-            <div class="row" style="margin-bottom:10px">
-              <button id="btnReloadChat" class="btn secondary small">Recargar</button>
-              <button id="btnClearChat" class="btn danger small">🧹 ClearChat</button>
-              <span class="smalltxt muted">Borra mensajes (admin)</span>
-            </div>
-            <div id="chatList" class="list"></div>
-            <div class="divider"></div>
-            <div class="smalltxt muted">
-              “Borrar” elimina el documento real en Firestore.
-            </div>
-          </div>
-        </div>
-
-        <!-- TOP FANS -->
-        <div class="card">
-          <h3>
-            ❤️ Top Fans (likes-ranking)
-            <span class="badge">reset</span>
-          </h3>
-          <div class="body">
-            <div class="row" style="margin-bottom:10px">
-              <button id="btnReloadFans" class="btn secondary small">Recargar</button>
-              <button id="btnResetFans" class="btn danger small">♻ ResetFans</button>
-              <span class="smalltxt muted">Borra todos los likes</span>
-            </div>
-            <div id="fansList" class="list"></div>
-          </div>
-        </div>
-
-        <!-- LOGS / DEBUG -->
-        <div class="card">
-          <h3>🧾 Estado / Debug <span class="badge">útil</span></h3>
-          <div class="body">
-            <div class="smalltxt muted" style="margin-bottom:8px">
-              Si algo falla, mira aquí el último estado:
-            </div>
-            <div id="debug" class="code">Listo.</div>
-          </div>
-        </div>
-
+      <div class="row" style="margin-top:10px">
+        <button id="btnLogin" class="btn">Entrar</button>
+        <button id="btnReset" class="btn secondary">Olvidé mi contraseña</button>
+        <span id="loginMsg" class="muted"></span>
+      </div>
+      <div class="hr"></div>
+      <div class="muted">
+        Roles: Admin (tú) y DJs por email.  
+        Admin: control total. DJs: moderación por programa.
       </div>
     </div>
   </div>
 
-  <div id="toast" class="toast"></div>
+  <!-- DASH -->
+  <div id="dashView" style="display:none">
 
-  <!-- Firebase v8 (igual que tu app) -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <div class="tabs">
+      <button class="tab active" data-tab="home">Dashboard</button>
+      <button class="tab" data-tab="ads">Gotas / Anuncios</button>
+      <button class="tab" data-tab="programs">Programas</button>
+      <button class="tab" data-tab="djs">DJs</button>
+      <button class="tab" data-tab="moderation">Moderación</button>
+    </div>
 
-  <script>
-    /***********************
-     * ✅ CONFIG FIREBASE (TUYO)
-     ***********************/
-    var firebaseConfig = {
-      apiKey: "AIzaSyC8jq2iODj6DwfTSktgZ7ia84oeMxxPjNE",
-      authDomain: "coravox-602a0.firebaseapp.com",
-      projectId: "coravox-602a0",
-      storageBucket: "coravox-602a0.firebasestorage.app",
-      messagingSenderId: "629472102664",
-      appId: "1:629472102664:web:56e539689983458ada84bd"
-    };
-    firebase.initializeApp(firebaseConfig);
-    var auth = firebase.auth();
-    var db = firebase.firestore();
+    <!-- DASHBOARD -->
+    <div class="grid tabPane" data-pane="home">
 
-    /***********************
-     * ✅ ADMIN AUTORIZADO
-     ***********************/
-    var ADMIN_EMAILS = ["vis-party@hotmail.com"];
+      <div class="card">
+        <h3>📡 ON AIR <span class="badge" id="onAirBadge">cargando…</span></h3>
+        <div class="body">
+          <div class="row">
+            <div class="pill">Programa: <b id="onAirName">—</b></div>
+            <div class="pill">ID: <b id="onAirId">—</b></div>
+            <div class="pill">TZ: <b>America/New_York</b></div>
+          </div>
+          <div class="row" style="margin-top:10px">
+            <button id="btnForceAutodj" class="btn secondary small">Forzar AutoDJ</button>
+            <button id="btnRecalc" class="btn secondary small">Recalcular ahora</button>
+            <div class="muted">Automático por horario mientras el panel esté abierto.</div>
+          </div>
+          <div class="hr"></div>
+          <div class="twoCol">
+            <div>
+              <div class="muted" style="margin-bottom:6px">Conectados (programa actual)</div>
+              <div class="row">
+                <div class="pill">Conectados: <b id="onAirPresenceCount">0</b></div>
+                <button id="btnRefreshPresence" class="btn secondary small">Refrescar</button>
+              </div>
+              <div id="presenceList" class="list" style="margin-top:10px;max-height:220px"></div>
+            </div>
+            <div>
+              <div class="muted" style="margin-bottom:6px">Top Fans (programa actual)</div>
+              <div class="row">
+                <button id="btnResetTopfansProgram" class="btn danger small">Reset TopFans</button>
+              </div>
+              <div id="topfansList" class="list" style="margin-top:10px;max-height:220px"></div>
+            </div>
+          </div>
+          <div class="hr"></div>
+          <div class="row">
+            <button id="btnClearChatProgram" class="btn danger small">Clear Chat</button>
+            <span class="muted">Limpia el chat del programa actual (solo admin).</span>
+          </div>
+        </div>
+      </div>
 
-    /***********************
-     * ✅ REFS
-     ***********************/
-    var cfgRef      = db.collection("config").doc("global");
-    var djsRef      = db.collection("djs");
-    var presenceRef = db.collection("presence");
-    var chatRef     = db.collection("mensajes-chat");
-    var likesRef    = db.collection("likes-ranking");
+      <div class="card">
+        <h3>⚙️ Config global (config/global) <span id="cfgBadge" class="badge">—</span></h3>
+        <div class="body">
+          <div class="split">
+            <label class="toggle"><input id="togChat" type="checkbox"> Chat habilitado</label>
+            <label class="toggle"><input id="togLikes" type="checkbox"> Likes habilitados</label>
+            <label class="toggle"><input id="togPresence" type="checkbox"> Presence habilitado</label>
+            <label class="toggle"><input id="togAds" type="checkbox"> Gotas habilitadas</label>
+          </div>
+          <div class="row" style="margin-top:10px">
+            <button id="btnSaveCfg" class="btn">Guardar config</button>
+            <button id="btnReloadCfg" class="btn secondary">Recargar</button>
+            <span class="muted">*Esto no cambia la app si tu app no lo respeta (pero lo dejaremos listo).</span>
+          </div>
+          <div class="hr"></div>
+          <div class="muted">
+            Estado: <span class="kbd">adsEnabled</span>, <span class="kbd">adsIntervalSec</span>, <span class="kbd">adsMessages</span>.
+          </div>
+        </div>
+      </div>
 
-    /***********************
-     * UI
-     ***********************/
-    var loginView = document.getElementById("loginView");
-    var dashView  = document.getElementById("dashView");
-    var who       = document.getElementById("who");
-    var btnLogout = document.getElementById("btnLogout");
+    </div>
 
-    var email = document.getElementById("email");
-    var pass  = document.getElementById("pass");
-    var btnLogin = document.getElementById("btnLogin");
-    var btnReset = document.getElementById("btnReset");
+    <!-- ADS -->
+    <div class="grid tabPane" data-pane="ads" style="display:none">
+      <div class="card">
+        <h3>💧 Gotas / mensajes (globales) <span class="badge">secuencia</span></h3>
+        <div class="body">
+          <div class="split">
+            <label class="toggle"><input id="adsEnabled" type="checkbox"> Activar gotas</label>
+            <div>
+              <div class="muted" style="margin-bottom:6px">Intervalo (segundos)</div>
+              <input id="adsIntervalSec" class="field" type="number" min="5" step="1" placeholder="20">
+            </div>
+          </div>
 
-    var activeDjLabel = document.getElementById("activeDjLabel");
-    var cfgBadge = document.getElementById("cfgBadge");
-    var btnReloadCfg = document.getElementById("btnReloadCfg");
-    var btnSaveCfg = document.getElementById("btnSaveCfg");
+          <div class="hr"></div>
 
-    var togChat = document.getElementById("togChat");
-    var togLikes = document.getElementById("togLikes");
-    var togReq = document.getElementById("togReq");
-    var togPresence = document.getElementById("togPresence");
+          <div class="row">
+            <input id="newAdMsg" class="field" placeholder="Nuevo mensaje…" />
+            <button id="btnAddAdMsg" class="btn secondary">Agregar</button>
+          </div>
 
-    var djSearch = document.getElementById("djSearch");
-    var btnReloadDjs = document.getElementById("btnReloadDjs");
-    var djList = document.getElementById("djList");
+          <div id="adsList" class="list" style="margin-top:10px"></div>
 
-    var onlineBadge = document.getElementById("onlineBadge");
-    var btnReloadPresence = document.getElementById("btnReloadPresence");
-    var presenceList = document.getElementById("presenceList");
+          <div class="row" style="margin-top:10px">
+            <button id="btnSaveAds" class="btn">Guardar gotas</button>
+            <button id="btnForceReloadAds" class="btn secondary">Forzar refresco</button>
+            <span id="adsMsg" class="muted"></span>
+          </div>
+        </div>
+      </div>
 
-    var btnReloadChat = document.getElementById("btnReloadChat");
-    var btnClearChat = document.getElementById("btnClearChat");
-    var chatList = document.getElementById("chatList");
+      <div class="card">
+        <h3>🧠 Nota <span class="badge">importante</span></h3>
+        <div class="body muted">
+          Las gotas en la app deben leer <b>config/global</b>:<br>
+          <span class="kbd">adsEnabled</span>, <span class="kbd">adsIntervalSec</span>, <span class="kbd">adsMessages</span><br><br>
+          En este panel, la lista sale <b>en orden</b> (secuencia fija).
+        </div>
+      </div>
+    </div>
 
-    var btnReloadFans = document.getElementById("btnReloadFans");
-    var btnResetFans = document.getElementById("btnResetFans");
-    var fansList = document.getElementById("fansList");
+    <!-- PROGRAMS -->
+    <div class="grid tabPane" data-pane="programs" style="display:none">
+      <div class="card">
+        <h3>🗓️ Programas <span class="badge">por DJ</span></h3>
+        <div class="body">
+          <div class="row" style="margin-bottom:10px">
+            <button id="btnReloadPrograms" class="btn secondary small">Recargar</button>
+            <span class="muted">Crea programas para vender horas. El sistema “ON AIR” los activa por horario.</span>
+          </div>
 
-    var debugBox = document.getElementById("debug");
-    var toast = document.getElementById("toast");
+          <!-- Crear/editar -->
+          <div class="card" style="background:rgba(0,0,0,.22);border-color:rgba(245,200,91,.12)">
+            <h3>➕ Crear / Editar programa <span class="badge" id="progMode">nuevo</span></h3>
+            <div class="body">
+              <div class="split">
+                <input id="progId" class="field" placeholder="ID (ej: dj_maria_20_21)" />
+                <input id="progName" class="field" placeholder="Nombre (ej: DJ Maria Live)" />
+              </div>
+              <div class="split" style="margin-top:10px">
+                <input id="progDjId" class="field" placeholder="djId (ej: dj_maria) o autodj" />
+                <label class="toggle"><input id="progEnabled" type="checkbox"> Enabled</label>
+              </div>
+              <div class="split" style="margin-top:10px">
+                <input id="progStart" class="field" placeholder="Inicio (HH:MM) ej 20:00" />
+                <input id="progEnd" class="field" placeholder="Fin (HH:MM) ej 21:00" />
+              </div>
+              <div class="muted" style="margin-top:10px">Días de la semana (0=Dom … 6=Sab). Ej: 1,2,3,4,5</div>
+              <input id="progDays" class="field" placeholder="daysOfWeek ej: 0,1,2,3,4,5,6" style="margin-top:6px" />
 
-    function logDebug(msg){
-      debugBox.textContent = (new Date()).toLocaleString() + " • " + msg;
-      console.log(msg);
-    }
-    function showToast(msg){
-      toast.textContent = msg;
-      toast.style.display = "block";
-      setTimeout(()=>toast.style.display="none", 2600);
-    }
+              <div class="row" style="margin-top:10px">
+                <button id="btnSaveProgram" class="btn">Guardar</button>
+                <button id="btnClearProgramForm" class="btn secondary">Limpiar</button>
+                <span id="progMsg" class="muted"></span>
+              </div>
+            </div>
+          </div>
 
-    /***********************
-     * AUTH
-     ***********************/
-    btnLogin.addEventListener("click", async function(){
-      try{
-        await auth.signInWithEmailAndPassword(email.value.trim(), pass.value);
-      }catch(e){
-        showToast("Error login: " + (e.message||e));
-        logDebug("LOGIN ERROR: " + (e.message||e));
-      }
-    });
+          <div class="hr"></div>
 
-    btnReset.addEventListener("click", async function(){
-      try{
-        var em = email.value.trim();
-        if(!em){ showToast("Escribe tu correo primero"); return; }
-        await auth.sendPasswordResetEmail(em);
-        showToast("Te envié un correo para resetear contraseña");
-      }catch(e){
-        showToast("Error reset: " + (e.message||e));
-      }
-    });
+          <div id="programsList" class="list"></div>
+        </div>
+      </div>
 
-    btnLogout.addEventListener("click", function(){
-      auth.signOut();
-    });
+      <div class="card">
+        <h3>🤖 AutoDJ base <span class="badge">recomendado</span></h3>
+        <div class="body muted">
+          Siempre debe existir el programa <b>autodj</b> habilitado (00:00–23:59, todos los días).  
+          Así, cuando no haya un DJ, el sistema vuelve a AutoDJ automáticamente.
+        </div>
+      </div>
+    </div>
 
-    auth.onAuthStateChanged(async function(user){
-      if(!user){
-        who.textContent="No autenticado";
-        btnLogout.style.display="none";
-        dashView.style.display="none";
-        loginView.style.display="block";
-        return;
-      }
+    <!-- DJs -->
+    <div class="grid tabPane" data-pane="djs" style="display:none">
+      <div class="card">
+        <h3>🎧 DJs <span class="badge">roles y permisos</span></h3>
+        <div class="body">
+          <div class="row">
+            <button id="btnReloadDjs" class="btn secondary small">Recargar</button>
+            <span class="muted">Admin crea DJs en Firebase Auth y aquí guarda perfil/permisos.</span>
+          </div>
 
-      // ✅ Gate por correo admin
-      var em = (user.email||"").toLowerCase();
-      if(ADMIN_EMAILS.indexOf(em) === -1){
-        showToast("No autorizado: " + em);
-        await auth.signOut();
-        return;
-      }
+          <div class="card" style="background:rgba(0,0,0,.22);border-color:rgba(245,200,91,.12);margin-top:10px">
+            <h3>➕ Crear / Editar DJ <span class="badge" id="djMode">nuevo</span></h3>
+            <div class="body">
+              <div class="split">
+                <input id="djId" class="field" placeholder="djId (ej: dj_maria)" />
+                <input id="djName" class="field" placeholder="Nombre artístico (DJ Maria)" />
+              </div>
+              <div class="split" style="margin-top:10px">
+                <input id="djEmail" class="field" placeholder="Email (de Firebase Auth)" />
+                <label class="toggle"><input id="djActive" type="checkbox"> Activo</label>
+              </div>
 
-      who.textContent = "✅ " + user.email;
-      btnLogout.style.display="inline-flex";
-      loginView.style.display="none";
-      dashView.style.display="block";
+              <div class="hr"></div>
+              <div class="muted">Permisos (DJs NO pueden limpiar chat):</div>
 
-      // Cargar todo
-      await loadConfig();
-      await loadDjs();
-      await loadPresence();
-      await loadChat();
-      await loadFans();
-      logDebug("Dashboard cargado.");
-    });
+              <div class="split" style="margin-top:10px">
+                <label class="toggle"><input id="pChatModerate" type="checkbox"> Moderar chat</label>
+                <label class="toggle"><input id="pTopfansReset" type="checkbox"> Reset TopFans (su programa)</label>
+              </div>
+              <div class="split" style="margin-top:10px">
+                <label class="toggle"><input id="pBanUsers" type="checkbox"> Ban / Unban</label>
+                <label class="toggle"><input id="pAnnouncements" type="checkbox"> Anuncios (Sistema)</label>
+              </div>
 
-    /***********************
-     * CONFIG GLOBAL
-     ***********************/
-    var lastCfg = null;
+              <div class="row" style="margin-top:10px">
+                <button id="btnSaveDj" class="btn">Guardar DJ</button>
+                <button id="btnClearDjForm" class="btn secondary">Limpiar</button>
+                <span id="djMsg" class="muted"></span>
+              </div>
+            </div>
+          </div>
 
-    async function loadConfig(){
-      try{
-        cfgBadge.textContent = "cargando…";
-        var snap = await cfgRef.get();
-        var data = snap.exists ? snap.data() : {};
-        lastCfg = data || {};
+          <div class="hr"></div>
+          <div id="djsList" class="list"></div>
+        </div>
+      </div>
 
-        activeDjLabel.textContent = data.activeDj || data.currentProgram || "—";
+      <div class="card">
+        <h3>🔐 Importante <span class="badge">seguridad</span></h3>
+        <div class="body muted">
+          Este panel usa Firebase Auth.  
+          - El DJ debe existir como usuario en <b>Authentication</b> (Email/Password).  
+          - Aquí guardamos su perfil y permisos en <b>djs/{djId}</b>.
+        </div>
+      </div>
+    </div>
 
-        togChat.checked = (data.chatEnabled !== false);
-        togLikes.checked = (data.likesEnabled !== false);
-        togReq.checked = (data.allowRequests !== false);
-        togPresence.checked = (data.presenceEnabled !== false);
+    <!-- MODERATION -->
+    <div class="grid tabPane" data-pane="moderation" style="display:none">
+      <div class="card">
+        <h3>🛡️ Moderación por programa <span class="badge">chat/topfans</span></h3>
+        <div class="body">
+          <div class="row">
+            <div class="pill">Programa actual: <b id="modCurrentProgram">—</b></div>
+            <select id="programSelect" class="field" style="max-width:320px">
+              <option value="">(cargando…)</option>
+            </select>
+            <button id="btnLoadProgramData" class="btn secondary small">Cargar</button>
+          </div>
 
-        cfgBadge.textContent = "ok";
-        cfgBadge.className = "badge on";
-        logDebug("Config/global cargado.");
-      }catch(e){
-        cfgBadge.textContent = "error";
-        cfgBadge.className = "badge off";
-        showToast("Error config: " + (e.message||e));
-        logDebug("CONFIG ERROR: " + (e.message||e));
-      }
-    }
+          <div class="hr"></div>
 
-    btnReloadCfg.addEventListener("click", loadConfig);
+          <div class="twoCol">
+            <div class="card" style="background:rgba(0,0,0,.22);border-color:rgba(245,200,91,.12)">
+              <h3>💬 Chat del programa <span class="badge">borrar msg</span></h3>
+              <div class="body">
+                <div class="row" style="margin-bottom:8px">
+                  <button id="btnRefreshChat" class="btn secondary small">Refrescar</button>
+                  <button id="btnClearChatSelected" class="btn danger small">Clear Chat</button>
+                </div>
+                <div id="chatModList" class="list" style="max-height:360px"></div>
+              </div>
+            </div>
 
-    btnSaveCfg.addEventListener("click", async function(){
-      try{
-        await cfgRef.set({
-          chatEnabled: !!togChat.checked,
-          likesEnabled: !!togLikes.checked,
-          allowRequests: !!togReq.checked,
-          presenceEnabled: !!togPresence.checked
-        }, {merge:true});
-        showToast("Config guardada ✅");
-        await loadConfig();
-      }catch(e){
-        showToast("Error guardando: " + (e.message||e));
-      }
-    });
+            <div class="card" style="background:rgba(0,0,0,.22);border-color:rgba(245,200,91,.12)">
+              <h3>❤️ TopFans del programa <span class="badge">reset</span></h3>
+              <div class="body">
+                <div class="row" style="margin-bottom:8px">
+                  <button id="btnRefreshTopfans" class="btn secondary small">Refrescar</button>
+                  <button id="btnResetTopfansSelected" class="btn danger small">Reset TopFans</button>
+                </div>
+                <div id="topfansModList" class="list" style="max-height:360px"></div>
+              </div>
+            </div>
+          </div>
 
-    /***********************
-     * DJs
-     ***********************/
-    var allDjs = [];
+          <div class="hr"></div>
+          <div class="muted">
+            Nota: los datos por programa viven en:
+            <span class="kbd">programs/{programId}/chat</span> y
+            <span class="kbd">programs/{programId}/topfans</span>.
+          </div>
+        </div>
+      </div>
 
-    function renderDjs(){
-      var q = (djSearch.value||"").trim().toLowerCase();
-      djList.innerHTML = "";
-      var list = allDjs.filter(d=>{
-        if(!q) return true;
-        return (d.name||"").toLowerCase().includes(q) || (d.id||"").toLowerCase().includes(q);
+      <div class="card">
+        <h3>🟢 Conectados (programa) <span class="badge">presence</span></h3>
+        <div class="body">
+          <div class="row">
+            <button id="btnRefreshPresenceSelected" class="btn secondary small">Refrescar</button>
+            <div class="pill">Conectados: <b id="presenceSelectedCount">0</b></div>
+          </div>
+          <div id="presenceSelectedList" class="list" style="margin-top:10px;max-height:340px"></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- dashView -->
+</div><!-- wrap -->
+
+<div id="toast" class="toast"></div>
+
+<!-- Firebase v8 -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+<script>
+  /***********************
+   * FIREBASE CONFIG (tuya)
+   ***********************/
+  var firebaseConfig = {
+    apiKey: "AIzaSyC8jq2iODj6DwfTSktgZ7ia84oeMxxPjNE",
+    authDomain: "coravox-602a0.firebaseapp.com",
+    projectId: "coravox-602a0",
+    storageBucket: "coravox-602a0.firebasestorage.app",
+    messagingSenderId: "629472102664",
+    appId: "1:629472102664:web:56e539689983458ada84bd"
+  };
+  firebase.initializeApp(firebaseConfig);
+  var auth = firebase.auth();
+  var db = firebase.firestore();
+
+  /***********************
+   * ADMIN
+   ***********************/
+  var ADMIN_EMAIL = "vis-party@hotmail.com";
+
+  /***********************
+   * REFS
+   ***********************/
+  var cfgRef = db.collection("config").doc("global");
+  var djsRef = db.collection("djs");
+  var programsRef = db.collection("programs");
+  var settingsCurrentRef = db.collection("settings").doc("current");
+
+  /***********************
+   * UI HELPERS
+   ***********************/
+  function $(id){ return document.getElementById(id); }
+  var toast = $("toast");
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.style.display="block";
+    setTimeout(()=>toast.style.display="none", 2600);
+  }
+
+  // Tabs
+  var tabs = Array.from(document.querySelectorAll(".tab"));
+  var panes = Array.from(document.querySelectorAll(".tabPane"));
+  tabs.forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      tabs.forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      var t = btn.getAttribute("data-tab");
+      panes.forEach(p=>{
+        p.style.display = (p.getAttribute("data-pane")===t) ? "" : "none";
       });
+    });
+  });
 
-      if(list.length===0){
-        djList.innerHTML = "<div class='smalltxt muted'>No hay DJs.</div>";
+  /***********************
+   * STATE
+   ***********************/
+  var role = "guest"; // admin | dj
+  var myDjId = null;
+  var myDjDoc = null;
+
+  // programs cache
+  var programs = [];
+  var currentProgramId = "autodj";
+  var currentProgramName = "AutoDJ Coravox";
+
+  /***********************
+   * LOGIN
+   ***********************/
+  $("btnLogin").addEventListener("click", async ()=>{
+    $("loginMsg").textContent="";
+    try{
+      await auth.signInWithEmailAndPassword($("email").value.trim(), $("pass").value);
+    }catch(e){
+      $("loginMsg").textContent = "Error: " + (e.message||e);
+    }
+  });
+
+  $("btnReset").addEventListener("click", async ()=>{
+    try{
+      var em = $("email").value.trim();
+      if(!em){ showToast("Escribe el correo"); return; }
+      await auth.sendPasswordResetEmail(em);
+      showToast("Email de reset enviado ✅");
+    }catch(e){
+      showToast("Error reset: " + (e.message||e));
+    }
+  });
+
+  $("btnLogout").addEventListener("click", ()=>auth.signOut());
+
+  auth.onAuthStateChanged(async (user)=>{
+    if(!user){
+      role="guest"; myDjId=null; myDjDoc=null;
+      $("who").textContent = "No autenticado";
+      $("btnLogout").style.display="none";
+      $("dashView").style.display="none";
+      $("loginView").style.display="";
+      return;
+    }
+
+    var em = (user.email||"").toLowerCase();
+
+    // Admin?
+    if(em === ADMIN_EMAIL.toLowerCase()){
+      role="admin";
+      $("who").innerHTML = "✅ Admin: <b>"+user.email+"</b>";
+      $("btnLogout").style.display="inline-flex";
+      $("loginView").style.display="none";
+      $("dashView").style.display="";
+      await bootAdmin();
+      return;
+    }
+
+    // DJ: buscar en djs por email
+    var snap = await djsRef.where("email","==", user.email).limit(1).get();
+    if(snap.empty){
+      showToast("No autorizado como DJ: "+user.email);
+      await auth.signOut();
+      return;
+    }
+    var djDoc = snap.docs[0];
+    var d = djDoc.data()||{};
+    if(d.active !== true){
+      showToast("DJ desactivado. Contacta admin.");
+      await auth.signOut();
+      return;
+    }
+
+    role="dj";
+    myDjId = djDoc.id;
+    myDjDoc = d;
+    $("who").innerHTML = "🎧 DJ: <b>"+(d.displayName||djDoc.id)+"</b>";
+    $("btnLogout").style.display="inline-flex";
+    $("loginView").style.display="none";
+    $("dashView").style.display="";
+    await bootDj();
+  });
+
+  /***********************
+   * BOOT
+   ***********************/
+  async function bootAdmin(){
+    // cargar todo
+    await loadConfigGlobal();
+    await loadPrograms();
+    await loadDjs();
+    await refreshOnAirFromSettings();
+    await rebuildProgramSelect();
+    // scheduler (cada 30s recalcula; escribe settings/current)
+    startAutoScheduler();
+    showToast("Panel admin listo ✅");
+  }
+
+  async function bootDj(){
+    // DJ: puede ver programas propios, moderar su programa si está on air
+    await loadConfigGlobal();
+    await loadPrograms();
+    await refreshOnAirFromSettings();
+    await rebuildProgramSelect(true);
+    startAutoScheduler(); // el reloj lo puede correr cualquiera, pero solo admin puede escribir current
+    showToast("Panel DJ listo ✅");
+  }
+
+  /***********************
+   * CONFIG GLOBAL
+   ***********************/
+  async function loadConfigGlobal(){
+    try{
+      var snap = await cfgRef.get();
+      var data = snap.exists ? snap.data() : {};
+      // defaults
+      if(typeof data.chatEnabled === "undefined") data.chatEnabled = true;
+      if(typeof data.likesEnabled === "undefined") data.likesEnabled = true;
+      if(typeof data.presenceEnabled === "undefined") data.presenceEnabled = true;
+      if(typeof data.adsEnabled === "undefined") data.adsEnabled = true;
+      if(typeof data.adsIntervalSec === "undefined") data.adsIntervalSec = 20;
+      if(!Array.isArray(data.adsMessages)) data.adsMessages = [];
+
+      $("cfgBadge").textContent = "ok";
+      $("cfgBadge").className = "badge on";
+
+      $("togChat").checked = data.chatEnabled !== false;
+      $("togLikes").checked = data.likesEnabled !== false;
+      $("togPresence").checked = data.presenceEnabled !== false;
+      $("togAds").checked = data.adsEnabled === true;
+
+      // Ads tab
+      $("adsEnabled").checked = data.adsEnabled === true;
+      $("adsIntervalSec").value = data.adsIntervalSec || 20;
+      adsMessages = data.adsMessages.slice();
+      renderAdsList();
+
+    }catch(e){
+      $("cfgBadge").textContent = "error";
+      $("cfgBadge").className = "badge off";
+      showToast("Error config/global: "+(e.message||e));
+    }
+  }
+
+  $("btnSaveCfg").addEventListener("click", async ()=>{
+    try{
+      await cfgRef.set({
+        chatEnabled: !!$("togChat").checked,
+        likesEnabled: !!$("togLikes").checked,
+        presenceEnabled: !!$("togPresence").checked,
+        adsEnabled: !!$("togAds").checked
+      }, {merge:true});
+      showToast("Config guardada ✅");
+      await loadConfigGlobal();
+    }catch(e){ showToast("Error guardando: "+(e.message||e)); }
+  });
+
+  $("btnReloadCfg").addEventListener("click", loadConfigGlobal);
+
+  /***********************
+   * ADS (gotas)
+   ***********************/
+  var adsMessages = [];
+
+  function renderAdsList(){
+    var box = $("adsList");
+    box.innerHTML = "";
+    if(!adsMessages.length){
+      box.innerHTML = "<div class='muted'>No hay mensajes. Agrega uno.</div>";
+      return;
+    }
+
+    adsMessages.forEach((msg, i)=>{
+      var row = document.createElement("div");
+      row.className = "item";
+
+      var left = document.createElement("div");
+      left.style.flex="1";
+      left.innerHTML =
+        "<div class='muted'>#"+(i+1)+"</div>" +
+        "<textarea class='field' data-i='"+i+"' style='margin-top:6px'>"+escapeHtml(msg)+"</textarea>";
+
+      var btns = document.createElement("div");
+      btns.className = "row";
+
+      var up = document.createElement("button");
+      up.className="miniBtn";
+      up.textContent="↑";
+      up.onclick=()=>{
+        if(i===0) return;
+        var t=adsMessages[i-1]; adsMessages[i-1]=adsMessages[i]; adsMessages[i]=t;
+        renderAdsList();
+      };
+
+      var down = document.createElement("button");
+      down.className="miniBtn";
+      down.textContent="↓";
+      down.onclick=()=>{
+        if(i===adsMessages.length-1) return;
+        var t=adsMessages[i+1]; adsMessages[i+1]=adsMessages[i]; adsMessages[i]=t;
+        renderAdsList();
+      };
+
+      var del = document.createElement("button");
+      del.className="miniBtn danger";
+      del.textContent="Eliminar";
+      del.onclick=()=>{
+        adsMessages.splice(i,1);
+        renderAdsList();
+      };
+
+      btns.appendChild(up); btns.appendChild(down); btns.appendChild(del);
+
+      row.appendChild(left);
+      row.appendChild(btns);
+      box.appendChild(row);
+    });
+
+    // bind textareas
+    Array.from(box.querySelectorAll("textarea")).forEach(ta=>{
+      ta.addEventListener("input", ()=>{
+        var idx = Number(ta.getAttribute("data-i"));
+        adsMessages[idx] = ta.value;
+      });
+    });
+  }
+
+  $("btnAddAdMsg").addEventListener("click", ()=>{
+    var t = ($("newAdMsg").value||"").trim();
+    if(!t) return;
+    adsMessages.push(t);
+    $("newAdMsg").value="";
+    renderAdsList();
+  });
+
+  $("btnSaveAds").addEventListener("click", async ()=>{
+    try{
+      // limpiar vacíos
+      adsMessages = adsMessages.map(s=>(s||"").trim()).filter(s=>s.length>0);
+
+      await cfgRef.set({
+        adsEnabled: !!$("adsEnabled").checked,
+        adsIntervalSec: Number($("adsIntervalSec").value || 20),
+        adsMessages: adsMessages
+      }, {merge:true});
+
+      $("adsMsg").textContent = "Guardado ✅";
+      setTimeout(()=>$("adsMsg").textContent="", 1500);
+      showToast("Gotas guardadas ✅");
+      await loadConfigGlobal();
+    }catch(e){
+      $("adsMsg").textContent = "Error: "+(e.message||e);
+    }
+  });
+
+  $("btnForceReloadAds").addEventListener("click", async ()=>{
+    try{
+      await cfgRef.set({ adsForceReloadAt: firebase.firestore.FieldValue.serverTimestamp() }, {merge:true});
+      $("adsMsg").textContent = "Forzado ✅";
+      setTimeout(()=>$("adsMsg").textContent="", 1500);
+    }catch(e){
+      $("adsMsg").textContent = "Error: "+(e.message||e);
+    }
+  });
+
+  /***********************
+   * DJs
+   ***********************/
+  var djs = [];
+
+  async function loadDjs(){
+    if(role!=="admin"){
+      // DJ no ve lista completa
+      $("djsList").innerHTML = "<div class='muted'>Solo admin.</div>";
+      return;
+    }
+    var snap = await djsRef.get();
+    djs = [];
+    snap.forEach(doc=>{
+      var d = doc.data()||{};
+      djs.push({
+        id: doc.id,
+        displayName: d.displayName||doc.id,
+        email: d.email||"",
+        active: d.active===true,
+        permissions: d.permissions||{}
+      });
+    });
+    djs.sort((a,b)=>(a.displayName||"").localeCompare(b.displayName||""));
+    renderDjs();
+  }
+
+  function renderDjs(){
+    var box = $("djsList");
+    box.innerHTML = "";
+    if(!djs.length){
+      box.innerHTML = "<div class='muted'>No hay DJs.</div>";
+      return;
+    }
+    djs.forEach(d=>{
+      var row = document.createElement("div");
+      row.className="item";
+      var left = document.createElement("div");
+      left.style.flex="1";
+      left.innerHTML =
+        "<b>"+escapeHtml(d.displayName)+"</b><div class='muted'>"+escapeHtml(d.id)+" • "+escapeHtml(d.email)+"</div>";
+
+      var right = document.createElement("div");
+      right.className="row";
+
+      var badge = document.createElement("span");
+      badge.className = "badge " + (d.active ? "on":"off");
+      badge.textContent = d.active ? "ACTIVO":"INACTIVO";
+
+      var edit = document.createElement("button");
+      edit.className="miniBtn";
+      edit.textContent="Editar";
+      edit.onclick=()=>{
+        $("djMode").textContent="editar";
+        $("djId").value = d.id;
+        $("djName").value = d.displayName;
+        $("djEmail").value = d.email;
+        $("djActive").checked = d.active;
+
+        $("pChatModerate").checked = !!d.permissions.chatModerate;
+        $("pTopfansReset").checked = !!d.permissions.topfansReset;
+        $("pBanUsers").checked = !!d.permissions.banUsers;
+        $("pAnnouncements").checked = !!d.permissions.announcements;
+      };
+
+      right.appendChild(badge);
+      right.appendChild(edit);
+
+      row.appendChild(left);
+      row.appendChild(right);
+      box.appendChild(row);
+    });
+  }
+
+  $("btnReloadDjs").addEventListener("click", loadDjs);
+
+  $("btnSaveDj").addEventListener("click", async ()=>{
+    if(role!=="admin"){ $("djMsg").textContent="Solo admin"; return; }
+    var id = ($("djId").value||"").trim();
+    var nm = ($("djName").value||"").trim();
+    var em = ($("djEmail").value||"").trim();
+    if(!id || !nm || !em){ $("djMsg").textContent="Completa djId, nombre, email"; return; }
+
+    var payload = {
+      displayName: nm,
+      email: em,
+      active: !!$("djActive").checked,
+      permissions: {
+        chatModerate: !!$("pChatModerate").checked,
+        topfansReset: !!$("pTopfansReset").checked,
+        banUsers: !!$("pBanUsers").checked,
+        announcements: !!$("pAnnouncements").checked,
+        chatClear: false // ✅ siempre false por tu regla
+      }
+    };
+
+    await djsRef.doc(id).set(payload, {merge:true});
+    $("djMsg").textContent="Guardado ✅";
+    setTimeout(()=>$("djMsg").textContent="",1500);
+    await loadDjs();
+  });
+
+  $("btnClearDjForm").addEventListener("click", ()=>{
+    $("djMode").textContent="nuevo";
+    $("djId").value=""; $("djName").value=""; $("djEmail").value="";
+    $("djActive").checked=true;
+    $("pChatModerate").checked=true;
+    $("pTopfansReset").checked=true;
+    $("pBanUsers").checked=true;
+    $("pAnnouncements").checked=false;
+  });
+
+  /***********************
+   * PROGRAMS
+   ***********************/
+  async function loadPrograms(){
+    var snap = await programsRef.get();
+    programs = [];
+    snap.forEach(doc=>{
+      var d = doc.data()||{};
+      programs.push({
+        id: doc.id,
+        name: d.name || doc.id,
+        djId: d.djId || "autodj",
+        enabled: d.enabled === true,
+        timezone: d.timezone || "America/New_York",
+        daysOfWeek: Array.isArray(d.daysOfWeek)? d.daysOfWeek : [0,1,2,3,4,5,6],
+        startTime: d.startTime || "00:00",
+        endTime: d.endTime || "23:59"
+      });
+    });
+    programs.sort((a,b)=>(a.startTime||"").localeCompare(b.startTime||""));
+    renderPrograms();
+    await rebuildProgramSelect(role==="dj");
+  }
+
+  function renderPrograms(){
+    var box = $("programsList");
+    box.innerHTML = "";
+    if(!programs.length){
+      box.innerHTML = "<div class='muted'>No hay programas.</div>";
+      return;
+    }
+
+    programs.forEach(p=>{
+      var row = document.createElement("div");
+      row.className="item";
+      var left = document.createElement("div");
+      left.style.flex="1";
+      left.innerHTML =
+        "<b>"+escapeHtml(p.name)+"</b> <span class='badge "+(p.enabled?"on":"off")+"'>"+(p.enabled?"ENABLED":"OFF")+"</span>" +
+        "<div class='muted'>id: "+escapeHtml(p.id)+" • djId: "+escapeHtml(p.djId)+"</div>" +
+        "<div class='muted'>Días: "+p.daysOfWeek.join(",")+" • "+escapeHtml(p.startTime)+"–"+escapeHtml(p.endTime)+"</div>";
+
+      var right = document.createElement("div");
+      right.className="row";
+
+      var edit = document.createElement("button");
+      edit.className="miniBtn";
+      edit.textContent="Editar";
+      edit.onclick=()=>{
+        $("progMode").textContent="editar";
+        $("progId").value = p.id;
+        $("progName").value = p.name;
+        $("progDjId").value = p.djId;
+        $("progEnabled").checked = p.enabled;
+        $("progStart").value = p.startTime;
+        $("progEnd").value = p.endTime;
+        $("progDays").value = p.daysOfWeek.join(",");
+      };
+
+      var force = document.createElement("button");
+      force.className="miniBtn";
+      force.textContent="Forzar ahora";
+      force.onclick=async ()=>{
+        if(role!=="admin"){ showToast("Solo admin"); return; }
+        await setCurrentProgram(p.id, p.name, "program");
+        showToast("ON AIR: "+p.name);
+      };
+
+      var del = document.createElement("button");
+      del.className="miniBtn danger";
+      del.textContent="Eliminar";
+      del.onclick=async ()=>{
+        if(role!=="admin"){ showToast("Solo admin"); return; }
+        if(!confirm("¿Eliminar programa "+p.id+"?")) return;
+        await programsRef.doc(p.id).delete();
+        await loadPrograms();
+      };
+
+      right.appendChild(edit);
+      right.appendChild(force);
+      if(role==="admin") right.appendChild(del);
+
+      row.appendChild(left);
+      row.appendChild(right);
+      box.appendChild(row);
+    });
+  }
+
+  $("btnReloadPrograms").addEventListener("click", loadPrograms);
+
+  $("btnSaveProgram").addEventListener("click", async ()=>{
+    if(role!=="admin"){ $("progMsg").textContent="Solo admin"; return; }
+
+    var id = ($("progId").value||"").trim();
+    var name = ($("progName").value||"").trim();
+    var djId = ($("progDjId").value||"").trim();
+    var start = ($("progStart").value||"").trim();
+    var end = ($("progEnd").value||"").trim();
+    var daysRaw = ($("progDays").value||"").trim();
+
+    if(!id || !name || !djId || !start || !end || !daysRaw){
+      $("progMsg").textContent="Completa todos los campos";
+      return;
+    }
+
+    var days = daysRaw.split(",").map(s=>Number(s.trim())).filter(n=>!isNaN(n) && n>=0 && n<=6);
+    if(!days.length){ $("progMsg").textContent="daysOfWeek inválido"; return; }
+
+    await programsRef.doc(id).set({
+      name, djId,
+      enabled: !!$("progEnabled").checked,
+      timezone: "America/New_York",
+      startTime: start,
+      endTime: end,
+      daysOfWeek: days,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, {merge:true});
+
+    $("progMsg").textContent="Guardado ✅";
+    setTimeout(()=>$("progMsg").textContent="",1500);
+    await loadPrograms();
+  });
+
+  $("btnClearProgramForm").addEventListener("click", ()=>{
+    $("progMode").textContent="nuevo";
+    $("progId").value=""; $("progName").value=""; $("progDjId").value="";
+    $("progEnabled").checked=true;
+    $("progStart").value=""; $("progEnd").value="";
+    $("progDays").value="0,1,2,3,4,5,6";
+  });
+
+  /***********************
+   * SETTINGS/current
+   ***********************/
+  async function setCurrentProgram(id, name, mode){
+    await settingsCurrentRef.set({
+      currentProgramId: id,
+      currentProgramName: name,
+      mode: mode || (id==="autodj" ? "autodj":"program"),
+      timezone: "America/New_York",
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, {merge:true});
+    await refreshOnAirFromSettings();
+  }
+
+  async function refreshOnAirFromSettings(){
+    var snap = await settingsCurrentRef.get();
+    var d = snap.exists ? snap.data() : null;
+    if(d && d.currentProgramId){
+      currentProgramId = d.currentProgramId;
+      currentProgramName = d.currentProgramName || d.currentProgramId;
+    } else {
+      currentProgramId = "autodj";
+      currentProgramName = "AutoDJ Coravox";
+    }
+    $("onAirName").textContent = currentProgramName;
+    $("onAirId").textContent = currentProgramId;
+    $("modCurrentProgram").textContent = currentProgramId;
+    $("onAirBadge").textContent = (currentProgramId==="autodj") ? "AutoDJ" : "Programa";
+    $("onAirBadge").className = "badge " + ((currentProgramId==="autodj") ? "on":"on");
+
+    // cargar data del programa actual
+    await loadPresenceForProgram(currentProgramId, $("presenceList"), $("onAirPresenceCount"));
+    await loadTopfansForProgram(currentProgramId, $("topfansList"));
+  }
+
+  $("btnForceAutodj").addEventListener("click", async ()=>{
+    if(role!=="admin"){ showToast("Solo admin"); return; }
+    await setCurrentProgram("autodj","AutoDJ Coravox","autodj");
+    showToast("Forzado AutoDJ ✅");
+  });
+
+  $("btnRecalc").addEventListener("click", async ()=>{
+    await autoPickAndSetCurrent();
+  });
+
+  /***********************
+   * AUTO SCHEDULER (mientras panel abierto)
+   ***********************/
+  var schedulerTimer = null;
+
+  function startAutoScheduler(){
+    if(schedulerTimer) clearInterval(schedulerTimer);
+    schedulerTimer = setInterval(async ()=>{
+      await autoPickAndSetCurrent();
+    }, 30000);
+    // primera
+    autoPickAndSetCurrent();
+  }
+
+  function timeNowNY(){
+    // "America/New_York" (sin libs): usamos Intl con parts
+    var fmt = new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/New_York",
+      hour12: false,
+      weekday: "short",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+    var parts = fmt.formatToParts(new Date());
+    var map = {};
+    parts.forEach(p=>{ if(p.type!=="literal") map[p.type]=p.value; });
+
+    // weekday short: Sun, Mon...
+    var wdMap = {Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6};
+    var dow = wdMap[map.weekday] ?? 0;
+
+    var hh = Number(map.hour||"0");
+    var mm = Number(map.minute||"0");
+    return { dow, hh, mm, minutes: hh*60+mm };
+  }
+
+  function parseHM(s){
+    var m = /^(\d{1,2}):(\d{2})$/.exec((s||"").trim());
+    if(!m) return null;
+    var hh = Number(m[1]), mm = Number(m[2]);
+    if(hh<0||hh>23||mm<0||mm>59) return null;
+    return hh*60+mm;
+  }
+
+  function isProgramActiveNow(p, now){
+    if(!p.enabled) return false;
+    if(!Array.isArray(p.daysOfWeek) || p.daysOfWeek.indexOf(now.dow)===-1) return false;
+
+    var s = parseHM(p.startTime);
+    var e = parseHM(p.endTime);
+    if(s===null || e===null) return false;
+
+    // caso normal (no cruza medianoche)
+    if(e> s){
+      return now.minutes >= s && now.minutes < e;
+    }
+    // cruza medianoche (ej 23:00-02:00)
+    return (now.minutes >= s) || (now.minutes < e);
+  }
+
+  async function autoPickAndSetCurrent(){
+    // Solo admin escribe settings/current para evitar guerras
+    if(role !== "admin"){
+      // DJ solo lee
+      await refreshOnAirFromSettings();
+      return;
+    }
+
+    var now = timeNowNY();
+    // elegir el primer programa activo (prioridad: el que tenga startTime más cercano; simple)
+    var active = programs.filter(p=>isProgramActiveNow(p, now));
+
+    // si no hay activos, autodj
+    if(active.length===0){
+      if(currentProgramId!=="autodj"){
+        await setCurrentProgram("autodj","AutoDJ Coravox","autodj");
+      } else {
+        await refreshOnAirFromSettings();
+      }
+      return;
+    }
+
+    // ordenar por startTime (en minutos)
+    active.sort((a,b)=>{
+      var sa=parseHM(a.startTime)||0;
+      var sb=parseHM(b.startTime)||0;
+      return sa-sb;
+    });
+
+    var chosen = active[0];
+    if(currentProgramId !== chosen.id){
+      await setCurrentProgram(chosen.id, chosen.name, "program");
+    } else {
+      await refreshOnAirFromSettings();
+    }
+  }
+
+  /***********************
+   * PROGRAM SELECT (moderation)
+   ***********************/
+  async function rebuildProgramSelect(onlyMine){
+    var sel = $("programSelect");
+    sel.innerHTML = "";
+
+    var list = programs.slice();
+    if(onlyMine && role==="dj"){
+      list = list.filter(p=>p.djId === myDjId);
+    }
+
+    // always include autodj
+    if(!list.some(p=>p.id==="autodj")){
+      list.unshift({id:"autodj", name:"AutoDJ Coravox"});
+    }
+
+    list.forEach(p=>{
+      var opt = document.createElement("option");
+      opt.value = p.id;
+      opt.textContent = p.id + " • " + (p.name||p.id);
+      sel.appendChild(opt);
+    });
+
+    // default select current
+    sel.value = currentProgramId || "autodj";
+  }
+
+  /***********************
+   * PRESENCE per program
+   ***********************/
+  function presenceCol(programId){
+    return programsRef.doc(programId).collection("presence");
+  }
+  function topfansCol(programId){
+    return programsRef.doc(programId).collection("topfans");
+  }
+  function chatCol(programId){
+    return programsRef.doc(programId).collection("chat");
+  }
+
+  async function loadPresenceForProgram(programId, listEl, countEl){
+    try{
+      if(!listEl) return;
+      listEl.innerHTML = "";
+      var nowMs = Date.now();
+      var snap = await presenceCol(programId).orderBy("lastSeen","desc").limit(60).get();
+      var active = [];
+      snap.forEach(doc=>{
+        var d = doc.data()||{};
+        var ms = (d.lastSeen && d.lastSeen.toMillis) ? d.lastSeen.toMillis() : 0;
+        if(ms && (nowMs - ms) <= 90000){
+          active.push({name: d.name||"Oyente", admin: !!d.admin, ms});
+        }
+      });
+      if(countEl) countEl.textContent = String(active.length);
+
+      if(active.length===0){
+        listEl.innerHTML = "<div class='muted'>Nadie conectado (últimos 90s).</div>";
         return;
       }
 
-      list.forEach(function(d){
+      active.forEach(u=>{
         var row = document.createElement("div");
-        row.className = "item";
+        row.className="item";
+        var ago = Math.max(0, Math.floor((nowMs-u.ms)/1000));
+        row.innerHTML =
+          "<div style='flex:1'><b>"+escapeHtml(u.name)+"</b> "+(u.admin?"<span class='badge'>ADMIN</span>":"")+
+          "<div class='muted'>hace "+ago+"s</div></div>"+
+          "<span class='badge on'>ONLINE</span>";
+        listEl.appendChild(row);
+      });
+    }catch(e){
+      if(countEl) countEl.textContent="0";
+      if(listEl) listEl.innerHTML="<div class='muted'>Error presence: "+escapeHtml(e.message||e)+"</div>";
+    }
+  }
 
-        var left = document.createElement("div");
-        left.innerHTML = "<b>"+escapeHtml(d.name||d.id)+"</b><div class='smalltxt muted'>id: "+escapeHtml(d.id)+" • "+escapeHtml(d.email||"")+"</div>";
+  async function loadTopfansForProgram(programId, listEl){
+    try{
+      listEl.innerHTML="";
+      var snap = await topfansCol(programId).orderBy("likes","desc").limit(15).get();
+      if(snap.empty){
+        listEl.innerHTML="<div class='muted'>Sin datos.</div>";
+        return;
+      }
+      var idx=0;
+      snap.forEach(doc=>{
+        idx++;
+        var d=doc.data()||{};
+        var row=document.createElement("div");
+        row.className="item";
+        row.innerHTML =
+          "<div style='flex:1'><b>"+idx+". "+escapeHtml(d.usuario||doc.id)+"</b></div>"+
+          "<span class='badge on'>❤ "+(d.likes||0)+"</span>";
+        listEl.appendChild(row);
+      });
+    }catch(e){
+      listEl.innerHTML="<div class='muted'>Error topfans: "+escapeHtml(e.message||e)+"</div>";
+    }
+  }
 
-        var right = document.createElement("div");
-        right.className = "row";
+  async function deleteBatch(colRef, limit){
+    var snap = await colRef.limit(limit||450).get();
+    if(snap.empty) return 0;
+    var batch = db.batch();
+    snap.docs.forEach(doc=>batch.delete(doc.ref));
+    await batch.commit();
+    return snap.size;
+  }
 
-        var badge = document.createElement("span");
-        badge.className = "badge " + (d.active ? "on":"off");
-        badge.textContent = d.active ? "ACTIVO":"INACTIVO";
+  // Dashboard buttons (admin)
+  $("btnResetTopfansProgram").addEventListener("click", async ()=>{
+    if(role!=="admin"){ showToast("Solo admin"); return; }
+    var n = await deleteBatch(topfansCol(currentProgramId), 450);
+    showToast("Reset TopFans ("+currentProgramId+"): "+n);
+    await loadTopfansForProgram(currentProgramId, $("topfansList"));
+  });
 
-        var btnToggle = document.createElement("button");
-        btnToggle.className = "btn secondary small";
-        btnToggle.textContent = d.active ? "Desactivar":"Activar";
-        btnToggle.onclick = async function(){
-          try{
-            await djsRef.doc(d.id).set({active: !d.active},{merge:true});
-            showToast("DJ actualizado ✅");
-            await loadDjs();
-          }catch(e){ showToast("Error DJ: " + (e.message||e)); }
+  $("btnClearChatProgram").addEventListener("click", async ()=>{
+    if(role!=="admin"){ showToast("Solo admin"); return; }
+    var n = await deleteBatch(chatCol(currentProgramId), 450);
+    showToast("Chat limpiado ("+currentProgramId+"): "+n);
+  });
+
+  $("btnRefreshPresence").addEventListener("click", async ()=>{
+    await loadPresenceForProgram(currentProgramId, $("presenceList"), $("onAirPresenceCount"));
+  });
+
+  // Moderation tab load
+  $("btnLoadProgramData").addEventListener("click", async ()=>{
+    var pid = $("programSelect").value || "autodj";
+    await loadChatModeration(pid);
+    await loadTopfansModeration(pid);
+    await loadPresenceForProgram(pid, $("presenceSelectedList"), $("presenceSelectedCount"));
+  });
+
+  $("btnRefreshChat").addEventListener("click", async ()=>{
+    var pid = $("programSelect").value || "autodj";
+    await loadChatModeration(pid);
+  });
+
+  $("btnRefreshTopfans").addEventListener("click", async ()=>{
+    var pid = $("programSelect").value || "autodj";
+    await loadTopfansModeration(pid);
+  });
+
+  $("btnRefreshPresenceSelected").addEventListener("click", async ()=>{
+    var pid = $("programSelect").value || "autodj";
+    await loadPresenceForProgram(pid, $("presenceSelectedList"), $("presenceSelectedCount"));
+  });
+
+  $("btnClearChatSelected").addEventListener("click", async ()=>{
+    if(role!=="admin"){ showToast("Solo admin"); return; }
+    var pid = $("programSelect").value || "autodj";
+    var n = await deleteBatch(chatCol(pid), 450);
+    showToast("Chat limpiado ("+pid+"): "+n);
+    await loadChatModeration(pid);
+  });
+
+  $("btnResetTopfansSelected").addEventListener("click", async ()=>{
+    var pid = $("programSelect").value || "autodj";
+    // DJ puede resetear solo si tiene permiso y es su programa
+    if(role==="dj"){
+      if(!myDjDoc || !myDjDoc.permissions || !myDjDoc.permissions.topfansReset){
+        showToast("Sin permiso reset topfans");
+        return;
+      }
+      var prog = programs.find(p=>p.id===pid);
+      if(!prog || prog.djId !== myDjId){
+        showToast("Solo tu programa");
+        return;
+      }
+    } else if(role!=="admin"){
+      showToast("No autorizado");
+      return;
+    }
+
+    var n = await deleteBatch(topfansCol(pid), 450);
+    showToast("Reset TopFans ("+pid+"): "+n);
+    await loadTopfansModeration(pid);
+  });
+
+  /***********************
+   * CHAT moderation list
+   ***********************/
+  async function loadChatModeration(pid){
+    var box = $("chatModList");
+    box.innerHTML = "<div class='muted'>Cargando…</div>";
+    try{
+      var snap = await chatCol(pid).orderBy("creado","desc").limit(60).get();
+      var arr=[];
+      snap.forEach(doc=>{
+        var d=doc.data()||{};
+        arr.push({
+          id: doc.id,
+          usuario: d.usuario||"—",
+          mensaje: d.mensaje||"",
+          rol: d.rol||"user",
+          tipo: d.tipo||"mensaje"
+        });
+      });
+      arr.reverse();
+      box.innerHTML="";
+      if(arr.length===0){
+        box.innerHTML="<div class='muted'>Sin mensajes.</div>";
+        return;
+      }
+      arr.forEach(m=>{
+        var row=document.createElement("div");
+        row.className="item";
+        var left=document.createElement("div");
+        left.style.flex="1";
+        left.innerHTML =
+          "<b>"+escapeHtml(m.usuario)+"</b> <span class='badge'>"+escapeHtml(m.tipo)+"</span>"+
+          "<div class='muted'>"+escapeHtml(m.mensaje)+"</div>";
+
+        var right=document.createElement("div");
+        right.className="row";
+
+        var del=document.createElement("button");
+        del.className="miniBtn danger";
+        del.textContent="Borrar";
+        del.onclick=async ()=>{
+          // DJ puede borrar msg si chatModerate y es su programa
+          if(role==="dj"){
+            if(!myDjDoc || !myDjDoc.permissions || !myDjDoc.permissions.chatModerate){
+              showToast("Sin permiso moderar");
+              return;
+            }
+            var prog = programs.find(p=>p.id===pid);
+            if(!prog || prog.djId !== myDjId){
+              showToast("Solo tu programa");
+              return;
+            }
+          } else if(role!=="admin"){
+            showToast("No autorizado");
+            return;
+          }
+
+          await chatCol(pid).doc(m.id).delete();
+          showToast("Mensaje borrado ✅");
+          await loadChatModeration(pid);
         };
 
-        var btnSet = document.createElement("button");
-        btnSet.className = "btn small";
-        btnSet.textContent = "Poner DJ activo";
-        btnSet.onclick = async function(){
-          try{
-            await cfgRef.set({
-              activeDj: d.name || d.id,
-              currentProgram: d.name || d.id
-            },{merge:true});
-            showToast("DJ activo cambiado ✅");
-            await loadConfig();
-          }catch(e){ showToast("Error set DJ: " + (e.message||e)); }
-        };
-
-        right.appendChild(badge);
-        right.appendChild(btnToggle);
-        right.appendChild(btnSet);
-
+        right.appendChild(del);
         row.appendChild(left);
         row.appendChild(right);
-        djList.appendChild(row);
+        box.appendChild(row);
       });
+    }catch(e){
+      box.innerHTML="<div class='muted'>Error: "+escapeHtml(e.message||e)+"</div>";
     }
+  }
 
-    async function loadDjs(){
-      try{
-        var snap = await djsRef.get();
-        allDjs = [];
-        snap.forEach(doc=>{
-          var d = doc.data()||{};
-          allDjs.push({
-            id: doc.id,
-            name: d.name || doc.id,
-            email: d.email || "",
-            active: d.active === true
-          });
-        });
-        allDjs.sort((a,b)=> (a.name||"").localeCompare(b.name||""));
-        renderDjs();
-        logDebug("DJs cargados: " + allDjs.length);
-      }catch(e){
-        showToast("Error DJs: " + (e.message||e));
-        logDebug("DJS ERROR: " + (e.message||e));
-      }
+  async function loadTopfansModeration(pid){
+    await loadTopfansForProgram(pid, $("topfansModList"));
+  }
+
+  /***********************
+   * INIT loads
+   ***********************/
+  async function rebuildProgramSelect(onlyMine){
+    var sel = $("programSelect");
+    sel.innerHTML = "";
+    var list = programs.slice();
+
+    if(onlyMine && role==="dj"){
+      list = list.filter(p=>p.djId === myDjId);
     }
-    btnReloadDjs.addEventListener("click", loadDjs);
-    djSearch.addEventListener("input", renderDjs);
+    if(!list.some(p=>p.id==="autodj")) list.unshift({id:"autodj", name:"AutoDJ Coravox"});
 
-    /***********************
-     * PRESENCE (conectados)
-     ***********************/
-    async function loadPresence(){
-      try{
-        // Leemos más recientes y filtramos por "últimos 90s"
-        var snap = await presenceRef.orderBy("lastSeen","desc").limit(60).get();
-        var now = Date.now();
-        var active = [];
-        snap.forEach(doc=>{
-          var d = doc.data()||{};
-          var ts = d.lastSeen;
-          var ms = ts && ts.toMillis ? ts.toMillis() : 0;
-          if(ms && (now - ms) <= 90000){
-            active.push({
-              id: doc.id,
-              name: d.name || doc.id,
-              lastSeenMs: ms
-            });
-          }
-        });
-
-        onlineBadge.textContent = String(active.length);
-        presenceList.innerHTML = "";
-
-        if(active.length===0){
-          presenceList.innerHTML = "<div class='smalltxt muted'>Nadie conectado (o no hay pings recientes).</div>";
-          return;
-        }
-
-        active.forEach(function(u){
-          var row = document.createElement("div");
-          row.className = "item";
-          var ago = Math.max(0, Math.floor((now - u.lastSeenMs)/1000));
-          row.innerHTML = "<div><b>"+escapeHtml(u.name)+"</b><div class='smalltxt muted'>hace "+ago+"s</div></div><span class='badge on'>ONLINE</span>";
-          presenceList.appendChild(row);
-        });
-
-        logDebug("Presence cargado. Online: " + active.length);
-      }catch(e){
-        showToast("Error presence: " + (e.message||e));
-        logDebug("PRESENCE ERROR: " + (e.message||e));
-      }
-    }
-    btnReloadPresence.addEventListener("click", loadPresence);
-
-    // Auto refresco presence
-    setInterval(function(){
-      if(dashView.style.display==="block") loadPresence();
-    }, 15000);
-
-    /***********************
-     * CHAT (moderar)
-     ***********************/
-    async function loadChat(){
-      try{
-        var snap = await chatRef.orderBy("creado","desc").limit(60).get();
-        var arr = [];
-        snap.forEach(doc=>{
-          var d = doc.data()||{};
-          arr.push({
-            id: doc.id,
-            usuario: d.usuario || "—",
-            mensaje: d.mensaje || "",
-            tipo: d.tipo || "mensaje",
-            rol: d.rol || "user"
-          });
-        });
-        arr.reverse();
-
-        chatList.innerHTML = "";
-        if(arr.length===0){
-          chatList.innerHTML = "<div class='smalltxt muted'>No hay mensajes.</div>";
-          return;
-        }
-
-        arr.forEach(function(m){
-          var row = document.createElement("div");
-          row.className = "item";
-
-          var left = document.createElement("div");
-          var prefix = (m.tipo==="system") ? "⚙️" : (m.rol==="admin" ? "⭐" : "💬");
-          left.innerHTML =
-            "<b>"+prefix+" "+escapeHtml(m.usuario)+"</b>" +
-            "<div class='smalltxt muted' style='margin-top:2px'>"+escapeHtml(m.mensaje)+"</div>";
-
-          var right = document.createElement("div");
-          right.className = "row";
-
-          var btnDel = document.createElement("button");
-          btnDel.className = "btn danger small";
-          btnDel.textContent = "Borrar";
-          btnDel.onclick = async function(){
-            if(!confirm("¿Borrar este mensaje?")) return;
-            try{
-              await chatRef.doc(m.id).delete();
-              showToast("Mensaje borrado ✅");
-              await loadChat();
-            }catch(e){ showToast("Error borrar: " + (e.message||e)); }
-          };
-
-          right.appendChild(btnDel);
-          row.appendChild(left);
-          row.appendChild(right);
-          chatList.appendChild(row);
-        });
-
-        logDebug("Chat cargado: " + arr.length);
-      }catch(e){
-        showToast("Error chat: " + (e.message||e));
-        logDebug("CHAT ERROR: " + (e.message||e));
-      }
-    }
-    btnReloadChat.addEventListener("click", loadChat);
-
-    async function deleteCollectionBatch(colRef, limit){
-      // borra en lotes (máx 500 operaciones por batch)
-      var snap = await colRef.orderBy("__name__").limit(limit).get();
-      if (snap.empty) return 0;
-
-      var batch = db.batch();
-      snap.docs.forEach(doc => batch.delete(doc.ref));
-      await batch.commit();
-      return snap.size;
-    }
-
-    btnClearChat.addEventListener("click", async function(){
-      if(!confirm("¿Seguro que quieres limpiar el chat (borrar mensajes)?")) return;
-      try{
-        showToast("Borrando chat…");
-        // borramos 450 por seguridad; si hay más, se puede repetir
-        var deleted = await deleteCollectionBatch(chatRef, 450);
-        showToast("Chat borrado: " + deleted);
-        await loadChat();
-      }catch(e){
-        showToast("Error clearchat: " + (e.message||e));
-      }
+    list.forEach(p=>{
+      var opt=document.createElement("option");
+      opt.value=p.id;
+      opt.textContent=p.id+" • "+(p.name||p.id);
+      sel.appendChild(opt);
     });
+    sel.value = currentProgramId || "autodj";
+  }
 
-    /***********************
-     * TOP FANS
-     ***********************/
-    async function loadFans(){
-      try{
-        var snap = await likesRef.orderBy("likes","desc").limit(20).get();
-        fansList.innerHTML = "";
-        var arr = [];
-        snap.forEach(doc=>{
-          var d = doc.data()||{};
-          arr.push({
-            id: doc.id,
-            usuario: d.usuario || doc.id,
-            likes: d.likes || 0
-          });
-        });
-        if(arr.length===0){
-          fansList.innerHTML = "<div class='smalltxt muted'>Sin datos.</div>";
-          return;
-        }
-        arr.forEach(function(u, idx){
-          var row = document.createElement("div");
-          row.className = "item";
-          row.innerHTML =
-            "<div><b>"+(idx+1)+". "+escapeHtml(u.usuario)+"</b></div>" +
-            "<span class='badge on'>❤ "+u.likes+"</span>";
-          fansList.appendChild(row);
-        });
-        logDebug("Top fans cargado: " + arr.length);
-      }catch(e){
-        showToast("Error top fans: " + (e.message||e));
-        logDebug("FANS ERROR: " + (e.message||e));
-      }
+  async function refreshOnAirFromSettings(){
+    var snap = await settingsCurrentRef.get();
+    var d = snap.exists ? snap.data() : null;
+    if(d && d.currentProgramId){
+      currentProgramId = d.currentProgramId;
+      currentProgramName = d.currentProgramName || d.currentProgramId;
+    } else {
+      currentProgramId = "autodj";
+      currentProgramName = "AutoDJ Coravox";
     }
-    btnReloadFans.addEventListener("click", loadFans);
+    $("onAirName").textContent = currentProgramName;
+    $("onAirId").textContent = currentProgramId;
+    $("modCurrentProgram").textContent = currentProgramId;
 
-    btnResetFans.addEventListener("click", async function(){
-      if(!confirm("¿Seguro que quieres RESET TOP FANS (borrar likes-ranking)?")) return;
-      try{
-        showToast("Reseteando TOP FANS…");
-        var deleted = await deleteCollectionBatch(likesRef, 450);
-        showToast("Top Fans borrado: " + deleted);
-        await loadFans();
-      }catch(e){
-        showToast("Error resetfans: " + (e.message||e));
-      }
-    });
+    await loadPresenceForProgram(currentProgramId, $("presenceList"), $("onAirPresenceCount"));
+    await loadTopfansForProgram(currentProgramId, $("topfansList"));
+  }
 
-    /***********************
-     * Helpers
-     ***********************/
-    function escapeHtml(s){
-      return String(s||"").replace(/[&<>"']/g, function(m){
-        return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]);
-      });
-    }
-  </script>
+  /***********************
+   * escape
+   ***********************/
+  function escapeHtml(s){
+    return String(s||"").replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+  }
+
+  /***********************
+   * STARTUP: after login boot functions call these
+   ***********************/
+  // Boot functions call: loadConfigGlobal(), loadPrograms(), loadDjs(), refreshOnAirFromSettings(), rebuildProgramSelect()
+  // They are defined above and used in bootAdmin/bootDj.
+</script>
+
 </body>
 </html>
