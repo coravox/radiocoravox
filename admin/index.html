@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <title>Radio Coravox • Panel v2</title>
+
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{
@@ -25,7 +26,7 @@
     .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
     .col{flex:1;min-width:220px}
     label{display:block;font-size:12px;opacity:.85;margin-bottom:6px}
-    input[type="email"], input[type="password"], input[type="number"], input[type="text"], textarea{
+    input, textarea{
       width:100%;
       padding:10px 12px;
       border-radius:12px;
@@ -35,7 +36,7 @@
       outline:none;
       font-size:14px;
     }
-    textarea{min-height:42px;resize:vertical}
+    textarea{resize:vertical}
     .btn{
       border:none;
       border-radius:12px;
@@ -44,472 +45,197 @@
       cursor:pointer;
       background:#f5c85b;
       color:#000;
-      box-shadow:0 0 12px rgba(0,0,0,0.6);
-      white-space:nowrap;
     }
     .btn.secondary{
       background:rgba(245,200,91,0.12);
       border:1px solid rgba(245,200,91,0.35);
       color:#f5c85b;
-      box-shadow:none;
     }
-    .btn.danger{
-      background:#ff5c5c;
-      color:#000;
-    }
+    .btn.danger{background:#ff5c5c}
     .muted{opacity:.75;font-size:12px}
     .pill{
-      display:inline-flex;
       padding:6px 10px;
       border-radius:999px;
-      background:rgba(245,200,91,0.10);
-      border:1px solid rgba(245,200,91,0.25);
-      color:#f5c85b;
+      background:rgba(245,200,91,0.12);
+      border:1px solid rgba(245,200,91,0.3);
       font-size:12px;
       font-weight:900;
+      color:#f5c85b;
     }
     .switch{
       display:flex;
-      align-items:center;
       gap:10px;
-      padding:10px 12px;
+      padding:10px;
       border-radius:12px;
       border:1px solid rgba(245,200,91,0.16);
       background:rgba(0,0,0,0.35);
     }
-    .switch input{transform:scale(1.2)}
-    .list{
-      margin-top:10px;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-    }
-    .item{
-      border:1px solid rgba(245,200,91,0.16);
-      background:rgba(0,0,0,0.35);
-      border-radius:14px;
-      padding:10px;
-      display:flex;
-      gap:10px;
-      align-items:flex-start;
-    }
-    .num{
-      width:32px;height:32px;border-radius:10px;
-      background:rgba(245,200,91,0.12);
-      border:1px solid rgba(245,200,91,0.25);
-      color:#f5c85b;
-      display:flex;align-items:center;justify-content:center;
-      font-weight:900;
-      flex:0 0 auto;
-    }
-    .itemMain{flex:1}
-    .itemBtns{display:flex;gap:8px;flex:0 0 auto}
-    .mini{
-      padding:8px 10px;
-      border-radius:10px;
-      border:1px solid rgba(245,200,91,0.22);
-      background:rgba(0,0,0,0.35);
-      color:#f5c85b;
-      font-weight:900;
-      cursor:pointer;
-    }
-    .mini.danger{border-color:rgba(255,92,92,.55);color:#ff9a9a}
     .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
     @media(max-width:820px){.grid2{grid-template-columns:1fr}}
-    .hr{height:1px;background:rgba(245,200,91,0.14);margin:10px 0}
+    .hr{height:1px;background:rgba(245,200,91,0.15);margin:10px 0}
+    .list{display:flex;flex-direction:column;gap:10px;margin-top:10px}
+    .item{
+      border:1px solid rgba(245,200,91,0.2);
+      padding:10px;
+      border-radius:12px;
+      display:flex;
+      gap:10px;
+    }
+    .num{
+      width:32px;height:32px;
+      border-radius:10px;
+      display:flex;align-items:center;justify-content:center;
+      font-weight:900;
+      background:rgba(245,200,91,0.2);
+    }
+    .itemBtns{display:flex;gap:6px}
+    .mini{
+      padding:6px 8px;
+      border-radius:8px;
+      border:1px solid rgba(245,200,91,0.3);
+      background:transparent;
+      color:#f5c85b;
+      cursor:pointer;
+      font-weight:900;
+    }
+    .mini.danger{border-color:#ff6b6b;color:#ff6b6b}
     .ok{color:#9dff7a;font-weight:900}
     .bad{color:#ff6b6b;font-weight:900}
-    .topRow{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
   </style>
 </head>
-  <!-- Firebase v8 -->
+
+<body>
+<div class="wrap">
+  <h1>Radio Coravox • Panel de Control v2</h1>
+
+  <!-- LOGIN -->
+  <div class="card" id="loginCard">
+    <div class="row">
+      <span class="pill">Firebase Auth</span>
+      <span class="muted" id="authState">No conectado</span>
+    </div>
+    <div class="hr"></div>
+    <div class="row">
+      <div class="col">
+        <label>Correo</label>
+        <input id="email" type="email" value="vis-party@hotmail.com">
+      </div>
+      <div class="col">
+        <label>Contraseña</label>
+        <input id="pass" type="password">
+      </div>
+      <button class="btn" id="btnLogin">Entrar</button>
+    </div>
+    <div class="row">
+      <button class="btn secondary" id="btnLogout" style="display:none">Salir</button>
+      <div class="muted" id="loginMsg"></div>
+    </div>
+  </div>
+
+  <!-- PANEL -->
+  <div class="card" id="panelCard" style="display:none">
+    <span class="pill">Configuración Global</span>
+
+    <div class="hr"></div>
+    <div class="grid2">
+      <label class="switch"><input type="checkbox" id="chatEnabled"> Chat habilitado</label>
+      <label class="switch"><input type="checkbox" id="likesEnabled"> Top Fans habilitado</label>
+    </div>
+
+    <div class="hr"></div>
+    <label class="switch"><input type="checkbox" id="adsEnabled"> Activar gotas</label>
+    <label>Intervalo (segundos)</label>
+    <input id="adsIntervalSec" type="number" min="5">
+
+    <div class="hr"></div>
+    <input id="newMsg" placeholder="Nuevo mensaje">
+    <button class="btn secondary" id="btnAddMsg">Agregar</button>
+
+    <div class="list" id="msgList"></div>
+
+    <div class="hr"></div>
+    <button class="btn" id="btnSaveAds">Guardar Gotas</button>
+    <button class="btn secondary" id="btnForceReloadAds">Forzar refresco</button>
+    <div class="muted" id="saveMsg"></div>
+  </div>
+
+  <!-- TOOLS -->
+  <div class="card" id="toolsCard" style="display:none">
+    <span class="pill">Herramientas</span>
+    <div class="hr"></div>
+    <button class="btn danger" id="btnResetFans">Reset Top Fans</button>
+    <button class="btn danger" id="btnClearChat">Clear Chat</button>
+    <div class="muted" id="toolMsg"></div>
+  </div>
+</div>
+
+<!-- 🔥 Firebase v8 -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <script>
-  // ===== Firebase config (tuya)
-  var firebaseConfig = {
+  const firebaseConfig = {
     apiKey: "AIzaSyC8jq2iODj6DwfTSktgZ7ia84oeMxxPjNE",
     authDomain: "coravox-602a0.firebaseapp.com",
-    projectId: "coravox-602a0",
-    storageBucket: "coravox-602a0.firebasestorage.app",
-    messagingSenderId: "629472102664",
-    appId: "1:629472102664:web:56e539689983458ada84bd"
+    projectId: "coravox-602a0"
   };
   firebase.initializeApp(firebaseConfig);
 
-  var auth = firebase.auth();
-  var db = firebase.firestore();
+  const auth = firebase.auth();
+  const db = firebase.firestore();
+  const ADMIN_EMAIL = "vis-party@hotmail.com";
 
-  var ADMIN_EMAIL = "vis-party@hotmail.com";
+  const $ = id => document.getElementById(id);
 
-  // UI
-  var authState = document.getElementById("authState");
-  var loginMsg  = document.getElementById("loginMsg");
-  var emailEl   = document.getElementById("email");
-  var passEl    = document.getElementById("pass");
-  var btnLogin  = document.getElementById("btnLogin");
-  var btnLogout = document.getElementById("btnLogout");
+  const cfgRef = db.collection("config").doc("global");
+  const likesRef = db.collection("likes-ranking");
+  const chatRef = db.collection("mensajes-chat");
 
-  var loginCard = document.getElementById("loginCard");
-  var panelCard = document.getElementById("panelCard");
-  var toolsCard = document.getElementById("toolsCard");
+  $("btnLogin").onclick = () =>
+    auth.signInWithEmailAndPassword($("email").value, $("pass").value)
+      .catch(e => $("loginMsg").textContent = e.message);
 
-  // Config switches
-  var chatEnabled = document.getElementById("chatEnabled");
-  var likesEnabled = document.getElementById("likesEnabled");
+  $("btnLogout").onclick = () => auth.signOut();
 
-  // Ads controls
-  var adsEnabled = document.getElementById("adsEnabled");
-  var adsIntervalSec = document.getElementById("adsIntervalSec");
-  var adsLiveState = document.getElementById("adsLiveState");
-  var newMsg = document.getElementById("newMsg");
-  var btnAddMsg = document.getElementById("btnAddMsg");
-  var msgList = document.getElementById("msgList");
-  var btnSaveAds = document.getElementById("btnSaveAds");
-  var btnForceReloadAds = document.getElementById("btnForceReloadAds");
-  var saveMsg = document.getElementById("saveMsg");
-
-  // Tools
-  var btnResetFans = document.getElementById("btnResetFans");
-  var btnClearChat = document.getElementById("btnClearChat");
-  var toolMsg = document.getElementById("toolMsg");
-
-  // Firestore refs
-  var cfgRef = db.collection("config").doc("global");
-  var likesRef = db.collection("likes-ranking");
-  var chatRef = db.collection("mensajes-chat");
-
-  // Local state
-  var currentMessages = [];
-
-  function setStatusOk(txt){ authState.textContent = txt; authState.className="muted ok"; }
-  function setStatusBad(txt){ authState.textContent = txt; authState.className="muted bad"; }
-
-  function renderMsgList(){
-    msgList.innerHTML = "";
-    if (!currentMessages.length){
-      msgList.innerHTML = "<div class='muted'>No hay mensajes. Agrega uno arriba.</div>";
+  auth.onAuthStateChanged(async user => {
+    if(!user || user.email !== ADMIN_EMAIL){
+      $("authState").textContent="No conectado";
+      $("loginCard").style.display="block";
+      $("panelCard").style.display="none";
+      $("toolsCard").style.display="none";
       return;
     }
-
-    currentMessages.forEach(function(text, i){
-      var row = document.createElement("div");
-      row.className = "item";
-
-      var num = document.createElement("div");
-      num.className = "num";
-      num.textContent = String(i+1);
-
-      var main = document.createElement("div");
-      main.className = "itemMain";
-      var ta = document.createElement("textarea");
-      ta.value = text;
-      ta.addEventListener("input", function(){
-        currentMessages[i] = ta.value;
-      });
-      main.appendChild(ta);
-
-      var btns = document.createElement("div");
-      btns.className = "itemBtns";
-
-      var up = document.createElement("button");
-      up.className = "mini";
-      up.textContent = "↑";
-      up.onclick = function(){
-        if (i===0) return;
-        var tmp = currentMessages[i-1];
-        currentMessages[i-1] = currentMessages[i];
-        currentMessages[i] = tmp;
-        renderMsgList();
-      };
-
-      var down = document.createElement("button");
-      down.className = "mini";
-      down.textContent = "↓";
-      down.onclick = function(){
-        if (i===currentMessages.length-1) return;
-        var tmp = currentMessages[i+1];
-        currentMessages[i+1] = currentMessages[i];
-        currentMessages[i] = tmp;
-        renderMsgList();
-      };
-
-      var del = document.createElement("button");
-      del.className = "mini danger";
-      del.textContent = "Eliminar";
-      del.onclick = function(){
-        currentMessages.splice(i,1);
-        renderMsgList();
-      };
-
-      btns.appendChild(up);
-      btns.appendChild(down);
-      btns.appendChild(del);
-
-      row.appendChild(num);
-      row.appendChild(main);
-      row.appendChild(btns);
-      msgList.appendChild(row);
-    });
-  }
-
-  async function loadConfig(){
-    var snap = await cfgRef.get();
-    var data = snap.exists ? snap.data() : {};
-
-    chatEnabled.checked = (data.chatEnabled !== false);
-    likesEnabled.checked = (data.likesEnabled !== false);
-
-    adsEnabled.checked = (data.adsEnabled === true);
-    adsIntervalSec.value = (data.adsIntervalSec || 20);
-
-    currentMessages = Array.isArray(data.adsMessages) ? data.adsMessages.slice() : [];
-    renderMsgList();
-
-    adsLiveState.textContent = "Estado cargado ✅";
-  }
-
-  async function saveConfig(){
-    await cfgRef.set({
-      chatEnabled: !!chatEnabled.checked,
-      likesEnabled: !!likesEnabled.checked
-    }, { merge:true });
-  }
-
-  async function saveAds(){
-    // limpia mensajes vacíos
-    currentMessages = currentMessages
-      .map(s => (s||"").trim())
-      .filter(s => s.length>0);
-
-    await cfgRef.set({
-      adsEnabled: !!adsEnabled.checked,
-      adsIntervalSec: Number(adsIntervalSec.value || 20),
-      adsMessages: currentMessages
-    }, { merge:true });
-
-    saveMsg.textContent = "Guardado ✅";
-    setTimeout(()=>saveMsg.textContent="", 2000);
-    adsLiveState.textContent = "Actualizado ✅";
-  }
-
-  btnAddMsg.addEventListener("click", function(){
-    var t = (newMsg.value||"").trim();
-    if(!t) return;
-    currentMessages.push(t);
-    newMsg.value = "";
-    renderMsgList();
+    $("authState").textContent="Conectado: "+user.email;
+    $("loginCard").style.display="none";
+    $("panelCard").style.display="block";
+    $("toolsCard").style.display="block";
+    const d = (await cfgRef.get()).data()||{};
+    $("chatEnabled").checked = d.chatEnabled!==false;
+    $("likesEnabled").checked = d.likesEnabled!==false;
+    $("adsEnabled").checked = d.adsEnabled===true;
+    $("adsIntervalSec").value = d.adsIntervalSec||20;
   });
 
-  btnSaveAds.addEventListener("click", async function(){
-    try{ await saveAds(); }catch(e){ saveMsg.textContent="Error: "+(e.message||e); }
-  });
+  $("chatEnabled").onchange =
+  $("likesEnabled").onchange = () =>
+    cfgRef.set({
+      chatEnabled:$("chatEnabled").checked,
+      likesEnabled:$("likesEnabled").checked
+    },{merge:true});
 
-  btnForceReloadAds.addEventListener("click", async function(){
-    try{
-      await cfgRef.set({ adsForceReloadAt: firebase.firestore.FieldValue.serverTimestamp() }, {merge:true});
-      saveMsg.textContent = "Forzado ✅";
-      setTimeout(()=>saveMsg.textContent="", 2000);
-    }catch(e){
-      saveMsg.textContent = "Error: "+(e.message||e);
-    }
-  });
+  $("btnResetFans").onclick = async()=>{
+    const snap = await likesRef.get();
+    snap.forEach(d=>d.ref.delete());
+    $("toolMsg").textContent="Top Fans borrados ✅";
+  };
 
-  btnLogin.addEventListener("click", async function(){
-    loginMsg.textContent = "";
-    try{
-      await auth.signInWithEmailAndPassword(emailEl.value.trim(), passEl.value);
-    }catch(e){
-      loginMsg.textContent = "Error: " + (e.message || e);
-    }
-  });
-
-  btnLogout.addEventListener("click", function(){
-    auth.signOut();
-  });
-
-  auth.onAuthStateChanged(async function(user){
-    if (!user){
-      setStatusBad("No conectado");
-      btnLogout.style.display="none";
-      panelCard.style.display="none";
-      toolsCard.style.display="none";
-      loginCard.style.display="block";
-      return;
-    }
-
-    if ((user.email||"").toLowerCase() !== ADMIN_EMAIL.toLowerCase()){
-      setStatusBad("No autorizado");
-      await auth.signOut();
-      return;
-    }
-
-    setStatusOk("Conectado: " + user.email);
-    btnLogout.style.display="inline-block";
-    loginCard.style.display="none";
-    panelCard.style.display="block";
-    toolsCard.style.display="block";
-
-    await loadConfig();
-  });
-
-  // Guardar switches básicos
-  chatEnabled.addEventListener("change", saveConfig);
-  likesEnabled.addEventListener("change", saveConfig);
-
-  // Tools: borrar colecciones en lotes (hasta 450 por clic)
-  async function deleteBatch(colRef){
-    const snap = await colRef.limit(450).get();
-    if (snap.empty) return 0;
-    const batch = db.batch();
-    snap.docs.forEach(doc => batch.delete(doc.ref));
-    await batch.commit();
-    return snap.size;
-  }
-
-  btnResetFans.addEventListener("click", async function(){
-    toolMsg.textContent = "Reseteando TOP FANS...";
-    try{
-      const n = await deleteBatch(likesRef);
-      toolMsg.textContent = "Top Fans borrados: " + n + " ✅";
-    }catch(e){
-      toolMsg.textContent = "Error: " + (e.message||e);
-    }
-  });
-
-  btnClearChat.addEventListener("click", async function(){
-    toolMsg.textContent = "Limpiando chat...";
-    try{
-      const n = await deleteBatch(chatRef);
-      toolMsg.textContent = "Chat borrado: " + n + " ✅";
-    }catch(e){
-      toolMsg.textContent = "Error: " + (e.message||e);
-    }
-  });
+  $("btnClearChat").onclick = async()=>{
+    const snap = await chatRef.get();
+    snap.forEach(d=>d.ref.delete());
+    $("toolMsg").textContent="Chat borrado ✅";
+  };
 </script>
 
-<body>
-  <div class="wrap">
-    <h1>Radio Coravox • Panel de Control v2</h1>
-
-    <!-- LOGIN -->
-    <div class="card" id="loginCard">
-      <div class="topRow">
-        <div class="pill">Acceso (Firebase Auth)</div>
-        <div class="muted" id="authState">No conectado</div>
-      </div>
-      <div class="hr"></div>
-      <div class="row">
-        <div class="col">
-          <label>Correo</label>
-          <input id="email" type="email" placeholder="tu@email.com" value="vis-party@hotmail.com" />
-        </div>
-        <div class="col">
-          <label>Contraseña</label>
-          <input id="pass" type="password" placeholder="Tu contraseña" />
-        </div>
-        <div class="col" style="flex:0 0 auto;min-width:auto">
-          <label>&nbsp;</label>
-          <button class="btn" id="btnLogin" type="button">Entrar</button>
-        </div>
-      </div>
-      <div class="row" style="margin-top:10px">
-        <button class="btn secondary" id="btnLogout" type="button" style="display:none">Salir</button>
-        <div class="muted" id="loginMsg"></div>
-      </div>
-    </div>
-
-    <!-- PANEL -->
-    <div class="card" id="panelCard" style="display:none">
-      <div class="topRow">
-        <div class="pill">Configuración Global</div>
-        <div class="muted">Doc: <span class="pill">config/global</span></div>
-      </div>
-
-      <div class="hr"></div>
-
-      <!-- Switches básicos -->
-      <div class="grid2">
-        <div class="switch">
-          <input id="chatEnabled" type="checkbox" />
-          <div>
-            <div style="font-weight:900">Chat habilitado</div>
-            <div class="muted">Activa/Desactiva el chat en la app</div>
-          </div>
-        </div>
-        <div class="switch">
-          <input id="likesEnabled" type="checkbox" />
-          <div>
-            <div style="font-weight:900">TOP FANS habilitado</div>
-            <div class="muted">Activa/Desactiva likes / ranking</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="hr"></div>
-
-      <!-- GOTAS / ANUNCIOS -->
-      <div class="topRow">
-        <div style="font-weight:900;color:#f5c85b">Gotas / Mensajes de Anuncios (Globales)</div>
-        <div class="muted" id="adsLiveState"></div>
-      </div>
-
-      <div class="grid2" style="margin-top:10px">
-        <div class="switch">
-          <input id="adsEnabled" type="checkbox" />
-          <div>
-            <div style="font-weight:900">Activar gotas</div>
-            <div class="muted">Si está OFF, no aparecen globos en la app</div>
-          </div>
-        </div>
-
-        <div>
-          <label>Intervalo (segundos)</label>
-          <input id="adsIntervalSec" type="number" min="5" step="1" />
-          <div class="muted" style="margin-top:6px">Recomendado: 15–30 segundos</div>
-        </div>
-      </div>
-
-      <div class="hr"></div>
-
-      <div class="topRow">
-        <div style="font-weight:900">Mensajes (en secuencia)</div>
-        <div class="muted">Lo que pongas aquí saldrá <b>en el orden exacto</b></div>
-      </div>
-
-      <div class="row" style="margin-top:10px">
-        <div class="col">
-          <input id="newMsg" type="text" placeholder="Escribe un nuevo mensaje para la gota..." />
-        </div>
-        <div style="flex:0 0 auto">
-          <button class="btn secondary" id="btnAddMsg" type="button">Agregar</button>
-        </div>
-      </div>
-
-      <div class="list" id="msgList"></div>
-
-      <div class="hr"></div>
-
-      <div class="row">
-        <button class="btn" id="btnSaveAds" type="button">Guardar Gotas</button>
-        <button class="btn secondary" id="btnForceReloadAds" type="button">Forzar refresco en la app</button>
-        <div class="muted" id="saveMsg"></div>
-      </div>
-    </div>
-
-    <!-- HERRAMIENTAS (OPCIONAL) -->
-    <div class="card" id="toolsCard" style="display:none">
-      <div class="topRow">
-        <div class="pill">Herramientas (Admin)</div>
-        <div class="muted">Borra datos en Firestore (solo si estás seguro)</div>
-      </div>
-      <div class="hr"></div>
-
-      <div class="row">
-        <button class="btn danger" id="btnResetFans" type="button">Reset TOP FANS</button>
-        <button class="btn danger" id="btnClearChat" type="button">Clear Chat</button>
-        <div class="muted" id="toolMsg"></div>
-     
-
+</body>
+</html>
