@@ -122,6 +122,274 @@
     .topRow{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
   </style>
 </head>
+  <!-- Firebase v8 -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+<script>
+  // ===== Firebase config (tuya)
+  var firebaseConfig = {
+    apiKey: "AIzaSyC8jq2iODj6DwfTSktgZ7ia84oeMxxPjNE",
+    authDomain: "coravox-602a0.firebaseapp.com",
+    projectId: "coravox-602a0",
+    storageBucket: "coravox-602a0.firebasestorage.app",
+    messagingSenderId: "629472102664",
+    appId: "1:629472102664:web:56e539689983458ada84bd"
+  };
+  firebase.initializeApp(firebaseConfig);
+
+  var auth = firebase.auth();
+  var db = firebase.firestore();
+
+  var ADMIN_EMAIL = "vis-party@hotmail.com";
+
+  // UI
+  var authState = document.getElementById("authState");
+  var loginMsg  = document.getElementById("loginMsg");
+  var emailEl   = document.getElementById("email");
+  var passEl    = document.getElementById("pass");
+  var btnLogin  = document.getElementById("btnLogin");
+  var btnLogout = document.getElementById("btnLogout");
+
+  var loginCard = document.getElementById("loginCard");
+  var panelCard = document.getElementById("panelCard");
+  var toolsCard = document.getElementById("toolsCard");
+
+  // Config switches
+  var chatEnabled = document.getElementById("chatEnabled");
+  var likesEnabled = document.getElementById("likesEnabled");
+
+  // Ads controls
+  var adsEnabled = document.getElementById("adsEnabled");
+  var adsIntervalSec = document.getElementById("adsIntervalSec");
+  var adsLiveState = document.getElementById("adsLiveState");
+  var newMsg = document.getElementById("newMsg");
+  var btnAddMsg = document.getElementById("btnAddMsg");
+  var msgList = document.getElementById("msgList");
+  var btnSaveAds = document.getElementById("btnSaveAds");
+  var btnForceReloadAds = document.getElementById("btnForceReloadAds");
+  var saveMsg = document.getElementById("saveMsg");
+
+  // Tools
+  var btnResetFans = document.getElementById("btnResetFans");
+  var btnClearChat = document.getElementById("btnClearChat");
+  var toolMsg = document.getElementById("toolMsg");
+
+  // Firestore refs
+  var cfgRef = db.collection("config").doc("global");
+  var likesRef = db.collection("likes-ranking");
+  var chatRef = db.collection("mensajes-chat");
+
+  // Local state
+  var currentMessages = [];
+
+  function setStatusOk(txt){ authState.textContent = txt; authState.className="muted ok"; }
+  function setStatusBad(txt){ authState.textContent = txt; authState.className="muted bad"; }
+
+  function renderMsgList(){
+    msgList.innerHTML = "";
+    if (!currentMessages.length){
+      msgList.innerHTML = "<div class='muted'>No hay mensajes. Agrega uno arriba.</div>";
+      return;
+    }
+
+    currentMessages.forEach(function(text, i){
+      var row = document.createElement("div");
+      row.className = "item";
+
+      var num = document.createElement("div");
+      num.className = "num";
+      num.textContent = String(i+1);
+
+      var main = document.createElement("div");
+      main.className = "itemMain";
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      ta.addEventListener("input", function(){
+        currentMessages[i] = ta.value;
+      });
+      main.appendChild(ta);
+
+      var btns = document.createElement("div");
+      btns.className = "itemBtns";
+
+      var up = document.createElement("button");
+      up.className = "mini";
+      up.textContent = "↑";
+      up.onclick = function(){
+        if (i===0) return;
+        var tmp = currentMessages[i-1];
+        currentMessages[i-1] = currentMessages[i];
+        currentMessages[i] = tmp;
+        renderMsgList();
+      };
+
+      var down = document.createElement("button");
+      down.className = "mini";
+      down.textContent = "↓";
+      down.onclick = function(){
+        if (i===currentMessages.length-1) return;
+        var tmp = currentMessages[i+1];
+        currentMessages[i+1] = currentMessages[i];
+        currentMessages[i] = tmp;
+        renderMsgList();
+      };
+
+      var del = document.createElement("button");
+      del.className = "mini danger";
+      del.textContent = "Eliminar";
+      del.onclick = function(){
+        currentMessages.splice(i,1);
+        renderMsgList();
+      };
+
+      btns.appendChild(up);
+      btns.appendChild(down);
+      btns.appendChild(del);
+
+      row.appendChild(num);
+      row.appendChild(main);
+      row.appendChild(btns);
+      msgList.appendChild(row);
+    });
+  }
+
+  async function loadConfig(){
+    var snap = await cfgRef.get();
+    var data = snap.exists ? snap.data() : {};
+
+    chatEnabled.checked = (data.chatEnabled !== false);
+    likesEnabled.checked = (data.likesEnabled !== false);
+
+    adsEnabled.checked = (data.adsEnabled === true);
+    adsIntervalSec.value = (data.adsIntervalSec || 20);
+
+    currentMessages = Array.isArray(data.adsMessages) ? data.adsMessages.slice() : [];
+    renderMsgList();
+
+    adsLiveState.textContent = "Estado cargado ✅";
+  }
+
+  async function saveConfig(){
+    await cfgRef.set({
+      chatEnabled: !!chatEnabled.checked,
+      likesEnabled: !!likesEnabled.checked
+    }, { merge:true });
+  }
+
+  async function saveAds(){
+    // limpia mensajes vacíos
+    currentMessages = currentMessages
+      .map(s => (s||"").trim())
+      .filter(s => s.length>0);
+
+    await cfgRef.set({
+      adsEnabled: !!adsEnabled.checked,
+      adsIntervalSec: Number(adsIntervalSec.value || 20),
+      adsMessages: currentMessages
+    }, { merge:true });
+
+    saveMsg.textContent = "Guardado ✅";
+    setTimeout(()=>saveMsg.textContent="", 2000);
+    adsLiveState.textContent = "Actualizado ✅";
+  }
+
+  btnAddMsg.addEventListener("click", function(){
+    var t = (newMsg.value||"").trim();
+    if(!t) return;
+    currentMessages.push(t);
+    newMsg.value = "";
+    renderMsgList();
+  });
+
+  btnSaveAds.addEventListener("click", async function(){
+    try{ await saveAds(); }catch(e){ saveMsg.textContent="Error: "+(e.message||e); }
+  });
+
+  btnForceReloadAds.addEventListener("click", async function(){
+    try{
+      await cfgRef.set({ adsForceReloadAt: firebase.firestore.FieldValue.serverTimestamp() }, {merge:true});
+      saveMsg.textContent = "Forzado ✅";
+      setTimeout(()=>saveMsg.textContent="", 2000);
+    }catch(e){
+      saveMsg.textContent = "Error: "+(e.message||e);
+    }
+  });
+
+  btnLogin.addEventListener("click", async function(){
+    loginMsg.textContent = "";
+    try{
+      await auth.signInWithEmailAndPassword(emailEl.value.trim(), passEl.value);
+    }catch(e){
+      loginMsg.textContent = "Error: " + (e.message || e);
+    }
+  });
+
+  btnLogout.addEventListener("click", function(){
+    auth.signOut();
+  });
+
+  auth.onAuthStateChanged(async function(user){
+    if (!user){
+      setStatusBad("No conectado");
+      btnLogout.style.display="none";
+      panelCard.style.display="none";
+      toolsCard.style.display="none";
+      loginCard.style.display="block";
+      return;
+    }
+
+    if ((user.email||"").toLowerCase() !== ADMIN_EMAIL.toLowerCase()){
+      setStatusBad("No autorizado");
+      await auth.signOut();
+      return;
+    }
+
+    setStatusOk("Conectado: " + user.email);
+    btnLogout.style.display="inline-block";
+    loginCard.style.display="none";
+    panelCard.style.display="block";
+    toolsCard.style.display="block";
+
+    await loadConfig();
+  });
+
+  // Guardar switches básicos
+  chatEnabled.addEventListener("change", saveConfig);
+  likesEnabled.addEventListener("change", saveConfig);
+
+  // Tools: borrar colecciones en lotes (hasta 450 por clic)
+  async function deleteBatch(colRef){
+    const snap = await colRef.limit(450).get();
+    if (snap.empty) return 0;
+    const batch = db.batch();
+    snap.docs.forEach(doc => batch.delete(doc.ref));
+    await batch.commit();
+    return snap.size;
+  }
+
+  btnResetFans.addEventListener("click", async function(){
+    toolMsg.textContent = "Reseteando TOP FANS...";
+    try{
+      const n = await deleteBatch(likesRef);
+      toolMsg.textContent = "Top Fans borrados: " + n + " ✅";
+    }catch(e){
+      toolMsg.textContent = "Error: " + (e.message||e);
+    }
+  });
+
+  btnClearChat.addEventListener("click", async function(){
+    toolMsg.textContent = "Limpiando chat...";
+    try{
+      const n = await deleteBatch(chatRef);
+      toolMsg.textContent = "Chat borrado: " + n + " ✅";
+    }catch(e){
+      toolMsg.textContent = "Error: " + (e.message||e);
+    }
+  });
+</script>
+
 <body>
   <div class="wrap">
     <h1>Radio Coravox • Panel de Control v2</h1>
