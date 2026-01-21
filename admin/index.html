@@ -1279,8 +1279,9 @@ async function initProgramRefs() {
     await batch.commit();
     return snap.size;
   }
-
+  
   // Dashboard buttons (admin)
+  initProgramRefs().then(startRealtime).catch(console.log);
   $("btnResetTopfansProgram").addEventListener("click", async ()=>{
     if(role!=="admin"){ showToast("Solo admin"); return; }
     var n = await deleteBatch(topfansCol(currentProgramId), 450);
