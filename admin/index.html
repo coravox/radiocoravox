@@ -1278,10 +1278,10 @@ async function initProgramRefs() {
     snap.docs.forEach(doc=>batch.delete(doc.ref));
     await batch.commit();
     return snap.size;
+    initProgramRefs().then(startRealtime).catch(console.log);
   }
-  
+
   // Dashboard buttons (admin)
-  initProgramRefs().then(startRealtime).catch(console.log);
   $("btnResetTopfansProgram").addEventListener("click", async ()=>{
     if(role!=="admin"){ showToast("Solo admin"); return; }
     var n = await deleteBatch(topfansCol(currentProgramId), 450);
