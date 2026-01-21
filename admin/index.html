@@ -451,16 +451,16 @@
   };
   firebase.initializeApp(firebaseConfig);
   var db = firebase.firestore();
-  var cfgRef = db.collection("config").doc("global");
-var auth = firebase.auth();
+  var auth = firebase.auth();
 // Login anónimo para que Firestore Rules permitan escribir desde la app
 auth.signInAnonymously().catch(function(e){
   console.log("Anonymous auth error:", e);
   });
-var programKey = "autodj"; // fallback
-var messagesRef = null;
-var likesRef = null;
-var presenceRef = null;
+  var cfgRef = db.collection("config").doc("global");
+  var programKey = "autodj"; // fallback
+  var messagesRef = null;
+  var likesRef = null;
+  var presenceRef = null;
 
 async function initProgramRefs() {
   const snap = await cfgRef.get();
