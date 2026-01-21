@@ -450,14 +450,34 @@
     appId: "1:629472102664:web:56e539689983458ada84bd"
   };
   firebase.initializeApp(firebaseConfig);
-  var auth = firebase.auth();
   var db = firebase.firestore();
-  var auth = firebase.auth();
-  
+  var cfgRef = db.collection("config").doc("global");
+var auth = firebase.auth();
 // Login anónimo para que Firestore Rules permitan escribir desde la app
 auth.signInAnonymously().catch(function(e){
   console.log("Anonymous auth error:", e);
-});
+  });
+var programKey = "autodj"; // fallback
+var messagesRef = null;
+var likesRef = null;
+var presenceRef = null;
+
+async function initProgramRefs() {
+  const snap = await cfgRef.get();
+  const cfg = snap.exists ? snap.data() : {};
+
+  // convierte "AutoDJ Coravox" -> "autodj_coravox"
+  const raw = (cfg.currentProgram || "AutoDJ Coravox").toString().trim().toLowerCase();
+  programKey = raw.replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+  if (!programKey) programKey = "autodj";
+
+  // ✅ TODO por programa (una sola fuente de verdad)
+  const base = db.collection("programs").doc(programKey);
+
+  messagesRef  = base.collection("mensajes-chat");
+  likesRef     = base.collection("likes-ranking");
+  presenceRef  = base.collection("presence");
+}
 
   /***********************
    * ADMIN
