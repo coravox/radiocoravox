@@ -450,21 +450,23 @@
     appId: "1:629472102664:web:56e539689983458ada84bd"
   };
   firebase.initializeApp(firebaseConfig);
-  var auth = firebase.auth();
   var db = firebase.firestore();
-  var auth = firebase.auth();
-  
   var cfgRef = db.collection("config").doc("global");
 var auth = firebase.auth();
+  var auth = firebase.auth();
 // Login anónimo para que Firestore Rules permitan escribir desde la app
 auth.signInAnonymously().catch(function(e){
   console.log("Anonymous auth error:", e);
-});
   });
 var programKey = "autodj"; // fallback
 var messagesRef = null;
 var likesRef = null;
 var presenceRef = null;
+  var cfgRef = db.collection("config").doc("global");
+  var programKey = "autodj"; // fallback
+  var messagesRef = null;
+  var likesRef = null;
+  var presenceRef = null;
 
 async function initProgramRefs() {
   const snap = await cfgRef.get();
@@ -484,3 +486,1006 @@ async function initProgramRefs() {
 }
 
   /***********************
+   * ADMIN
+   ***********************/
+  var ADMIN_EMAIL = "vis-party@hotmail.com";
+
+  /***********************
+   * REFS
+   ***********************/
+  var cfgRef = db.collection("config").doc("global");
+  var djsRef = db.collection("djs");
+  var programsRef = db.collection("programs");
+  var settingsCurrentRef = db.collection("settings").doc("current");
+
+  /***********************
+   * UI HELPERS
+   ***********************/
+  function $(id){ return document.getElementById(id); }
+  var toast = $("toast");
+  function showToast(msg){
+    toast.textContent = msg;
+    toast.style.display="block";
+    setTimeout(()=>toast.style.display="none", 2600);
+  }
+
+  // Tabs
+  var tabs = Array.from(document.querySelectorAll(".tab"));
+  var panes = Array.from(document.querySelectorAll(".tabPane"));
+  tabs.forEach(btn=>{
+    btn.addEventListener("click", ()=>{
+      tabs.forEach(b=>b.classList.remove("active"));
+      btn.classList.add("active");
+      var t = btn.getAttribute("data-tab");
+      panes.forEach(p=>{
+        p.style.display = (p.getAttribute("data-pane")===t) ? "" : "none";
+      });
+    });
+  });
+
+  /***********************
+   * STATE
+   ***********************/
+  var role = "guest"; // admin | dj
+  var myDjId = null;
+  var myDjDoc = null;
+
+  // programs cache
+  var programs = [];
+  var currentProgramId = "autodj";
+  var currentProgramName = "AutoDJ Coravox";
+
+  /***********************
+   * LOGIN
+   ***********************/
+  $("btnLogin").addEventListener("click", async ()=>{
+    $("loginMsg").textContent="";
+    try{
+      await auth.signInWithEmailAndPassword($("email").value.trim(), $("pass").value);
+    }catch(e){
+      $("loginMsg").textContent = "Error: " + (e.message||e);
+    }
+  });
+
+  $("btnReset").addEventListener("click", async ()=>{
+    try{
+      var em = $("email").value.trim();
+      if(!em){ showToast("Escribe el correo"); return; }
+      await auth.sendPasswordResetEmail(em);
+      showToast("Email de reset enviado ✅");
+    }catch(e){
+      showToast("Error reset: " + (e.message||e));
+    }
+  });
+
+  $("btnLogout").addEventListener("click", ()=>auth.signOut());
+
+  auth.onAuthStateChanged(async (user)=>{
+    if(!user){
+      role="guest"; myDjId=null; myDjDoc=null;
+      $("who").textContent = "No autenticado";
+      $("btnLogout").style.display="none";
+      $("dashView").style.display="none";
+      $("loginView").style.display="";
+      return;
+    }
+
+    var em = (user.email||"").toLowerCase();
+
+    // Admin?
+    if(em === ADMIN_EMAIL.toLowerCase()){
+      role="admin";
+      $("who").innerHTML = "✅ Admin: <b>"+user.email+"</b>";
+      $("btnLogout").style.display="inline-flex";
+      $("loginView").style.display="none";
+      $("dashView").style.display="";
+      await bootAdmin();
+      return;
+    }
+
+    // DJ: buscar en djs por email
+    var snap = await djsRef.where("email","==", user.email).limit(1).get();
+    if(snap.empty){
+      showToast("No autorizado como DJ: "+user.email);
+      await auth.signOut();
+      return;
+    }
+    var djDoc = snap.docs[0];
+    var d = djDoc.data()||{};
+    if(d.active !== true){
+      showToast("DJ desactivado. Contacta admin.");
+      await auth.signOut();
+      return;
+    }
+
+    role="dj";
+    myDjId = djDoc.id;
+    myDjDoc = d;
+    $("who").innerHTML = "🎧 DJ: <b>"+(d.displayName||djDoc.id)+"</b>";
+    $("btnLogout").style.display="inline-flex";
+    $("loginView").style.display="none";
+    $("dashView").style.display="";
+    await bootDj();
+  });
+
+  /***********************
+   * BOOT
+   ***********************/
+  async function bootAdmin(){
+    // cargar todo
+    await loadConfigGlobal();
+    await loadPrograms();
+    await loadDjs();
+    await refreshOnAirFromSettings();
+    await rebuildProgramSelect();
+    // scheduler (cada 30s recalcula; escribe settings/current)
+    startAutoScheduler();
+    showToast("Panel admin listo ✅");
+  }
+
+  async function bootDj(){
+    // DJ: puede ver programas propios, moderar su programa si está on air
+    await loadConfigGlobal();
+    await loadPrograms();
+    await refreshOnAirFromSettings();
+    await rebuildProgramSelect(true);
+    startAutoScheduler(); // el reloj lo puede correr cualquiera, pero solo admin puede escribir current
+    showToast("Panel DJ listo ✅");
+  }
+
+  /***********************
+   * CONFIG GLOBAL
+   ***********************/
+  async function loadConfigGlobal(){
+    try{
+      var snap = await cfgRef.get();
+      var data = snap.exists ? snap.data() : {};
+      // defaults
+      if(typeof data.chatEnabled === "undefined") data.chatEnabled = true;
+      if(typeof data.likesEnabled === "undefined") data.likesEnabled = true;
+      if(typeof data.presenceEnabled === "undefined") data.presenceEnabled = true;
+      if(typeof data.adsEnabled === "undefined") data.adsEnabled = true;
+      if(typeof data.adsIntervalSec === "undefined") data.adsIntervalSec = 20;
+      if(!Array.isArray(data.adsMessages)) data.adsMessages = [];
+
+      $("cfgBadge").textContent = "ok";
+      $("cfgBadge").className = "badge on";
+
+      $("togChat").checked = data.chatEnabled !== false;
+      $("togLikes").checked = data.likesEnabled !== false;
+      $("togPresence").checked = data.presenceEnabled !== false;
+      $("togAds").checked = data.adsEnabled === true;
+
+      // Ads tab
+      $("adsEnabled").checked = data.adsEnabled === true;
+      $("adsIntervalSec").value = data.adsIntervalSec || 20;
+      adsMessages = data.adsMessages.slice();
+      renderAdsList();
+
+    }catch(e){
+      $("cfgBadge").textContent = "error";
+      $("cfgBadge").className = "badge off";
+      showToast("Error config/global: "+(e.message||e));
+    }
+  }
+
+  $("btnSaveCfg").addEventListener("click", async ()=>{
+    try{
+      await cfgRef.set({
+        chatEnabled: !!$("togChat").checked,
+        likesEnabled: !!$("togLikes").checked,
+        presenceEnabled: !!$("togPresence").checked,
+        adsEnabled: !!$("togAds").checked
+      }, {merge:true});
+      showToast("Config guardada ✅");
+      await loadConfigGlobal();
+    }catch(e){ showToast("Error guardando: "+(e.message||e)); }
+  });
+
+  $("btnReloadCfg").addEventListener("click", loadConfigGlobal);
+
+  /***********************
+   * ADS (gotas)
+   ***********************/
+  var adsMessages = [];
+
+  function renderAdsList(){
+    var box = $("adsList");
+    box.innerHTML = "";
+    if(!adsMessages.length){
+      box.innerHTML = "<div class='muted'>No hay mensajes. Agrega uno.</div>";
+      return;
+    }
+
+    adsMessages.forEach((msg, i)=>{
+      var row = document.createElement("div");
+      row.className = "item";
+
+      var left = document.createElement("div");
+      left.style.flex="1";
+      left.innerHTML =
+        "<div class='muted'>#"+(i+1)+"</div>" +
+        "<textarea class='field' data-i='"+i+"' style='margin-top:6px'>"+escapeHtml(msg)+"</textarea>";
+
+      var btns = document.createElement("div");
+      btns.className = "row";
+
+      var up = document.createElement("button");
+      up.className="miniBtn";
+      up.textContent="↑";
+      up.onclick=()=>{
+        if(i===0) return;
+        var t=adsMessages[i-1]; adsMessages[i-1]=adsMessages[i]; adsMessages[i]=t;
+        renderAdsList();
+      };
+
+      var down = document.createElement("button");
+      down.className="miniBtn";
+      down.textContent="↓";
+      down.onclick=()=>{
+        if(i===adsMessages.length-1) return;
+        var t=adsMessages[i+1]; adsMessages[i+1]=adsMessages[i]; adsMessages[i]=t;
+        renderAdsList();
+      };
+
+      var del = document.createElement("button");
+      del.className="miniBtn danger";
+      del.textContent="Eliminar";
+      del.onclick=()=>{
+        adsMessages.splice(i,1);
+        renderAdsList();
+      };
+
+      btns.appendChild(up); btns.appendChild(down); btns.appendChild(del);
+
+      row.appendChild(left);
+      row.appendChild(btns);
+      box.appendChild(row);
+    });
+
+    // bind textareas
+    Array.from(box.querySelectorAll("textarea")).forEach(ta=>{
+      ta.addEventListener("input", ()=>{
+        var idx = Number(ta.getAttribute("data-i"));
+        adsMessages[idx] = ta.value;
+      });
+    });
+  }
+
+  $("btnAddAdMsg").addEventListener("click", ()=>{
+    var t = ($("newAdMsg").value||"").trim();
+    if(!t) return;
+    adsMessages.push(t);
+    $("newAdMsg").value="";
+    renderAdsList();
+  });
+
+  $("btnSaveAds").addEventListener("click", async ()=>{
+    try{
+      // limpiar vacíos
+      adsMessages = adsMessages.map(s=>(s||"").trim()).filter(s=>s.length>0);
+
+      await cfgRef.set({
+        adsEnabled: !!$("adsEnabled").checked,
+        adsIntervalSec: Number($("adsIntervalSec").value || 20),
+        adsMessages: adsMessages
+      }, {merge:true});
+
+      $("adsMsg").textContent = "Guardado ✅";
+      setTimeout(()=>$("adsMsg").textContent="", 1500);
+      showToast("Gotas guardadas ✅");
+      await loadConfigGlobal();
+    }catch(e){
+      $("adsMsg").textContent = "Error: "+(e.message||e);
+    }
+  });
+
+  $("btnForceReloadAds").addEventListener("click", async ()=>{
+    try{
+      await cfgRef.set({ adsForceReloadAt: firebase.firestore.FieldValue.serverTimestamp() }, {merge:true});
+      $("adsMsg").textContent = "Forzado ✅";
+      setTimeout(()=>$("adsMsg").textContent="", 1500);
+    }catch(e){
+      $("adsMsg").textContent = "Error: "+(e.message||e);
+    }
+  });
+
+  /***********************
+   * DJs
+   ***********************/
+  var djs = [];
+
+  async function loadDjs(){
+    if(role!=="admin"){
+      // DJ no ve lista completa
+      $("djsList").innerHTML = "<div class='muted'>Solo admin.</div>";
+      return;
+    }
+    var snap = await djsRef.get();
+    djs = [];
+    snap.forEach(doc=>{
+      var d = doc.data()||{};
+      djs.push({
+        id: doc.id,
+        displayName: d.displayName||doc.id,
+        email: d.email||"",
+        active: d.active===true,
+        permissions: d.permissions||{}
+      });
+    });
+    djs.sort((a,b)=>(a.displayName||"").localeCompare(b.displayName||""));
+    renderDjs();
+  }
+
+  function renderDjs(){
+    var box = $("djsList");
+    box.innerHTML = "";
+    if(!djs.length){
+      box.innerHTML = "<div class='muted'>No hay DJs.</div>";
+      return;
+    }
+    djs.forEach(d=>{
+      var row = document.createElement("div");
+      row.className="item";
+      var left = document.createElement("div");
+      left.style.flex="1";
+      left.innerHTML =
+        "<b>"+escapeHtml(d.displayName)+"</b><div class='muted'>"+escapeHtml(d.id)+" • "+escapeHtml(d.email)+"</div>";
+
+      var right = document.createElement("div");
+      right.className="row";
+
+      var badge = document.createElement("span");
+      badge.className = "badge " + (d.active ? "on":"off");
+      badge.textContent = d.active ? "ACTIVO":"INACTIVO";
+
+      var edit = document.createElement("button");
+      edit.className="miniBtn";
+      edit.textContent="Editar";
+      edit.onclick=()=>{
+        $("djMode").textContent="editar";
+        $("djId").value = d.id;
+        $("djName").value = d.displayName;
+        $("djEmail").value = d.email;
+        $("djActive").checked = d.active;
+
+        $("pChatModerate").checked = !!d.permissions.chatModerate;
+        $("pTopfansReset").checked = !!d.permissions.topfansReset;
+        $("pBanUsers").checked = !!d.permissions.banUsers;
+        $("pAnnouncements").checked = !!d.permissions.announcements;
+      };
+
+      right.appendChild(badge);
+      right.appendChild(edit);
+
+      row.appendChild(left);
+      row.appendChild(right);
+      box.appendChild(row);
+    });
+  }
+
+  $("btnReloadDjs").addEventListener("click", loadDjs);
+
+  $("btnSaveDj").addEventListener("click", async ()=>{
+    if(role!=="admin"){ $("djMsg").textContent="Solo admin"; return; }
+    var id = ($("djId").value||"").trim();
+    var nm = ($("djName").value||"").trim();
+    var em = ($("djEmail").value||"").trim();
+    if(!id || !nm || !em){ $("djMsg").textContent="Completa djId, nombre, email"; return; }
+
+    var payload = {
+      displayName: nm,
+      email: em,
+      active: !!$("djActive").checked,
+      permissions: {
+        chatModerate: !!$("pChatModerate").checked,
+        topfansReset: !!$("pTopfansReset").checked,
+        banUsers: !!$("pBanUsers").checked,
+        announcements: !!$("pAnnouncements").checked,
+        chatClear: false // ✅ siempre false por tu regla
+      }
+    };
+
+    await djsRef.doc(id).set(payload, {merge:true});
+    $("djMsg").textContent="Guardado ✅";
+    setTimeout(()=>$("djMsg").textContent="",1500);
+    await loadDjs();
+  });
+
+  $("btnClearDjForm").addEventListener("click", ()=>{
+    $("djMode").textContent="nuevo";
+    $("djId").value=""; $("djName").value=""; $("djEmail").value="";
+    $("djActive").checked=true;
+    $("pChatModerate").checked=true;
+    $("pTopfansReset").checked=true;
+    $("pBanUsers").checked=true;
+    $("pAnnouncements").checked=false;
+  });
+
+  /***********************
+   * PROGRAMS
+   ***********************/
+  async function loadPrograms(){
+    var snap = await programsRef.get();
+    programs = [];
+    snap.forEach(doc=>{
+      var d = doc.data()||{};
+      programs.push({
+        id: doc.id,
+        name: d.name || doc.id,
+        djId: d.djId || "autodj",
+        enabled: d.enabled === true,
+        timezone: d.timezone || "America/New_York",
+        daysOfWeek: Array.isArray(d.daysOfWeek)? d.daysOfWeek : [0,1,2,3,4,5,6],
+        startTime: d.startTime || "00:00",
+        endTime: d.endTime || "23:59"
+      });
+    });
+    programs.sort((a,b)=>(a.startTime||"").localeCompare(b.startTime||""));
+    renderPrograms();
+    await rebuildProgramSelect(role==="dj");
+  }
+
+  function renderPrograms(){
+    var box = $("programsList");
+    box.innerHTML = "";
+    if(!programs.length){
+      box.innerHTML = "<div class='muted'>No hay programas.</div>";
+      return;
+    }
+
+    programs.forEach(p=>{
+      var row = document.createElement("div");
+      row.className="item";
+      var left = document.createElement("div");
+      left.style.flex="1";
+      left.innerHTML =
+        "<b>"+escapeHtml(p.name)+"</b> <span class='badge "+(p.enabled?"on":"off")+"'>"+(p.enabled?"ENABLED":"OFF")+"</span>" +
+        "<div class='muted'>id: "+escapeHtml(p.id)+" • djId: "+escapeHtml(p.djId)+"</div>" +
+        "<div class='muted'>Días: "+p.daysOfWeek.join(",")+" • "+escapeHtml(p.startTime)+"–"+escapeHtml(p.endTime)+"</div>";
+
+      var right = document.createElement("div");
+      right.className="row";
+
+      var edit = document.createElement("button");
+      edit.className="miniBtn";
+      edit.textContent="Editar";
+      edit.onclick=()=>{
+        $("progMode").textContent="editar";
+        $("progId").value = p.id;
+        $("progName").value = p.name;
+        $("progDjId").value = p.djId;
+        $("progEnabled").checked = p.enabled;
+        $("progStart").value = p.startTime;
+        $("progEnd").value = p.endTime;
+        $("progDays").value = p.daysOfWeek.join(",");
+      };
+
+      var force = document.createElement("button");
+      force.className="miniBtn";
+      force.textContent="Forzar ahora";
+      force.onclick=async ()=>{
+        if(role!=="admin"){ showToast("Solo admin"); return; }
+        await setCurrentProgram(p.id, p.name, "program");
+        showToast("ON AIR: "+p.name);
+      };
+
+      var del = document.createElement("button");
+      del.className="miniBtn danger";
+      del.textContent="Eliminar";
+      del.onclick=async ()=>{
+        if(role!=="admin"){ showToast("Solo admin"); return; }
+        if(!confirm("¿Eliminar programa "+p.id+"?")) return;
+        await programsRef.doc(p.id).delete();
+        await loadPrograms();
+      };
+
+      right.appendChild(edit);
+      right.appendChild(force);
+      if(role==="admin") right.appendChild(del);
+
+      row.appendChild(left);
+      row.appendChild(right);
+      box.appendChild(row);
+    });
+  }
+
+  $("btnReloadPrograms").addEventListener("click", loadPrograms);
+
+  $("btnSaveProgram").addEventListener("click", async ()=>{
+    if(role!=="admin"){ $("progMsg").textContent="Solo admin"; return; }
+
+    var id = ($("progId").value||"").trim();
+    var name = ($("progName").value||"").trim();
+    var djId = ($("progDjId").value||"").trim();
+    var start = ($("progStart").value||"").trim();
+    var end = ($("progEnd").value||"").trim();
+    var daysRaw = ($("progDays").value||"").trim();
+
+    if(!id || !name || !djId || !start || !end || !daysRaw){
+      $("progMsg").textContent="Completa todos los campos";
+      return;
+    }
+
+    var days = daysRaw.split(",").map(s=>Number(s.trim())).filter(n=>!isNaN(n) && n>=0 && n<=6);
+    if(!days.length){ $("progMsg").textContent="daysOfWeek inválido"; return; }
+
+    await programsRef.doc(id).set({
+      name, djId,
+      enabled: !!$("progEnabled").checked,
+      timezone: "America/New_York",
+      startTime: start,
+      endTime: end,
+      daysOfWeek: days,
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, {merge:true});
+
+    $("progMsg").textContent="Guardado ✅";
+    setTimeout(()=>$("progMsg").textContent="",1500);
+    await loadPrograms();
+  });
+
+  $("btnClearProgramForm").addEventListener("click", ()=>{
+    $("progMode").textContent="nuevo";
+    $("progId").value=""; $("progName").value=""; $("progDjId").value="";
+    $("progEnabled").checked=true;
+    $("progStart").value=""; $("progEnd").value="";
+    $("progDays").value="0,1,2,3,4,5,6";
+  });
+
+  /***********************
+   * SETTINGS/current
+   ***********************/
+  async function setCurrentProgram(id, name, mode){
+    await settingsCurrentRef.set({
+      currentProgramId: id,
+      currentProgramName: name,
+      mode: mode || (id==="autodj" ? "autodj":"program"),
+      timezone: "America/New_York",
+      updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, {merge:true});
+    await refreshOnAirFromSettings();
+  }
+
+  async function refreshOnAirFromSettings(){
+    var snap = await settingsCurrentRef.get();
+    var d = snap.exists ? snap.data() : null;
+    if(d && d.currentProgramId){
+      currentProgramId = d.currentProgramId;
+      currentProgramName = d.currentProgramName || d.currentProgramId;
+    } else {
+      currentProgramId = "autodj";
+      currentProgramName = "AutoDJ Coravox";
+    }
+    $("onAirName").textContent = currentProgramName;
+    $("onAirId").textContent = currentProgramId;
+    $("modCurrentProgram").textContent = currentProgramId;
+    $("onAirBadge").textContent = (currentProgramId==="autodj") ? "AutoDJ" : "Programa";
+    $("onAirBadge").className = "badge " + ((currentProgramId==="autodj") ? "on":"on");
+
+    // cargar data del programa actual
+    await loadPresenceForProgram(currentProgramId, $("presenceList"), $("onAirPresenceCount"));
+    await loadTopfansForProgram(currentProgramId, $("topfansList"));
+  }
+
+  $("btnForceAutodj").addEventListener("click", async ()=>{
+    if(role!=="admin"){ showToast("Solo admin"); return; }
+    await setCurrentProgram("autodj","AutoDJ Coravox","autodj");
+    showToast("Forzado AutoDJ ✅");
+  });
+
+  $("btnRecalc").addEventListener("click", async ()=>{
+    await autoPickAndSetCurrent();
+  });
+
+  /***********************
+   * AUTO SCHEDULER (mientras panel abierto)
+   ***********************/
+  var schedulerTimer = null;
+
+  function startAutoScheduler(){
+    if(schedulerTimer) clearInterval(schedulerTimer);
+    schedulerTimer = setInterval(async ()=>{
+      await autoPickAndSetCurrent();
+    }, 30000);
+    // primera
+    autoPickAndSetCurrent();
+  }
+
+  function timeNowNY(){
+    // "America/New_York" (sin libs): usamos Intl con parts
+    var fmt = new Intl.DateTimeFormat("en-US", {
+      timeZone: "America/New_York",
+      hour12: false,
+      weekday: "short",
+      hour: "2-digit",
+      minute: "2-digit"
+    });
+    var parts = fmt.formatToParts(new Date());
+    var map = {};
+    parts.forEach(p=>{ if(p.type!=="literal") map[p.type]=p.value; });
+
+    // weekday short: Sun, Mon...
+    var wdMap = {Sun:0,Mon:1,Tue:2,Wed:3,Thu:4,Fri:5,Sat:6};
+    var dow = wdMap[map.weekday] ?? 0;
+
+    var hh = Number(map.hour||"0");
+    var mm = Number(map.minute||"0");
+    return { dow, hh, mm, minutes: hh*60+mm };
+  }
+
+  function parseHM(s){
+    var m = /^(\d{1,2}):(\d{2})$/.exec((s||"").trim());
+    if(!m) return null;
+    var hh = Number(m[1]), mm = Number(m[2]);
+    if(hh<0||hh>23||mm<0||mm>59) return null;
+    return hh*60+mm;
+  }
+
+  function isProgramActiveNow(p, now){
+    if(!p.enabled) return false;
+    if(!Array.isArray(p.daysOfWeek) || p.daysOfWeek.indexOf(now.dow)===-1) return false;
+
+    var s = parseHM(p.startTime);
+    var e = parseHM(p.endTime);
+    if(s===null || e===null) return false;
+
+    // caso normal (no cruza medianoche)
+    if(e> s){
+      return now.minutes >= s && now.minutes < e;
+    }
+    // cruza medianoche (ej 23:00-02:00)
+    return (now.minutes >= s) || (now.minutes < e);
+  }
+
+  async function autoPickAndSetCurrent(){
+    // Solo admin escribe settings/current para evitar guerras
+    if(role !== "admin"){
+      // DJ solo lee
+      await refreshOnAirFromSettings();
+      return;
+    }
+
+    var now = timeNowNY();
+    // elegir el primer programa activo (prioridad: el que tenga startTime más cercano; simple)
+    var active = programs.filter(p=>isProgramActiveNow(p, now));
+
+    // si no hay activos, autodj
+    if(active.length===0){
+      if(currentProgramId!=="autodj"){
+        await setCurrentProgram("autodj","AutoDJ Coravox","autodj");
+      } else {
+        await refreshOnAirFromSettings();
+      }
+      return;
+    }
+
+    // ordenar por startTime (en minutos)
+    active.sort((a,b)=>{
+      var sa=parseHM(a.startTime)||0;
+      var sb=parseHM(b.startTime)||0;
+      return sa-sb;
+    });
+
+    var chosen = active[0];
+    if(currentProgramId !== chosen.id){
+      await setCurrentProgram(chosen.id, chosen.name, "program");
+    } else {
+      await refreshOnAirFromSettings();
+    }
+  }
+
+  /***********************
+   * PROGRAM SELECT (moderation)
+   ***********************/
+  async function rebuildProgramSelect(onlyMine){
+    var sel = $("programSelect");
+    sel.innerHTML = "";
+
+    var list = programs.slice();
+    if(onlyMine && role==="dj"){
+      list = list.filter(p=>p.djId === myDjId);
+    }
+
+    // always include autodj
+    if(!list.some(p=>p.id==="autodj")){
+      list.unshift({id:"autodj", name:"AutoDJ Coravox"});
+    }
+
+    list.forEach(p=>{
+      var opt = document.createElement("option");
+      opt.value = p.id;
+      opt.textContent = p.id + " • " + (p.name||p.id);
+      sel.appendChild(opt);
+    });
+
+    // default select current
+    sel.value = currentProgramId || "autodj";
+  }
+
+  /***********************
+   * PRESENCE per program
+   ***********************/
+  function presenceCol(programId){
+    return programsRef.doc(programId).collection("presence");
+  }
+  function topfansCol(programId){
+    return programsRef.doc(programId).collection("topfans");
+  }
+  function chatCol(programId){
+    return programsRef.doc(programId).collection("chat");
+  }
+
+  async function loadPresenceForProgram(programId, listEl, countEl){
+    try{
+      if(!listEl) return;
+      listEl.innerHTML = "";
+      var nowMs = Date.now();
+      var snap = await presenceCol(programId).orderBy("lastSeen","desc").limit(60).get();
+      var active = [];
+      snap.forEach(doc=>{
+        var d = doc.data()||{};
+        var ms = (d.lastSeen && d.lastSeen.toMillis) ? d.lastSeen.toMillis() : 0;
+        if(ms && (nowMs - ms) <= 90000){
+          active.push({name: d.name||"Oyente", admin: !!d.admin, ms});
+        }
+      });
+      if(countEl) countEl.textContent = String(active.length);
+
+      if(active.length===0){
+        listEl.innerHTML = "<div class='muted'>Nadie conectado (últimos 90s).</div>";
+        return;
+      }
+
+      active.forEach(u=>{
+        var row = document.createElement("div");
+        row.className="item";
+        var ago = Math.max(0, Math.floor((nowMs-u.ms)/1000));
+        row.innerHTML =
+          "<div style='flex:1'><b>"+escapeHtml(u.name)+"</b> "+(u.admin?"<span class='badge'>ADMIN</span>":"")+
+          "<div class='muted'>hace "+ago+"s</div></div>"+
+          "<span class='badge on'>ONLINE</span>";
+        listEl.appendChild(row);
+      });
+    }catch(e){
+      if(countEl) countEl.textContent="0";
+      if(listEl) listEl.innerHTML="<div class='muted'>Error presence: "+escapeHtml(e.message||e)+"</div>";
+    }
+  }
+
+  async function loadTopfansForProgram(programId, listEl){
+    try{
+      listEl.innerHTML="";
+      var snap = await topfansCol(programId).orderBy("likes","desc").limit(15).get();
+      if(snap.empty){
+        listEl.innerHTML="<div class='muted'>Sin datos.</div>";
+        return;
+      }
+      var idx=0;
+      snap.forEach(doc=>{
+        idx++;
+        var d=doc.data()||{};
+        var row=document.createElement("div");
+        row.className="item";
+        row.innerHTML =
+          "<div style='flex:1'><b>"+idx+". "+escapeHtml(d.usuario||doc.id)+"</b></div>"+
+          "<span class='badge on'>❤ "+(d.likes||0)+"</span>";
+        listEl.appendChild(row);
+      });
+    }catch(e){
+      listEl.innerHTML="<div class='muted'>Error topfans: "+escapeHtml(e.message||e)+"</div>";
+    }
+  }
+
+  async function deleteBatch(colRef, limit){
+    var snap = await colRef.limit(limit||450).get();
+    if(snap.empty) return 0;
+    var batch = db.batch();
+    snap.docs.forEach(doc=>batch.delete(doc.ref));
+    await batch.commit();
+    return snap.size;
+  }
+
+  // Dashboard buttons (admin)
+  $("btnResetTopfansProgram").addEventListener("click", async ()=>{
+    if(role!=="admin"){ showToast("Solo admin"); return; }
+    var n = await deleteBatch(topfansCol(currentProgramId), 450);
+    showToast("Reset TopFans ("+currentProgramId+"): "+n);
+    await loadTopfansForProgram(currentProgramId, $("topfansList"));
+  });
+
+  $("btnClearChatProgram").addEventListener("click", async ()=>{
+    if(role!=="admin"){ showToast("Solo admin"); return; }
+    var n = await deleteBatch(chatCol(currentProgramId), 450);
+    showToast("Chat limpiado ("+currentProgramId+"): "+n);
+  });
+
+  $("btnRefreshPresence").addEventListener("click", async ()=>{
+    await loadPresenceForProgram(currentProgramId, $("presenceList"), $("onAirPresenceCount"));
+  });
+
+  // Moderation tab load
+  $("btnLoadProgramData").addEventListener("click", async ()=>{
+    var pid = $("programSelect").value || "autodj";
+    await loadChatModeration(pid);
+    await loadTopfansModeration(pid);
+    await loadPresenceForProgram(pid, $("presenceSelectedList"), $("presenceSelectedCount"));
+  });
+
+  $("btnRefreshChat").addEventListener("click", async ()=>{
+    var pid = $("programSelect").value || "autodj";
+    await loadChatModeration(pid);
+  });
+
+  $("btnRefreshTopfans").addEventListener("click", async ()=>{
+    var pid = $("programSelect").value || "autodj";
+    await loadTopfansModeration(pid);
+  });
+
+  $("btnRefreshPresenceSelected").addEventListener("click", async ()=>{
+    var pid = $("programSelect").value || "autodj";
+    await loadPresenceForProgram(pid, $("presenceSelectedList"), $("presenceSelectedCount"));
+  });
+
+  $("btnClearChatSelected").addEventListener("click", async ()=>{
+    if(role!=="admin"){ showToast("Solo admin"); return; }
+    var pid = $("programSelect").value || "autodj";
+    var n = await deleteBatch(chatCol(pid), 450);
+    showToast("Chat limpiado ("+pid+"): "+n);
+    await loadChatModeration(pid);
+  });
+
+  $("btnResetTopfansSelected").addEventListener("click", async ()=>{
+    var pid = $("programSelect").value || "autodj";
+    // DJ puede resetear solo si tiene permiso y es su programa
+    if(role==="dj"){
+      if(!myDjDoc || !myDjDoc.permissions || !myDjDoc.permissions.topfansReset){
+        showToast("Sin permiso reset topfans");
+        return;
+      }
+      var prog = programs.find(p=>p.id===pid);
+      if(!prog || prog.djId !== myDjId){
+        showToast("Solo tu programa");
+        return;
+      }
+    } else if(role!=="admin"){
+      showToast("No autorizado");
+      return;
+    }
+
+    var n = await deleteBatch(topfansCol(pid), 450);
+    showToast("Reset TopFans ("+pid+"): "+n);
+    await loadTopfansModeration(pid);
+  });
+
+  /***********************
+   * CHAT moderation list
+   ***********************/
+  async function loadChatModeration(pid){
+    var box = $("chatModList");
+    box.innerHTML = "<div class='muted'>Cargando…</div>";
+    try{
+      var snap = await chatCol(pid).orderBy("creado","desc").limit(60).get();
+      var arr=[];
+      snap.forEach(doc=>{
+        var d=doc.data()||{};
+        arr.push({
+          id: doc.id,
+          usuario: d.usuario||"—",
+          mensaje: d.mensaje||"",
+          rol: d.rol||"user",
+          tipo: d.tipo||"mensaje"
+        });
+      });
+      arr.reverse();
+      box.innerHTML="";
+      if(arr.length===0){
+        box.innerHTML="<div class='muted'>Sin mensajes.</div>";
+        return;
+      }
+      arr.forEach(m=>{
+        var row=document.createElement("div");
+        row.className="item";
+        var left=document.createElement("div");
+        left.style.flex="1";
+        left.innerHTML =
+          "<b>"+escapeHtml(m.usuario)+"</b> <span class='badge'>"+escapeHtml(m.tipo)+"</span>"+
+          "<div class='muted'>"+escapeHtml(m.mensaje)+"</div>";
+
+        var right=document.createElement("div");
+        right.className="row";
+
+        var del=document.createElement("button");
+        del.className="miniBtn danger";
+        del.textContent="Borrar";
+        del.onclick=async ()=>{
+          // DJ puede borrar msg si chatModerate y es su programa
+          if(role==="dj"){
+            if(!myDjDoc || !myDjDoc.permissions || !myDjDoc.permissions.chatModerate){
+              showToast("Sin permiso moderar");
+              return;
+            }
+            var prog = programs.find(p=>p.id===pid);
+            if(!prog || prog.djId !== myDjId){
+              showToast("Solo tu programa");
+              return;
+            }
+          } else if(role!=="admin"){
+            showToast("No autorizado");
+            return;
+          }
+
+          await chatCol(pid).doc(m.id).delete();
+          showToast("Mensaje borrado ✅");
+          await loadChatModeration(pid);
+        };
+
+        right.appendChild(del);
+        row.appendChild(left);
+        row.appendChild(right);
+        box.appendChild(row);
+      });
+    }catch(e){
+      box.innerHTML="<div class='muted'>Error: "+escapeHtml(e.message||e)+"</div>";
+    }
+  }
+
+  async function loadTopfansModeration(pid){
+    await loadTopfansForProgram(pid, $("topfansModList"));
+  }
+
+  /***********************
+   * INIT loads
+   ***********************/
+  async function rebuildProgramSelect(onlyMine){
+    var sel = $("programSelect");
+    sel.innerHTML = "";
+    var list = programs.slice();
+
+    if(onlyMine && role==="dj"){
+      list = list.filter(p=>p.djId === myDjId);
+    }
+    if(!list.some(p=>p.id==="autodj")) list.unshift({id:"autodj", name:"AutoDJ Coravox"});
+
+    list.forEach(p=>{
+      var opt=document.createElement("option");
+      opt.value=p.id;
+      opt.textContent=p.id+" • "+(p.name||p.id);
+      sel.appendChild(opt);
+    });
+    sel.value = currentProgramId || "autodj";
+  }
+
+  async function refreshOnAirFromSettings(){
+    var snap = await settingsCurrentRef.get();
+    var d = snap.exists ? snap.data() : null;
+    if(d && d.currentProgramId){
+      currentProgramId = d.currentProgramId;
+      currentProgramName = d.currentProgramName || d.currentProgramId;
+    } else {
+      currentProgramId = "autodj";
+      currentProgramName = "AutoDJ Coravox";
+    }
+    $("onAirName").textContent = currentProgramName;
+    $("onAirId").textContent = currentProgramId;
+    $("modCurrentProgram").textContent = currentProgramId;
+
+    await loadPresenceForProgram(currentProgramId, $("presenceList"), $("onAirPresenceCount"));
+    await loadTopfansForProgram(currentProgramId, $("topfansList"));
+  }
+
+  /***********************
+   * escape
+   ***********************/
+  function escapeHtml(s){
+    return String(s||"").replace(/[&<>"']/g, m=>({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+  }
+
+  /***********************
+   * STARTUP: after login boot functions call these
+   ***********************/
+  // Boot functions call: loadConfigGlobal(), loadPrograms(), loadDjs(), refreshOnAirFromSettings(), rebuildProgramSelect()
+  // They are defined above and used in bootAdmin/bootDj.
+</script>
+
+</body>
