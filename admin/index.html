@@ -3,794 +3,484 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
-  <title>Panel Admin • Radio Coravox</title>
+  <title>Panel Pro • Radio Coravox</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{
       font-family:system-ui,-apple-system,Roboto,Segoe UI,Arial,sans-serif;
-      background:#070707; color:#f5c85b;
-      min-height:100vh;
+      background:#070707;color:#fff;min-height:100vh;
     }
-    a{color:#7ad9ff;text-decoration:none}
-    .wrap{max-width:1100px;margin:0 auto;padding:16px}
+    .wrap{max-width:1180px;margin:0 auto;padding:16px}
     .topbar{
       display:flex;align-items:center;justify-content:space-between;gap:12px;
       padding:12px 14px;border:1px solid rgba(245,200,91,.18);
       border-radius:14px;background:rgba(0,0,0,.35);
-      box-shadow:0 0 18px rgba(0,0,0,.55);
-      margin-bottom:14px;
+      box-shadow:0 0 18px rgba(0,0,0,.55);margin-bottom:14px;
     }
-    .brand{font-weight:900;letter-spacing:.06em}
+    .brand{font-weight:900;letter-spacing:.06em;color:#f5c85b}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
     .pill{
       display:inline-flex;align-items:center;gap:8px;
       padding:8px 10px;border-radius:999px;
       border:1px solid rgba(245,200,91,.25);
-      background:rgba(0,0,0,.25); color:#fff;
-      font-size:12px;
+      background:rgba(0,0,0,.25);color:#fff;font-size:12px
     }
+    .pill b{color:#f5c85b}
     .btn{
       border:none;border-radius:12px;padding:10px 12px;
-      font-weight:900;cursor:pointer;
-      background:#f5c85b;color:#000;
-      box-shadow:0 0 10px rgba(0,0,0,.5);
+      font-weight:900;cursor:pointer;background:#f5c85b;color:#000;
+      box-shadow:0 0 10px rgba(0,0,0,.55);
     }
     .btn.secondary{
-      background:rgba(245,200,91,.12); color:#f5c85b;
-      border:1px solid rgba(245,200,91,.35);
-      box-shadow:none;
+      background:rgba(245,200,91,.12);color:#f5c85b;
+      border:1px solid rgba(245,200,91,.35);box-shadow:none;
     }
     .btn.danger{
-      background:rgba(255,107,107,.15); color:#ff6b6b;
-      border:1px solid rgba(255,107,107,.35);
-      box-shadow:none;
+      background:rgba(255,107,107,.18);color:#ff7a7a;
+      border:1px solid rgba(255,107,107,.35);box-shadow:none;
     }
     .btn.small{padding:7px 9px;border-radius:10px;font-size:12px}
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:14px;
-    }
-    @media (max-width:900px){
-      .grid{grid-template-columns:1fr}
-    }
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    @media (max-width:980px){.grid{grid-template-columns:1fr}}
     .card{
       border:1px solid rgba(245,200,91,.18);
       border-radius:14px;background:rgba(0,0,0,.35);
       box-shadow:0 0 18px rgba(0,0,0,.55);
       overflow:hidden;
-      min-height:140px;
     }
     .card h3{
-      padding:12px 14px;
-      border-bottom:1px solid rgba(245,200,91,.14);
-      font-size:14px; color:#fff;
-      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      padding:12px 14px;border-bottom:1px solid rgba(245,200,91,.14);
+      font-size:14px;color:#fff;display:flex;align-items:center;justify-content:space-between;gap:10px;
     }
     .card .body{padding:12px 14px}
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .muted{opacity:.85;color:#fff}
-    .smalltxt{font-size:12px;opacity:.9;color:#fff}
+    .muted{opacity:.82;color:#fff;font-size:12px}
     .field{
-      width:100%;
-      background:#000;border:1px solid rgba(245,200,91,.28);
-      border-radius:12px;padding:10px 12px;color:#f5c85b;
-      outline:none;
+      width:100%;background:#000;border:1px solid rgba(245,200,91,.28);
+      border-radius:12px;padding:10px 12px;color:#f5c85b;outline:none;
     }
     .field::placeholder{color:rgba(245,200,91,.55)}
-    .split{
-      display:grid;
-      grid-template-columns:1fr 1fr;
-      gap:10px;
-    }
-    @media (max-width:520px){
-      .split{grid-template-columns:1fr}
-    }
-    .list{
-      display:flex;flex-direction:column;gap:8px;
-      max-height:320px;overflow:auto;padding-right:6px;
-    }
+    .split{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media (max-width:520px){.split{grid-template-columns:1fr}}
+    .list{display:flex;flex-direction:column;gap:8px;max-height:360px;overflow:auto;padding-right:6px}
     .item{
-      display:flex;justify-content:space-between;align-items:center;gap:10px;
-      padding:10px 10px;border-radius:12px;
-      background:rgba(0,0,0,.25);
+      display:flex;justify-content:space-between;align-items:flex-start;gap:10px;
+      padding:10px;border-radius:12px;background:rgba(0,0,0,.25);
       border:1px solid rgba(245,200,91,.12);
     }
     .item b{color:#fff}
     .badge{
-      font-size:11px;font-weight:900;
-      padding:5px 8px;border-radius:999px;
-      border:1px solid rgba(245,200,91,.25);
-      background:rgba(245,200,91,.12);
-      color:#f5c85b;
-      white-space:nowrap;
+      font-size:11px;font-weight:900;padding:5px 8px;border-radius:999px;
+      border:1px solid rgba(245,200,91,.25);background:rgba(245,200,91,.12);
+      color:#f5c85b;white-space:nowrap
     }
     .badge.on{border-color:rgba(157,255,122,.35);background:rgba(157,255,122,.12);color:#9dff7a}
     .badge.off{border-color:rgba(255,107,107,.35);background:rgba(255,107,107,.12);color:#ff6b6b}
+    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px}
+    .tab{
+      border:1px solid rgba(245,200,91,.18);
+      background:rgba(0,0,0,.25);
+      color:#fff;border-radius:999px;padding:8px 10px;
+      font-weight:900;font-size:12px;cursor:pointer
+    }
+    .tab.active{background:#f5c85b;color:#000;border-color:#f5c85b}
     .toast{
       position:fixed;left:50%;bottom:18px;transform:translateX(-50%);
-      background:rgba(0,0,0,.88);
-      border:1px solid rgba(245,200,91,.25);
-      color:#fff;border-radius:14px;
-      padding:10px 12px;
+      background:rgba(0,0,0,.88);border:1px solid rgba(245,200,91,.25);
+      color:#fff;border-radius:14px;padding:10px 12px;
       box-shadow:0 0 20px rgba(0,0,0,.75);
-      display:none;z-index:99999;
-      max-width:92%; text-align:center;
-      font-size:13px;
+      display:none;z-index:99999;max-width:92%;text-align:center;font-size:13px;
     }
-    .divider{height:1px;background:rgba(245,200,91,.14);margin:10px 0}
+    .hr{height:1px;background:rgba(245,200,91,.14);margin:10px 0}
     .toggle{
-      display:flex;align-items:center;gap:10px;
-      padding:10px;border-radius:12px;
-      border:1px solid rgba(245,200,91,.12);
-      background:rgba(0,0,0,.25);
-      color:#fff;
+      display:flex;align-items:center;gap:10px;padding:10px;border-radius:12px;
+      border:1px solid rgba(245,200,91,.12);background:rgba(0,0,0,.25);color:#fff;
     }
     .toggle input{transform:scale(1.1)}
-    .loginCard{
-      max-width:520px;margin:9vh auto 0;
-    }
-    .code{
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
-      font-size:12px;color:#fff;opacity:.9;
+    textarea.field{min-height:38px;resize:vertical;color:#fff}
+    .miniBtn{
+      border:1px solid rgba(245,200,91,.25);
       background:rgba(0,0,0,.35);
-      border:1px solid rgba(245,200,91,.12);
-      border-radius:12px;
-      padding:10px;
-      overflow:auto;
+      color:#f5c85b;border-radius:10px;
+      padding:7px 9px;font-weight:900;cursor:pointer;font-size:12px;
     }
+    .miniBtn.danger{border-color:rgba(255,107,107,.35);color:#ff7a7a}
+    .kbd{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;color:#fff;opacity:.9}
+    .twoCol{display:grid;grid-template-columns:1.2fr .8fr;gap:12px}
+    @media(max-width:980px){.twoCol{grid-template-columns:1fr}}
   </style>
 </head>
 
 <body>
-  <div class="wrap">
-    <!-- TOPBAR -->
-    <div class="topbar">
-      <div class="brand">🎛️ Panel Admin • Radio Coravox</div>
-      <div class="row">
-        <div id="who" class="pill">No autenticado</div>
-        <button id="btnLogout" class="btn secondary small" style="display:none">Salir</button>
-      </div>
+<div class="wrap">
+
+  <div class="topbar">
+    <div class="brand">🎛️ Panel Pro • Radio Coravox</div>
+    <div class="row">
+      <div id="who" class="pill">No autenticado</div>
+      <button id="btnLogout" class="btn secondary small" style="display:none">Salir</button>
     </div>
+  </div>
 
-    <!-- LOGIN -->
-    <div id="loginView" class="card loginCard">
-      <h3>🔐 Iniciar sesión</h3>
-      <div class="body">
-        <div class="smalltxt muted" style="margin-bottom:10px">
-          Solo el admin autorizado puede entrar.
-        </div>
-        <div class="split">
-          <input id="email" class="field" type="email" placeholder="Correo" value="vis-party@hotmail.com" />
-          <input id="pass" class="field" type="password" placeholder="Contraseña" />
-        </div>
-        <div class="row" style="margin-top:10px">
-          <button id="btnLogin" class="btn">Entrar</button>
-          <button id="btnReset" class="btn secondary">Olvidé mi contraseña</button>
-        </div>
-        <div class="divider"></div>
-        <div class="smalltxt muted">
-          Si te falla el login, revisa en Firebase → Authentication que “Correo/contraseña” esté habilitado.
-        </div>
+  <!-- LOGIN -->
+  <div id="loginView" class="card">
+    <h3>🔐 Iniciar sesión <span class="badge">Firebase Auth</span></h3>
+    <div class="body">
+      <div class="split">
+        <input id="email" class="field" type="email" placeholder="Correo" value="vis-party@hotmail.com" />
+        <input id="pass"  class="field" type="password" placeholder="Contraseña" />
       </div>
-    </div>
-
-    <!-- DASHBOARD -->
-    <div id="dashView" style="display:none">
-      <div class="grid">
-
-        <!-- CONFIG GLOBAL -->
-        <div class="card">
-          <h3>
-            ⚙️ Configuración global (config/global)
-            <span id="cfgBadge" class="badge">cargando…</span>
-          </h3>
-          <div class="body">
-            <div class="row" style="margin-bottom:10px">
-              <div class="pill">DJ activo: <b id="activeDjLabel" style="color:#fff">—</b></div>
-              <button id="btnReloadCfg" class="btn secondary small">Recargar</button>
-            </div>
-
-            <div class="split">
-              <div class="toggle">
-                <input id="togChat" type="checkbox" />
-                <label for="togChat"><b>Chat</b> habilitado</label>
-              </div>
-              <div class="toggle">
-                <input id="togLikes" type="checkbox" />
-                <label for="togLikes"><b>Likes</b> habilitados</label>
-              </div>
-              <div class="toggle">
-                <input id="togReq" type="checkbox" />
-                <label for="togReq"><b>Peticiones</b> habilitadas</label>
-              </div>
-              <div class="toggle">
-                <input id="togPresence" type="checkbox" />
-                <label for="togPresence"><b>Presence</b> habilitado</label>
-              </div>
-            </div>
-
-            <div class="row" style="margin-top:10px">
-              <button id="btnSaveCfg" class="btn">Guardar cambios</button>
-              <span class="smalltxt muted">*Se guarda en config/global</span>
-            </div>
-
-            <div class="divider"></div>
-            <div class="smalltxt muted">
-              Nota: Estos switches solo controlan lo que tú decidas respetar desde la app (si ya lo tienes conectado).
-            </div>
-          </div>
-        </div>
-
-        <!-- DJ MANAGEMENT -->
-        <div class="card">
-          <h3>
-            🎧 DJs / Programas (djs/*)
-            <span class="badge">activar / poner en vivo</span>
-          </h3>
-          <div class="body">
-            <div class="row" style="margin-bottom:10px">
-              <input id="djSearch" class="field" placeholder="Buscar DJ..." />
-              <button id="btnReloadDjs" class="btn secondary small">Recargar</button>
-            </div>
-            <div id="djList" class="list"></div>
-            <div class="divider"></div>
-            <div class="smalltxt muted">
-              “Activar” = cambia el campo <b>active</b> en djs/{id}.  
-              “Poner DJ activo” = escribe <b>activeDj</b> y <b>currentProgram</b> en config/global.
-            </div>
-          </div>
-        </div>
-
-        <!-- CONNECTED USERS -->
-        <div class="card">
-          <h3>
-            🟢 Conectados (presence)
-            <span id="onlineBadge" class="badge">0</span>
-          </h3>
-          <div class="body">
-            <div class="row" style="margin-bottom:10px">
-              <button id="btnReloadPresence" class="btn secondary small">Refrescar</button>
-              <span class="smalltxt muted">Se muestra quien “pingueó” en los últimos ~90s</span>
-            </div>
-            <div id="presenceList" class="list"></div>
-            <div class="divider"></div>
-            <div class="smalltxt muted">
-              Si aquí no aparece nadie, revisa que tu app esté enviando <b>lastSeen</b> a /presence.
-            </div>
-          </div>
-        </div>
-
-        <!-- CHAT MODERATION -->
-        <div class="card">
-          <h3>
-            💬 Chat (mensajes-chat)
-            <span class="badge">moderar</span>
-          </h3>
-          <div class="body">
-            <div class="row" style="margin-bottom:10px">
-              <button id="btnReloadChat" class="btn secondary small">Recargar</button>
-              <button id="btnClearChat" class="btn danger small">🧹 ClearChat</button>
-              <span class="smalltxt muted">Borra mensajes (admin)</span>
-            </div>
-            <div id="chatList" class="list"></div>
-            <div class="divider"></div>
-            <div class="smalltxt muted">
-              “Borrar” elimina el documento real en Firestore.
-            </div>
-          </div>
-        </div>
-
-        <!-- TOP FANS -->
-        <div class="card">
-          <h3>
-            ❤️ Top Fans (likes-ranking)
-            <span class="badge">reset</span>
-          </h3>
-          <div class="body">
-            <div class="row" style="margin-bottom:10px">
-              <button id="btnReloadFans" class="btn secondary small">Recargar</button>
-              <button id="btnResetFans" class="btn danger small">♻ ResetFans</button>
-              <span class="smalltxt muted">Borra todos los likes</span>
-            </div>
-            <div id="fansList" class="list"></div>
-          </div>
-        </div>
-
-        <!-- LOGS / DEBUG -->
-        <div class="card">
-          <h3>🧾 Estado / Debug <span class="badge">útil</span></h3>
-          <div class="body">
-            <div class="smalltxt muted" style="margin-bottom:8px">
-              Si algo falla, mira aquí el último estado:
-            </div>
-            <div id="debug" class="code">Listo.</div>
-          </div>
-        </div>
-
+      <div class="row" style="margin-top:10px">
+        <button id="btnLogin" class="btn">Entrar</button>
+        <button id="btnReset" class="btn secondary">Olvidé mi contraseña</button>
+        <span id="loginMsg" class="muted"></span>
+      </div>
+      <div class="hr"></div>
+      <div class="muted">
+        Roles: Admin (tú) y DJs por email.  
+        Admin: control total. DJs: moderación por programa.
       </div>
     </div>
   </div>
 
-  <div id="toast" class="toast"></div>
+  <!-- DASH -->
+  <div id="dashView" style="display:none">
 
-  <!-- Firebase v8 (igual que tu app) -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+    <div class="tabs">
+      <button class="tab active" data-tab="home">Dashboard</button>
+      <button class="tab" data-tab="ads">Gotas / Anuncios</button>
+      <button class="tab" data-tab="programs">Programas</button>
+      <button class="tab" data-tab="djs">DJs</button>
+      <button class="tab" data-tab="moderation">Moderación</button>
+    </div>
 
-  <script>
-    /***********************
-     * ✅ CONFIG FIREBASE (TUYO)
-     ***********************/
-    var firebaseConfig = {
-      apiKey: "AIzaSyC8jq2iODj6DwfTSktgZ7ia84oeMxxPjNE",
-      authDomain: "coravox-602a0.firebaseapp.com",
-      projectId: "coravox-602a0",
-      storageBucket: "coravox-602a0.firebasestorage.app",
-      messagingSenderId: "629472102664",
-      appId: "1:629472102664:web:56e539689983458ada84bd"
-    };
-    firebase.initializeApp(firebaseConfig);
-    var auth = firebase.auth();
-    var db = firebase.firestore();
+    <!-- DASHBOARD -->
+    <div class="grid tabPane" data-pane="home">
 
-    /***********************
-     * ✅ ADMIN AUTORIZADO
-     ***********************/
-    var ADMIN_EMAILS = ["vis-party@hotmail.com"];
+      <div class="card">
+        <h3>📡 ON AIR <span class="badge" id="onAirBadge">cargando…</span></h3>
+        <div class="body">
+          <div class="row">
+            <div class="pill">Programa: <b id="onAirName">—</b></div>
+            <div class="pill">ID: <b id="onAirId">—</b></div>
+            <div class="pill">TZ: <b>America/New_York</b></div>
+          </div>
+          <div class="row" style="margin-top:10px">
+            <button id="btnForceAutodj" class="btn secondary small">Forzar AutoDJ</button>
+            <button id="btnRecalc" class="btn secondary small">Recalcular ahora</button>
+            <div class="muted">Automático por horario mientras el panel esté abierto.</div>
+          </div>
+          <div class="hr"></div>
+          <div class="twoCol">
+            <div>
+              <div class="muted" style="margin-bottom:6px">Conectados (programa actual)</div>
+              <div class="row">
+                <div class="pill">Conectados: <b id="onAirPresenceCount">0</b></div>
+                <button id="btnRefreshPresence" class="btn secondary small">Refrescar</button>
+              </div>
+              <div id="presenceList" class="list" style="margin-top:10px;max-height:220px"></div>
+            </div>
+            <div>
+              <div class="muted" style="margin-bottom:6px">Top Fans (programa actual)</div>
+              <div class="row">
+                <button id="btnResetTopfansProgram" class="btn danger small">Reset TopFans</button>
+              </div>
+              <div id="topfansList" class="list" style="margin-top:10px;max-height:220px"></div>
+            </div>
+          </div>
+          <div class="hr"></div>
+          <div class="row">
+            <button id="btnClearChatProgram" class="btn danger small">Clear Chat</button>
+            <span class="muted">Limpia el chat del programa actual (solo admin).</span>
+          </div>
+        </div>
+      </div>
 
-    /***********************
-     * ✅ REFS
-     ***********************/
-    var cfgRef      = db.collection("config").doc("global");
-    var djsRef      = db.collection("djs");
-    var presenceRef = db.collection("presence");
-    var chatRef     = db.collection("mensajes-chat");
-    var likesRef    = db.collection("likes-ranking");
+      <div class="card">
+        <h3>⚙️ Config global (config/global) <span id="cfgBadge" class="badge">—</span></h3>
+        <div class="body">
+          <div class="split">
+            <label class="toggle"><input id="togChat" type="checkbox"> Chat habilitado</label>
+            <label class="toggle"><input id="togLikes" type="checkbox"> Likes habilitados</label>
+            <label class="toggle"><input id="togPresence" type="checkbox"> Presence habilitado</label>
+            <label class="toggle"><input id="togAds" type="checkbox"> Gotas habilitadas</label>
+          </div>
+          <div class="row" style="margin-top:10px">
+            <button id="btnSaveCfg" class="btn">Guardar config</button>
+            <button id="btnReloadCfg" class="btn secondary">Recargar</button>
+            <span class="muted">*Esto no cambia la app si tu app no lo respeta (pero lo dejaremos listo).</span>
+          </div>
+          <div class="hr"></div>
+          <div class="muted">
+            Estado: <span class="kbd">adsEnabled</span>, <span class="kbd">adsIntervalSec</span>, <span class="kbd">adsMessages</span>.
+          </div>
+        </div>
+      </div>
 
-    /***********************
-     * UI
-     ***********************/
-    var loginView = document.getElementById("loginView");
-    var dashView  = document.getElementById("dashView");
-    var who       = document.getElementById("who");
-    var btnLogout = document.getElementById("btnLogout");
+    </div>
 
-    var email = document.getElementById("email");
-    var pass  = document.getElementById("pass");
-    var btnLogin = document.getElementById("btnLogin");
-    var btnReset = document.getElementById("btnReset");
+    <!-- ADS -->
+    <div class="grid tabPane" data-pane="ads" style="display:none">
+      <div class="card">
+        <h3>💧 Gotas / mensajes (globales) <span class="badge">secuencia</span></h3>
+        <div class="body">
+          <div class="split">
+            <label class="toggle"><input id="adsEnabled" type="checkbox"> Activar gotas</label>
+            <div>
+              <div class="muted" style="margin-bottom:6px">Intervalo (segundos)</div>
+              <input id="adsIntervalSec" class="field" type="number" min="5" step="1" placeholder="20">
+            </div>
+          </div>
 
-    var activeDjLabel = document.getElementById("activeDjLabel");
-    var cfgBadge = document.getElementById("cfgBadge");
-    var btnReloadCfg = document.getElementById("btnReloadCfg");
-    var btnSaveCfg = document.getElementById("btnSaveCfg");
+          <div class="hr"></div>
 
-    var togChat = document.getElementById("togChat");
-    var togLikes = document.getElementById("togLikes");
-    var togReq = document.getElementById("togReq");
-    var togPresence = document.getElementById("togPresence");
+          <div class="row">
+            <input id="newAdMsg" class="field" placeholder="Nuevo mensaje…" />
+            <button id="btnAddAdMsg" class="btn secondary">Agregar</button>
+          </div>
 
-    var djSearch = document.getElementById("djSearch");
-    var btnReloadDjs = document.getElementById("btnReloadDjs");
-    var djList = document.getElementById("djList");
+          <div id="adsList" class="list" style="margin-top:10px"></div>
 
-    var onlineBadge = document.getElementById("onlineBadge");
-    var btnReloadPresence = document.getElementById("btnReloadPresence");
-    var presenceList = document.getElementById("presenceList");
+          <div class="row" style="margin-top:10px">
+            <button id="btnSaveAds" class="btn">Guardar gotas</button>
+            <button id="btnForceReloadAds" class="btn secondary">Forzar refresco</button>
+            <span id="adsMsg" class="muted"></span>
+          </div>
+        </div>
+      </div>
 
-    var btnReloadChat = document.getElementById("btnReloadChat");
-    var btnClearChat = document.getElementById("btnClearChat");
-    var chatList = document.getElementById("chatList");
+      <div class="card">
+        <h3>🧠 Nota <span class="badge">importante</span></h3>
+        <div class="body muted">
+          Las gotas en la app deben leer <b>config/global</b>:<br>
+          <span class="kbd">adsEnabled</span>, <span class="kbd">adsIntervalSec</span>, <span class="kbd">adsMessages</span><br><br>
+          En este panel, la lista sale <b>en orden</b> (secuencia fija).
+        </div>
+      </div>
+    </div>
 
-    var btnReloadFans = document.getElementById("btnReloadFans");
-    var btnResetFans = document.getElementById("btnResetFans");
-    var fansList = document.getElementById("fansList");
+    <!-- PROGRAMS -->
+    <div class="grid tabPane" data-pane="programs" style="display:none">
+      <div class="card">
+        <h3>🗓️ Programas <span class="badge">por DJ</span></h3>
+        <div class="body">
+          <div class="row" style="margin-bottom:10px">
+            <button id="btnReloadPrograms" class="btn secondary small">Recargar</button>
+            <span class="muted">Crea programas para vender horas. El sistema “ON AIR” los activa por horario.</span>
+          </div>
 
-    var debugBox = document.getElementById("debug");
-    var toast = document.getElementById("toast");
+          <!-- Crear/editar -->
+          <div class="card" style="background:rgba(0,0,0,.22);border-color:rgba(245,200,91,.12)">
+            <h3>➕ Crear / Editar programa <span class="badge" id="progMode">nuevo</span></h3>
+            <div class="body">
+              <div class="split">
+                <input id="progId" class="field" placeholder="ID (ej: dj_maria_20_21)" />
+                <input id="progName" class="field" placeholder="Nombre (ej: DJ Maria Live)" />
+              </div>
+              <div class="split" style="margin-top:10px">
+                <input id="progDjId" class="field" placeholder="djId (ej: dj_maria) o autodj" />
+                <label class="toggle"><input id="progEnabled" type="checkbox"> Enabled</label>
+              </div>
+              <div class="split" style="margin-top:10px">
+                <input id="progStart" class="field" placeholder="Inicio (HH:MM) ej 20:00" />
+                <input id="progEnd" class="field" placeholder="Fin (HH:MM) ej 21:00" />
+              </div>
+              <div class="muted" style="margin-top:10px">Días de la semana (0=Dom … 6=Sab). Ej: 1,2,3,4,5</div>
+              <input id="progDays" class="field" placeholder="daysOfWeek ej: 0,1,2,3,4,5,6" style="margin-top:6px" />
 
-    function logDebug(msg){
-      debugBox.textContent = (new Date()).toLocaleString() + " • " + msg;
-      console.log(msg);
-    }
-    function showToast(msg){
-      toast.textContent = msg;
-      toast.style.display = "block";
-      setTimeout(()=>toast.style.display="none", 2600);
-    }
+              <div class="row" style="margin-top:10px">
+                <button id="btnSaveProgram" class="btn">Guardar</button>
+                <button id="btnClearProgramForm" class="btn secondary">Limpiar</button>
+                <span id="progMsg" class="muted"></span>
+              </div>
+            </div>
+          </div>
 
-    /***********************
-     * AUTH
-     ***********************/
-    btnLogin.addEventListener("click", async function(){
-      try{
-        await auth.signInWithEmailAndPassword(email.value.trim(), pass.value);
-      }catch(e){
-        showToast("Error login: " + (e.message||e));
-        logDebug("LOGIN ERROR: " + (e.message||e));
-      }
-    });
+          <div class="hr"></div>
 
-    btnReset.addEventListener("click", async function(){
-      try{
-        var em = email.value.trim();
-        if(!em){ showToast("Escribe tu correo primero"); return; }
-        await auth.sendPasswordResetEmail(em);
-        showToast("Te envié un correo para resetear contraseña");
-      }catch(e){
-        showToast("Error reset: " + (e.message||e));
-      }
-    });
+          <div id="programsList" class="list"></div>
+        </div>
+      </div>
 
-    btnLogout.addEventListener("click", function(){
-      auth.signOut();
-    });
+      <div class="card">
+        <h3>🤖 AutoDJ base <span class="badge">recomendado</span></h3>
+        <div class="body muted">
+          Siempre debe existir el programa <b>autodj</b> habilitado (00:00–23:59, todos los días).  
+          Así, cuando no haya un DJ, el sistema vuelve a AutoDJ automáticamente.
+        </div>
+      </div>
+    </div>
 
-    auth.onAuthStateChanged(async function(user){
-      if(!user){
-        who.textContent="No autenticado";
-        btnLogout.style.display="none";
-        dashView.style.display="none";
-        loginView.style.display="block";
-        return;
-      }
+    <!-- DJs -->
+    <div class="grid tabPane" data-pane="djs" style="display:none">
+      <div class="card">
+        <h3>🎧 DJs <span class="badge">roles y permisos</span></h3>
+        <div class="body">
+          <div class="row">
+            <button id="btnReloadDjs" class="btn secondary small">Recargar</button>
+            <span class="muted">Admin crea DJs en Firebase Auth y aquí guarda perfil/permisos.</span>
+          </div>
 
-      // ✅ Gate por correo admin
-      var em = (user.email||"").toLowerCase();
-      if(ADMIN_EMAILS.indexOf(em) === -1){
-        showToast("No autorizado: " + em);
-        await auth.signOut();
-        return;
-      }
+          <div class="card" style="background:rgba(0,0,0,.22);border-color:rgba(245,200,91,.12);margin-top:10px">
+            <h3>➕ Crear / Editar DJ <span class="badge" id="djMode">nuevo</span></h3>
+            <div class="body">
+              <div class="split">
+                <input id="djId" class="field" placeholder="djId (ej: dj_maria)" />
+                <input id="djName" class="field" placeholder="Nombre artístico (DJ Maria)" />
+              </div>
+              <div class="split" style="margin-top:10px">
+                <input id="djEmail" class="field" placeholder="Email (de Firebase Auth)" />
+                <label class="toggle"><input id="djActive" type="checkbox"> Activo</label>
+              </div>
 
-      who.textContent = "✅ " + user.email;
-      btnLogout.style.display="inline-flex";
-      loginView.style.display="none";
-      dashView.style.display="block";
+              <div class="hr"></div>
+              <div class="muted">Permisos (DJs NO pueden limpiar chat):</div>
 
-      // Cargar todo
-      await loadConfig();
-      await loadDjs();
-      await loadPresence();
-      await loadChat();
-      await loadFans();
-      logDebug("Dashboard cargado.");
-    });
+              <div class="split" style="margin-top:10px">
+                <label class="toggle"><input id="pChatModerate" type="checkbox"> Moderar chat</label>
+                <label class="toggle"><input id="pTopfansReset" type="checkbox"> Reset TopFans (su programa)</label>
+              </div>
+              <div class="split" style="margin-top:10px">
+                <label class="toggle"><input id="pBanUsers" type="checkbox"> Ban / Unban</label>
+                <label class="toggle"><input id="pAnnouncements" type="checkbox"> Anuncios (Sistema)</label>
+              </div>
 
-    /***********************
-     * CONFIG GLOBAL
-     ***********************/
-    var lastCfg = null;
+              <div class="row" style="margin-top:10px">
+                <button id="btnSaveDj" class="btn">Guardar DJ</button>
+                <button id="btnClearDjForm" class="btn secondary">Limpiar</button>
+                <span id="djMsg" class="muted"></span>
+              </div>
+            </div>
+          </div>
 
-    async function loadConfig(){
-      try{
-        cfgBadge.textContent = "cargando…";
-        var snap = await cfgRef.get();
-        var data = snap.exists ? snap.data() : {};
-        lastCfg = data || {};
+          <div class="hr"></div>
+          <div id="djsList" class="list"></div>
+        </div>
+      </div>
 
-        activeDjLabel.textContent = data.activeDj || data.currentProgram || "—";
+      <div class="card">
+        <h3>🔐 Importante <span class="badge">seguridad</span></h3>
+        <div class="body muted">
+          Este panel usa Firebase Auth.  
+          - El DJ debe existir como usuario en <b>Authentication</b> (Email/Password).  
+          - Aquí guardamos su perfil y permisos en <b>djs/{djId}</b>.
+        </div>
+      </div>
+    </div>
 
-        togChat.checked = (data.chatEnabled !== false);
-        togLikes.checked = (data.likesEnabled !== false);
-        togReq.checked = (data.allowRequests !== false);
-        togPresence.checked = (data.presenceEnabled !== false);
+    <!-- MODERATION -->
+    <div class="grid tabPane" data-pane="moderation" style="display:none">
+      <div class="card">
+        <h3>🛡️ Moderación por programa <span class="badge">chat/topfans</span></h3>
+        <div class="body">
+          <div class="row">
+            <div class="pill">Programa actual: <b id="modCurrentProgram">—</b></div>
+            <select id="programSelect" class="field" style="max-width:320px">
+              <option value="">(cargando…)</option>
+            </select>
+            <button id="btnLoadProgramData" class="btn secondary small">Cargar</button>
+          </div>
 
-        cfgBadge.textContent = "ok";
-        cfgBadge.className = "badge on";
-        logDebug("Config/global cargado.");
-      }catch(e){
-        cfgBadge.textContent = "error";
-        cfgBadge.className = "badge off";
-        showToast("Error config: " + (e.message||e));
-        logDebug("CONFIG ERROR: " + (e.message||e));
-      }
-    }
+          <div class="hr"></div>
 
-    btnReloadCfg.addEventListener("click", loadConfig);
+          <div class="twoCol">
+            <div class="card" style="background:rgba(0,0,0,.22);border-color:rgba(245,200,91,.12)">
+              <h3>💬 Chat del programa <span class="badge">borrar msg</span></h3>
+              <div class="body">
+                <div class="row" style="margin-bottom:8px">
+                  <button id="btnRefreshChat" class="btn secondary small">Refrescar</button>
+                  <button id="btnClearChatSelected" class="btn danger small">Clear Chat</button>
+                </div>
+                <div id="chatModList" class="list" style="max-height:360px"></div>
+              </div>
+            </div>
 
-    btnSaveCfg.addEventListener("click", async function(){
-      try{
-        await cfgRef.set({
-          chatEnabled: !!togChat.checked,
-          likesEnabled: !!togLikes.checked,
-          allowRequests: !!togReq.checked,
-          presenceEnabled: !!togPresence.checked
-        }, {merge:true});
-        showToast("Config guardada ✅");
-        await loadConfig();
-      }catch(e){
-        showToast("Error guardando: " + (e.message||e));
-      }
-    });
+            <div class="card" style="background:rgba(0,0,0,.22);border-color:rgba(245,200,91,.12)">
+              <h3>❤️ TopFans del programa <span class="badge">reset</span></h3>
+              <div class="body">
+                <div class="row" style="margin-bottom:8px">
+                  <button id="btnRefreshTopfans" class="btn secondary small">Refrescar</button>
+                  <button id="btnResetTopfansSelected" class="btn danger small">Reset TopFans</button>
+                </div>
+                <div id="topfansModList" class="list" style="max-height:360px"></div>
+              </div>
+            </div>
+          </div>
 
-    /***********************
-     * DJs
-     ***********************/
-    var allDjs = [];
+          <div class="hr"></div>
+          <div class="muted">
+            Nota: los datos por programa viven en:
+            <span class="kbd">programs/{programId}/chat</span> y
+            <span class="kbd">programs/{programId}/topfans</span>.
+          </div>
+        </div>
+      </div>
 
-    function renderDjs(){
-      var q = (djSearch.value||"").trim().toLowerCase();
-      djList.innerHTML = "";
-      var list = allDjs.filter(d=>{
-        if(!q) return true;
-        return (d.name||"").toLowerCase().includes(q) || (d.id||"").toLowerCase().includes(q);
-      });
+      <div class="card">
+        <h3>🟢 Conectados (programa) <span class="badge">presence</span></h3>
+        <div class="body">
+          <div class="row">
+            <button id="btnRefreshPresenceSelected" class="btn secondary small">Refrescar</button>
+            <div class="pill">Conectados: <b id="presenceSelectedCount">0</b></div>
+          </div>
+          <div id="presenceSelectedList" class="list" style="margin-top:10px;max-height:340px"></div>
+        </div>
+      </div>
+    </div>
 
-      if(list.length===0){
-        djList.innerHTML = "<div class='smalltxt muted'>No hay DJs.</div>";
-        return;
-      }
+  </div><!-- dashView -->
+</div><!-- wrap -->
 
-      list.forEach(function(d){
-        var row = document.createElement("div");
-        row.className = "item";
+<div id="toast" class="toast"></div>
 
-        var left = document.createElement("div");
-        left.innerHTML = "<b>"+escapeHtml(d.name||d.id)+"</b><div class='smalltxt muted'>id: "+escapeHtml(d.id)+" • "+escapeHtml(d.email||"")+"</div>";
+<!-- Firebase v8 -->
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-        var right = document.createElement("div");
-        right.className = "row";
+<script>
+  /***********************
+   * FIREBASE CONFIG (tuya)
+   ***********************/
+  var firebaseConfig = {
+    apiKey: "AIzaSyC8jq2iODj6DwfTSktgZ7ia84oeMxxPjNE",
+    authDomain: "coravox-602a0.firebaseapp.com",
+    projectId: "coravox-602a0",
+    storageBucket: "coravox-602a0.firebasestorage.app",
+    messagingSenderId: "629472102664",
+    appId: "1:629472102664:web:56e539689983458ada84bd"
+  };
+  firebase.initializeApp(firebaseConfig);
+  var auth = firebase.auth();
+  var db = firebase.firestore();
+  var auth = firebase.auth();
+  
+  var cfgRef = db.collection("config").doc("global");
+var auth = firebase.auth();
+// Login anónimo para que Firestore Rules permitan escribir desde la app
+auth.signInAnonymously().catch(function(e){
+  console.log("Anonymous auth error:", e);
+});
+  });
+var programKey = "autodj"; // fallback
+var messagesRef = null;
+var likesRef = null;
+var presenceRef = null;
 
-        var badge = document.createElement("span");
-        badge.className = "badge " + (d.active ? "on":"off");
-        badge.textContent = d.active ? "ACTIVO":"INACTIVO";
+async function initProgramRefs() {
+  const snap = await cfgRef.get();
+  const cfg = snap.exists ? snap.data() : {};
 
-        var btnToggle = document.createElement("button");
-        btnToggle.className = "btn secondary small";
-        btnToggle.textContent = d.active ? "Desactivar":"Activar";
-        btnToggle.onclick = async function(){
-          try{
-            await djsRef.doc(d.id).set({active: !d.active},{merge:true});
-            showToast("DJ actualizado ✅");
-            await loadDjs();
-          }catch(e){ showToast("Error DJ: " + (e.message||e)); }
-        };
+  // convierte "AutoDJ Coravox" -> "autodj_coravox"
+  const raw = (cfg.currentProgram || "AutoDJ Coravox").toString().trim().toLowerCase();
+  programKey = raw.replace(/[^a-z0-9]+/g, "_").replace(/^_+|_+$/g, "");
+  if (!programKey) programKey = "autodj";
 
-        var btnSet = document.createElement("button");
-        btnSet.className = "btn small";
-        btnSet.textContent = "Poner DJ activo";
-        btnSet.onclick = async function(){
-          try{
-            await cfgRef.set({
-              activeDj: d.name || d.id,
-              currentProgram: d.name || d.id
-            },{merge:true});
-            showToast("DJ activo cambiado ✅");
-            await loadConfig();
-          }catch(e){ showToast("Error set DJ: " + (e.message||e)); }
-        };
+  // ✅ TODO por programa (una sola fuente de verdad)
+  const base = db.collection("programs").doc(programKey);
 
-        right.appendChild(badge);
-        right.appendChild(btnToggle);
-        right.appendChild(btnSet);
+  messagesRef  = base.collection("mensajes-chat");
+  likesRef     = base.collection("likes-ranking");
+  presenceRef  = base.collection("presence");
+}
 
-        row.appendChild(left);
-        row.appendChild(right);
-        djList.appendChild(row);
-      });
-    }
-
-    async function loadDjs(){
-      try{
-        var snap = await djsRef.get();
-        allDjs = [];
-        snap.forEach(doc=>{
-          var d = doc.data()||{};
-          allDjs.push({
-            id: doc.id,
-            name: d.name || doc.id,
-            email: d.email || "",
-            active: d.active === true
-          });
-        });
-        allDjs.sort((a,b)=> (a.name||"").localeCompare(b.name||""));
-        renderDjs();
-        logDebug("DJs cargados: " + allDjs.length);
-      }catch(e){
-        showToast("Error DJs: " + (e.message||e));
-        logDebug("DJS ERROR: " + (e.message||e));
-      }
-    }
-    btnReloadDjs.addEventListener("click", loadDjs);
-    djSearch.addEventListener("input", renderDjs);
-
-    /***********************
-     * PRESENCE (conectados)
-     ***********************/
-    async function loadPresence(){
-      try{
-        // Leemos más recientes y filtramos por "últimos 90s"
-        var snap = await presenceRef.orderBy("lastSeen","desc").limit(60).get();
-        var now = Date.now();
-        var active = [];
-        snap.forEach(doc=>{
-          var d = doc.data()||{};
-          var ts = d.lastSeen;
-          var ms = ts && ts.toMillis ? ts.toMillis() : 0;
-          if(ms && (now - ms) <= 90000){
-            active.push({
-              id: doc.id,
-              name: d.name || doc.id,
-              lastSeenMs: ms
-            });
-          }
-        });
-
-        onlineBadge.textContent = String(active.length);
-        presenceList.innerHTML = "";
-
-        if(active.length===0){
-          presenceList.innerHTML = "<div class='smalltxt muted'>Nadie conectado (o no hay pings recientes).</div>";
-          return;
-        }
-
-        active.forEach(function(u){
-          var row = document.createElement("div");
-          row.className = "item";
-          var ago = Math.max(0, Math.floor((now - u.lastSeenMs)/1000));
-          row.innerHTML = "<div><b>"+escapeHtml(u.name)+"</b><div class='smalltxt muted'>hace "+ago+"s</div></div><span class='badge on'>ONLINE</span>";
-          presenceList.appendChild(row);
-        });
-
-        logDebug("Presence cargado. Online: " + active.length);
-      }catch(e){
-        showToast("Error presence: " + (e.message||e));
-        logDebug("PRESENCE ERROR: " + (e.message||e));
-      }
-    }
-    btnReloadPresence.addEventListener("click", loadPresence);
-
-    // Auto refresco presence
-    setInterval(function(){
-      if(dashView.style.display==="block") loadPresence();
-    }, 15000);
-
-    /***********************
-     * CHAT (moderar)
-     ***********************/
-    async function loadChat(){
-      try{
-        var snap = await chatRef.orderBy("creado","desc").limit(60).get();
-        var arr = [];
-        snap.forEach(doc=>{
-          var d = doc.data()||{};
-          arr.push({
-            id: doc.id,
-            usuario: d.usuario || "—",
-            mensaje: d.mensaje || "",
-            tipo: d.tipo || "mensaje",
-            rol: d.rol || "user"
-          });
-        });
-        arr.reverse();
-
-        chatList.innerHTML = "";
-        if(arr.length===0){
-          chatList.innerHTML = "<div class='smalltxt muted'>No hay mensajes.</div>";
-          return;
-        }
-
-        arr.forEach(function(m){
-          var row = document.createElement("div");
-          row.className = "item";
-
-          var left = document.createElement("div");
-          var prefix = (m.tipo==="system") ? "⚙️" : (m.rol==="admin" ? "⭐" : "💬");
-          left.innerHTML =
-            "<b>"+prefix+" "+escapeHtml(m.usuario)+"</b>" +
-            "<div class='smalltxt muted' style='margin-top:2px'>"+escapeHtml(m.mensaje)+"</div>";
-
-          var right = document.createElement("div");
-          right.className = "row";
-
-          var btnDel = document.createElement("button");
-          btnDel.className = "btn danger small";
-          btnDel.textContent = "Borrar";
-          btnDel.onclick = async function(){
-            if(!confirm("¿Borrar este mensaje?")) return;
-            try{
-              await chatRef.doc(m.id).delete();
-              showToast("Mensaje borrado ✅");
-              await loadChat();
-            }catch(e){ showToast("Error borrar: " + (e.message||e)); }
-          };
-
-          right.appendChild(btnDel);
-          row.appendChild(left);
-          row.appendChild(right);
-          chatList.appendChild(row);
-        });
-
-        logDebug("Chat cargado: " + arr.length);
-      }catch(e){
-        showToast("Error chat: " + (e.message||e));
-        logDebug("CHAT ERROR: " + (e.message||e));
-      }
-    }
-    btnReloadChat.addEventListener("click", loadChat);
-
-    async function deleteCollectionBatch(colRef, limit){
-      // borra en lotes (máx 500 operaciones por batch)
-      var snap = await colRef.orderBy("__name__").limit(limit).get();
-      if (snap.empty) return 0;
-
-      var batch = db.batch();
-      snap.docs.forEach(doc => batch.delete(doc.ref));
-      await batch.commit();
-      return snap.size;
-    }
-
-    btnClearChat.addEventListener("click", async function(){
-      if(!confirm("¿Seguro que quieres limpiar el chat (borrar mensajes)?")) return;
-      try{
-        showToast("Borrando chat…");
-        // borramos 450 por seguridad; si hay más, se puede repetir
-        var deleted = await deleteCollectionBatch(chatRef, 450);
-        showToast("Chat borrado: " + deleted);
-        await loadChat();
-      }catch(e){
-        showToast("Error clearchat: " + (e.message||e));
-      }
-    });
-
-    /***********************
-     * TOP FANS
-     ***********************/
-    async function loadFans(){
-      try{
-        var snap = await likesRef.orderBy("likes","desc").limit(20).get();
-        fansList.innerHTML = "";
-        var arr = [];
-        snap.forEach(doc=>{
-          var d = doc.data()||{};
-          arr.push({
-            id: doc.id,
-            usuario: d.usuario || doc.id,
-            likes: d.likes || 0
-          });
-        });
-        if(arr.length===0){
-          fansList.innerHTML = "<div class='smalltxt muted'>Sin datos.</div>";
-          return;
-        }
-        arr.forEach(function(u, idx){
-          var row = document.createElement("div");
-          row.className = "item";
-          row.innerHTML =
-            "<div><b>"+(idx+1)+". "+escapeHtml(u.usuario)+"</b></div>" +
-            "<span class='badge on'>❤ "+u.likes+"</span>";
-          fansList.appendChild(row);
-        });
-        logDebug("Top fans cargado: " + arr.length);
-      }catch(e){
-        showToast("Error top fans: " + (e.message||e));
-        logDebug("FANS ERROR: " + (e.message||e));
-      }
-    }
-    btnReloadFans.addEventListener("click", loadFans);
-
-    btnResetFans.addEventListener("click", async function(){
-      if(!confirm("¿Seguro que quieres RESET TOP FANS (borrar likes-ranking)?")) return;
-      try{
-        showToast("Reseteando TOP FANS…");
-        var deleted = await deleteCollectionBatch(likesRef, 450);
-        showToast("Top Fans borrado: " + deleted);
-        await loadFans();
-      }catch(e){
-        showToast("Error resetfans: " + (e.message||e));
-      }
-    });
-
-    /***********************
-     * Helpers
-     ***********************/
-    function escapeHtml(s){
-      return String(s||"").replace(/[&<>"']/g, function(m){
-        return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]);
-      });
-    }
-  </script>
-</body>
-</html>
+  /***********************
