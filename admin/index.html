@@ -22,9 +22,9 @@ h1{color:#f5c85b;margin-bottom:14px}
   padding:14px;
   margin-bottom:14px;
 }
-.row{display:flex;gap:10px;flex-wrap:wrap}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end}
 .col{flex:1;min-width:220px}
-label{font-size:12px;opacity:.8}
+label{font-size:12px;opacity:.8;display:block;margin-bottom:6px}
 input,textarea{
   width:100%;
   padding:10px;
@@ -32,6 +32,7 @@ input,textarea{
   background:#000;
   border:1px solid rgba(245,200,91,.3);
   color:#f5c85b;
+  outline:none;
 }
 button{
   padding:10px 14px;
@@ -41,98 +42,194 @@ button{
   font-weight:900;
   cursor:pointer;
 }
-button.danger{background:#ff5c5c}
-.muted{opacity:.7;font-size:12px}
+button.secondary{
+  background:rgba(245,200,91,.12);
+  border:1px solid rgba(245,200,91,.35);
+  color:#f5c85b;
+}
+button.danger{
+  background:#ff5c5c;
+  color:#000;
+}
+.muted{opacity:.8;font-size:12px;line-height:1.35}
+.kbd{
+  font-family:ui-monospace,Menlo,Consolas,monospace;
+  font-size:12px;
+  opacity:.9;
+}
+.hr{height:1px;background:rgba(245,200,91,.14);margin:12px 0}
 </style>
 </head>
 
 <body>
 <div class="wrap">
-<h1>🎛️ Panel de Control – Radio Coravox</h1>
+  <h1>🎛️ Panel de Control – Radio Coravox</h1>
 
-<div class="card">
-  <h3>🔐 Acceso Admin</h3>
-  <div class="row">
-    <div class="col">
-      <label>Email</label>
-      <input id="email" value="vis-party@hotmail.com">
+  <div class="card">
+    <h3 style="color:#f5c85b;margin-bottom:10px">🔐 Acceso Admin</h3>
+
+    <div class="row">
+      <div class="col">
+        <label>Email</label>
+        <input id="email" value="vis-party@hotmail.com" autocomplete="username">
+      </div>
+      <div class="col">
+        <label>Password</label>
+        <input id="pass" type="password" autocomplete="current-password" placeholder="Tu contraseña">
+      </div>
+      <div class="col" style="flex:0 0 auto;min-width:auto">
+        <button id="login">Entrar</button>
+      </div>
+      <div class="col" style="flex:0 0 auto;min-width:auto">
+        <button id="logout" class="secondary" style="display:none">Salir</button>
+      </div>
     </div>
-    <div class="col">
-      <label>Password</label>
-      <input id="pass" type="party212429">
-    </div>
-    <div class="col">
-      <label>&nbsp;</label>
-      <button id="login">Entrar</button>
+
+    <div class="hr"></div>
+
+    <div class="muted">
+      Estado: <span id="authState">No conectado</span>
+      <div style="margin-top:8px" class="kbd" id="debug"></div>
     </div>
   </div>
-  <div class="muted" id="authState">No conectado</div>
+
+  <div class="card" id="panel" style="display:none">
+    <h3 style="color:#f5c85b;margin-bottom:10px">🧹 Herramientas</h3>
+    <div class="row">
+      <button id="resetFans" class="danger">Reset TOP FANS</button>
+      <button id="clearChat" class="danger">Clear Chat</button>
+    </div>
+    <div class="muted" id="toolMsg" style="margin-top:10px"></div>
+
+    <div class="hr"></div>
+    <div class="muted">
+      Estas acciones borran:
+      <div class="kbd">likes-ranking</div>
+      <div class="kbd">mensajes-chat</div>
+    </div>
+  </div>
 </div>
 
-<div class="card" id="panel" style="display:none">
-  <h3>⚙️ Global</h3>
-  <button id="resetFans" class="danger">Reset TOP FANS</button>
-  <button id="clearChat" class="danger">Clear Chat</button>
-  <div class="muted" id="toolMsg"></div>
-</div>
-
-</div>
-
+<!-- Firebase v8 -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <script>
-firebase.initializeApp({
-  apiKey: "AIzaSyC8jq2iODj6DwfTSktgZ7ia84oeMxxPjNE",
-  authDomain: "coravox-602a0.firebaseapp.com",
-  projectId: "coravox-602a0"
-});
+(function(){
+  // ===== Firebase config
+  firebase.initializeApp({
+    apiKey: "AIzaSyC8jq2iODj6DwfTSktgZ7ia84oeMxxPjNE",
+    authDomain: "coravox-602a0.firebaseapp.com",
+    projectId: "coravox-602a0"
+  });
 
-const auth=firebase.auth();
-const db=firebase.firestore();
+  const auth = firebase.auth();
+  const db = firebase.firestore();
 
-const authState=document.getElementById("authState");
-const panel=document.getElementById("panel");
-const toolMsg=document.getElementById("toolMsg");
+  // UI
+  const emailEl   = document.getElementById("email");
+  const passEl    = document.getElementById("pass");
+  const btnLogin  = document.getElementById("login");
+  const btnLogout = document.getElementById("logout");
 
-document.getElementById("login").onclick=()=>{
-  auth.signInWithEmailAndPassword(
-    email.value.trim(),
-    pass.value
-  ).catch(e=>{
-  authState.textContent = "ERROR: " + (e.code || "") + " — " + (e.message || e);
-});
+  const authState = document.getElementById("authState");
+  const debug     = document.getElementById("debug");
 
-auth.onAuthStateChanged(u=>{
-  if(!u){
-    authState.textContent="No conectado";
-    panel.style.display="none";
-    return;
+  const panel     = document.getElementById("panel");
+  const toolMsg   = document.getElementById("toolMsg");
+
+  const btnResetFans = document.getElementById("resetFans");
+  const btnClearChat = document.getElementById("clearChat");
+
+  function setDebug(msg){
+    debug.textContent = msg || "";
   }
-  authState.textContent="Conectado ✔";
-  panel.style.display="block";
-});
 
-async function clearCollection(ref){
-  const snap=await ref.limit(400).get();
-  const b=db.batch();
-  snap.docs.forEach(d=>b.delete(d.ref));
-  await b.commit();
-  return snap.size;
-}
+  function setAuthState(msg){
+    authState.textContent = msg;
+  }
 
-resetFans.onclick=async()=>{
-  toolMsg.textContent="Reseteando...";
-  const n=await clearCollection(db.collection("likes-ranking"));
-  toolMsg.textContent="Top Fans borrados: "+n;
-};
+  // Mostrar errores globales en pantalla (para que nunca quede “silencioso”)
+  window.addEventListener("error", function(e){
+    setDebug("JS ERROR: " + (e.message || e));
+  });
 
-clearChat.onclick=async()=>{
-  toolMsg.textContent="Limpiando chat...";
-  const n=await clearCollection(db.collection("mensajes-chat"));
-  toolMsg.textContent="Chat borrado: "+n;
-};
+  async function login(){
+    setDebug("");
+    setAuthState("Conectando...");
+    try{
+      const email = (emailEl.value || "").trim();
+      const pass  = (passEl.value || "");
+
+      if(!email || !pass){
+        setAuthState("Falta email o contraseña.");
+        return;
+      }
+
+      await auth.signInWithEmailAndPassword(email, pass);
+      // si entra, onAuthStateChanged se encarga del resto
+    }catch(e){
+      setAuthState("Error al entrar.");
+      setDebug("AUTH: " + (e.code || "") + " — " + (e.message || e));
+    }
+  }
+
+  btnLogin.addEventListener("click", login);
+  passEl.addEventListener("keydown", function(e){
+    if(e.key === "Enter"){
+      e.preventDefault();
+      login();
+    }
+  });
+
+  btnLogout.addEventListener("click", function(){
+    auth.signOut();
+  });
+
+  // Tools: borrar colecciones en lotes
+  async function deleteBatch(colRef, limit){
+    const snap = await colRef.limit(limit || 450).get();
+    if(snap.empty) return 0;
+    const batch = db.batch();
+    snap.docs.forEach(doc => batch.delete(doc.ref));
+    await batch.commit();
+    return snap.size;
+  }
+
+  btnResetFans.addEventListener("click", async function(){
+    toolMsg.textContent = "Reseteando TOP FANS...";
+    try{
+      const n = await deleteBatch(db.collection("likes-ranking"), 450);
+      toolMsg.textContent = "Top Fans borrados: " + n + " ✅";
+    }catch(e){
+      toolMsg.textContent = "Error: " + (e.message || e);
+    }
+  });
+
+  btnClearChat.addEventListener("click", async function(){
+    toolMsg.textContent = "Limpiando chat...";
+    try{
+      const n = await deleteBatch(db.collection("mensajes-chat"), 450);
+      toolMsg.textContent = "Chat borrado: " + n + " ✅";
+    }catch(e){
+      toolMsg.textContent = "Error: " + (e.message || e);
+    }
+  });
+
+  auth.onAuthStateChanged(function(user){
+    if(!user){
+      setAuthState("No conectado");
+      panel.style.display = "none";
+      btnLogout.style.display = "none";
+      return;
+    }
+    setAuthState("Conectado ✔ " + (user.email || ""));
+    panel.style.display = "block";
+    btnLogout.style.display = "inline-block";
+  });
+
+})();
 </script>
 </body>
 </html>
