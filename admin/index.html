@@ -100,8 +100,9 @@ document.getElementById("login").onclick=()=>{
   auth.signInWithEmailAndPassword(
     email.value.trim(),
     pass.value
-  ).catch(e=>authState.textContent=e.message);
-};
+  ).catch(e=>{
+  authState.textContent = "ERROR: " + (e.code || "") + " — " + (e.message || e);
+});
 
 auth.onAuthStateChanged(u=>{
   if(!u){
