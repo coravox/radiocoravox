@@ -1,0 +1,1389 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"/>
+    <title>Radio Coravox</title>
+
+    <style>
+        *{ margin:0; padding:0; box-sizing:border-box; }
+        html, body{
+          width:100%;
+          height:100%;
+          overflow:hidden;
+          background:#000;
+          font-family: system-ui, -apple-system, Roboto, sans-serif;
+          color:#f5c85b;
+          -webkit-text-size-adjust:100%;
+          touch-action:manipulation;
+        }
+
+        :root{
+          --safe-b: env(safe-area-inset-bottom, 0px);
+          --safe-t: env(safe-area-inset-top, 0px);
+        }
+
+        #app{
+          position:fixed;
+          inset:0;
+          overflow:hidden;
+        }
+
+        button, input, iframe{
+          -webkit-tap-highlight-color: transparent;
+          touch-action: manipulation;
+        }
+
+        /* =========================
+           ARO / LOGO
+        ========================= */
+        #center{
+          position:absolute;
+          left:0; right:0;
+          top: calc(14px + var(--safe-t));
+          display:flex;
+          justify-content:center;
+          pointer-events:none;
+          z-index:2;
+        }
+
+        #halo{
+          width:300px;
+          height:300px;
+          border-radius:50%;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          background:radial-gradient(circle at center, #000 0 60%, #000 60%, transparent 61%);
+          border:3px solid #f5c85b;
+          box-shadow:0 0 55px rgba(245,200,91,0.9);
+          position:relative;
+          overflow:visible;
+        }
+
+        #logo{
+          width:88%;
+          height:88%;
+          border-radius:50%;
+          object-fit:contain;
+          box-shadow:0 0 25px rgba(0,0,0,0.9);
+        }
+
+        #halo::before, #halo::after{
+          content:"";
+          position:absolute;
+          inset:-55%;
+          border-radius:50%;
+          pointer-events:none;
+          opacity:0;
+          background:
+            radial-gradient(circle at 20% 0%,   rgba(75,224,255,0.35), transparent 70%),
+            radial-gradient(circle at 80% 0%,   rgba(0,255,138,0.35),  transparent 70%),
+            radial-gradient(circle at 0% 70%,   rgba(255,232,75,0.35), transparent 70%),
+            radial-gradient(circle at 100% 40%, rgba(255,107,75,0.35), transparent 70%),
+            radial-gradient(circle at 50% 100%, rgba(255,75,242,0.35), transparent 70%);
+        }
+
+        body.playing #halo::before { animation:bigRays 2.2s infinite ease-out; }
+        body.playing #halo::after  { animation:smallRays 1.4s infinite ease-out; }
+        body.playing #halo { animation:glowPulse 1.2s infinite ease-in-out; }
+
+        @keyframes glowPulse {
+          0%   { box-shadow:0 0 40px rgba(255,255,255,0.25); }
+          50%  { box-shadow:0 0 95px rgba(255,255,255,0.95); }
+          100% { box-shadow:0 0 40px rgba(255,255,255,0.25); }
+        }
+        @keyframes bigRays {
+          0%   { transform:scale(0.9); opacity:0; }
+          40%  { transform:scale(1.2); opacity:1; }
+          100% { transform:scale(1.9); opacity:0; }
+        }
+        @keyframes smallRays {
+          0%   { transform:scale(0.9); opacity:0; }
+          50%  { transform:scale(1.25);opacity:1; }
+          100% { transform:scale(1.55);opacity:0; }
+        }
+
+        /* =========================
+           CONTROLES AUDIO
+        ========================= */
+        #controls{
+          position:absolute;
+          left:50%;
+          transform:translateX(-50%);
+          top: calc(14px + var(--safe-t) + 300px + 10px);
+          width: 92%;
+          max-width: 420px;
+          text-align:center;
+          z-index:3;
+          pointer-events:auto;
+        }
+
+        #listenersLabel{ font-size:13px; color:#fff; opacity:.95; margin-bottom:4px; }
+
+        #btnPlay{
+          padding:12px 18px;
+          border-radius:999px;
+          border:none;
+          background:#f5c85b;
+          color:#000;
+          font-size:14px;
+          font-weight:900;
+          letter-spacing:.08em;
+          text-transform:uppercase;
+          min-width:200px;
+          box-shadow:0 0 10px rgba(0,0,0,0.7);
+          cursor:pointer;
+        }
+
+        #status{ margin-top:8px; font-size:13px; color:#fff; opacity:.92; }
+        #songLabel{ margin-top:4px; font-size:13px; color:#fff; opacity:.95; }
+
+        /* =========================
+           ZONA DEBAJO DEL ARO
+        ========================= */
+        #belowZone{
+          position:absolute;
+          left:10px;
+          right:10px;
+          top: calc(14px + var(--safe-t) + 300px + 120px);
+          bottom: calc(96px + var(--safe-b));
+          display:grid;
+          grid-template-columns: 1.3fr 0.7fr;
+          gap:10px;
+          z-index:4;
+          pointer-events:auto;
+          min-height:0;
+        }
+
+        /* CHAT */
+        #chatPanel{
+          border-radius:14px;
+          background: rgba(0,0,0,0.25);
+          border:1px solid rgba(245,200,91,0.18);
+          overflow:hidden;
+          display:flex;
+          flex-direction:column;
+          min-height:0;
+        }
+
+        #chatBox{
+          padding:10px;
+          overflow-y:auto;
+          min-height:0;
+          flex:1;
+          font-size:12px;
+          color:#fff;
+        }
+
+        .chatInfo{ font-size:11px; opacity:.75; margin-bottom:6px; }
+        .chatLine{ margin-bottom:6px; line-height:1.25; word-break:break-word; }
+        .chatUserName{ font-weight:900; margin-right:6px; }
+        .chatUserName.admin{ color:#ffd86b; text-shadow:0 0 6px rgba(255,216,107,.7); }
+        .chatSys{ color:#f5c85b; opacity:.95; font-style:italic; }
+
+        /* COLUMNA DERECHA: TOP FANS + BOTONES ABAJO */
+        #rightPanel{
+          display:flex;
+          flex-direction:column;
+          gap:10px;
+          min-height:0;
+        }
+
+        #fansPanel{
+          border-radius:14px;
+          background: rgba(0,0,0,0.25);
+          border:1px solid rgba(245,200,91,0.18);
+          padding:10px 10px;
+          overflow:hidden;
+          pointer-events:none;
+          min-height:0;
+        }
+
+        #likeRanking{
+          color:#fff;
+          font-size:12px;
+          text-shadow:0 0 6px rgba(0,0,0,0.9);
+        }
+        .likeTitle{
+          font-weight:900;
+          letter-spacing:.06em;
+          text-transform:uppercase;
+          margin-bottom:8px;
+          opacity:.95;
+        }
+        .likeRow{
+          display:flex;
+          justify-content:space-between;
+          gap:8px;
+          margin-bottom:6px;
+          opacity:.95;
+        }
+        .likeName{
+          max-width:110px;
+          overflow:hidden;
+          white-space:nowrap;
+          text-overflow:ellipsis;
+        }
+        .likeCount{ font-weight:900; }
+
+        /* BOTONES BAJO TOP FANS: SIN FONDO + PALPITANDO ✅ */
+
+        #fansActions{
+          border-radius:0;
+          padding:0;
+          display:flex;
+          flex-direction:row;
+          align-items: center;
+          gap:14px;
+          pointer-events:auto;
+          background:transparent;
+          border:none;
+}
+
+
+        .pulseLink{
+          border:none;
+          background:transparent;
+          text-align:left;
+          font-size:14px;
+          font-weight:900;
+          cursor:pointer;
+          padding:6px 4px;
+          letter-spacing:.02em;
+          animation: pulseText 1.2s ease-in-out infinite;
+        }
+
+        @keyframes pulseText{
+          0%{ transform:scale(1); opacity:0.85; }
+          50%{ transform:scale(1.06); opacity:1; }
+          100%{ transform:scale(1); opacity:0.85; }
+        }
+
+        #superFansBtn{
+          color:#ffd54f; /* amarillo */
+          text-shadow:0 0 12px rgba(255,213,79,0.55);
+        }
+
+        #requestSongBtn{
+          color:#7ad9ff; /* azul */
+          text-shadow:0 0 12px rgba(122,217,255,0.55);
+        }
+
+        /* =========================
+           BARRA INFERIOR FIJA
+        ========================= */
+        #bottomBar{
+          position:absolute;
+          left:0; right:0;
+          bottom:0;
+          padding: 10px 10px calc(14px + var(--safe-b));
+          z-index:10;
+          display:flex;
+          align-items:center;
+          gap:8px;
+          background: linear-gradient(to top, rgba(0,0,0,0.90), rgba(0,0,0,0.12));
+          pointer-events:auto;
+        }
+
+        #chatInput{
+          flex:1;
+          border-radius:999px;
+          border:1px solid rgba(245,200,91,0.35);
+          background:rgba(0,0,0,0.7);
+          color:#f5c85b;
+          font-size:12px;
+          padding:10px 12px;
+          outline:none;
+        }
+        #chatInput::placeholder{ color:rgba(245,200,91,0.5); }
+
+        #chatSend{
+          border:none;
+          border-radius:999px;
+          padding:10px 12px;
+          background:#f5c85b;
+          color:#000;
+          font-weight:900;
+          font-size:12px;
+          cursor:pointer;
+        }
+
+        .roundBtn{
+          width:40px;
+          height:40px;
+          border-radius:999px;
+          border:none;
+          cursor:pointer;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          box-shadow:0 0 10px rgba(0,0,0,0.65);
+          font-size:18px;
+          font-weight:900;
+        }
+
+        #btnFB{ background: radial-gradient(circle at top, #7ad9ff, #2b8cff); color:#000; }
+        #btnWA{ background: radial-gradient(circle at top, #9dff7a, #2bdc66); color:#000; font-size:16px; }
+        #btnGift{ background: radial-gradient(circle at top, #ffd54f, #ff7ad9); color:#000; }
+        #btnName{ background: radial-gradient(circle at top, #f5c85b, #ffd54f); color:#000; font-size:16px; }
+
+        /* Tap tap corazones */
+        .heart{
+          position:fixed;
+          left:0; top:0;
+          font-size:34px;
+          color:#ff1744;
+          text-shadow:0 0 12px rgba(255,0,0,0.85);
+          pointer-events:none;
+          z-index:20000;
+          animation:floatHeart 1.6s ease-out forwards;
+        }
+        @keyframes floatHeart{
+          0%   { transform:translate(-50%,-50%) scale(0.8); opacity:1; }
+          40%  { transform:translate(-50%,-220%) scale(1.3); opacity:0.95; color:#ff6bb5; }
+          80%  { transform:translate(-50%,-420%) scale(1.9); opacity:1; color:#ffd54f; }
+          100% { transform:translate(-50%,-500%) scale(0.4); opacity:0; }
+        }
+
+        /* Globos arriba */
+        .adBubble{
+          position:fixed;
+          min-width:170px;
+          max-width:260px;
+          padding:12px 16px;
+          color:#fff;
+          font-size:13px;
+          font-weight:900;
+          line-height:1.25;
+          border-radius:999px;
+          box-shadow:0 0 18px rgba(0,0,0,0.9);
+          z-index:13000;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          text-align:center;
+          pointer-events:none;
+          opacity:0;
+          transform:translateY(-10px) scale(0.7);
+          transition:opacity .5s ease, transform .5s ease;
+        }
+        .adBubble::after{
+          content:"";
+          position:absolute;
+          bottom:-14px;
+          left:50%;
+          transform:translateX(-50%);
+          width:30px;
+          height:30px;
+          border-radius:50%;
+          opacity:0.9;
+          background:inherit;
+        }
+        .adBubble.variant-gold{ background:radial-gradient(circle at top, #ffd54f, #f5a623); }
+        .adBubble.variant-blue{ background:radial-gradient(circle at top, #7ad9ff, #2b8cff); }
+        .adBubble.variant-pink{ background:radial-gradient(circle at top, #ff7ad9, #ff4081); }
+        .adBubble-show{ opacity:1; transform:translateY(0) scale(1); }
+        .adBubble-hide{ opacity:0; transform:translateY(-15px) scale(0.8); }
+
+        /* Modales */
+        #loveOverlay, #requestOverlay, #nameOverlay, #pinOverlay{
+          position:fixed;
+          inset:0;
+          display:none;
+          align-items:center;
+          justify-content:center;
+          background:rgba(0,0,0,0.86);
+          z-index:99999;
+          pointer-events:auto;
+        }
+        .modalBox{
+          width:86%;
+          max-width:360px;
+          background:rgba(0,0,0,0.92);
+          border:1px solid rgba(245,200,91,0.7);
+          border-radius:18px;
+          padding:16px;
+          box-shadow:0 0 20px rgba(0,0,0,1);
+          color:#fff;
+        }
+        .modalTitle{ font-size:16px; font-weight:900; color:#f5c85b; margin-bottom:6px; }
+        .modalSub{ font-size:12px; opacity:.9; margin-bottom:10px; }
+        .modalInput{
+          width:100%;
+          border-radius:999px;
+          border:1px solid rgba(245,200,91,0.6);
+          background:#000;
+          color:#f5c85b;
+          padding:10px 12px;
+          font-size:13px;
+          outline:none;
+          margin-bottom:10px;
+        }
+        .modalBtn{
+          width:100%;
+          border:none;
+          border-radius:999px;
+          padding:10px 12px;
+          background:#f5c85b;
+          color:#000;
+          font-weight:900;
+          cursor:pointer;
+        }
+        #pinError{
+          margin-top:8px;
+          color:#ff6b6b;
+          display:none;
+          font-weight:900;
+          font-size:12px;
+          text-align:center;
+        }
+
+        #requestModal{
+          width:92%;
+          max-width:420px;
+          height:70%;
+          max-height:520px;
+          padding:0;
+          overflow:hidden;
+          display:flex;
+          flex-direction:column;
+          background:#050308;
+          border-radius:18px;
+          border:1px solid rgba(245,200,91,0.6);
+        }
+        #requestHeader{
+          display:flex;
+          align-items:center;
+          justify-content:space-between;
+          padding:10px 12px;
+          color:#f5c85b;
+          font-weight:900;
+          background:radial-gradient(circle at top, #403000, #050308);
+        }
+        #requestClose{
+          background:transparent;
+          border:none;
+          color:#f5c85b;
+          font-size:18px;
+          cursor:pointer;
+        }
+        #requestFrame{
+          border:0;
+          width:100%;
+          flex:1;
+          background:transparent;
+        }
+        /* ====== PRESENCIA (Conectados) ====== */
+#presenceBtn{
+  position:fixed;
+  top: calc(10px + var(--safe-t));
+  right: 10px;
+  z-index: 25000;
+  border:none;
+  border-radius:999px;
+  padding:8px 10px;
+  font-size:12px;
+  font-weight:900;
+  background: rgba(0,0,0,0.55);
+  color:#fff;
+  border:1px solid rgba(245,200,91,0.35);
+  box-shadow:0 0 12px rgba(0,0,0,0.8);
+  cursor:pointer;
+  pointer-events:auto;
+}
+
+#presenceOverlay{
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background: rgba(0,0,0,0.70);
+  z-index: 99998;
+  pointer-events:auto;
+}
+
+#presenceModal{
+  width:86%;
+  max-width:360px;
+  border-radius:18px;
+  padding:14px 14px 12px;
+  background: rgba(0,0,0,0.92);
+  border:1px solid rgba(245,200,91,0.55);
+  box-shadow:0 0 22px rgba(0,0,0,1);
+  color:#fff;
+}
+
+#presenceTitleRow{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:8px;
+}
+
+#presenceTitle{
+  font-weight:900;
+  color:#f5c85b;
+  font-size:14px;
+}
+
+#presenceClose{
+  border:none;
+  background:transparent;
+  color:#f5c85b;
+  font-size:18px;
+  cursor:pointer;
+}
+
+#presenceList{
+  max-height:260px;
+  overflow:auto;
+  padding-top:6px;
+  border-top:1px solid rgba(245,200,91,0.18);
+}
+
+.presenceItem{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  padding:8px 0;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  font-size:13px;
+}
+
+.presenceDot{
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:#2bdc66;
+  box-shadow:0 0 10px rgba(43,220,102,0.8);
+  margin-right:10px;
+  flex-shrink:0;
+}
+
+.presenceNameRow{
+  display:flex;
+  align-items:center;
+  min-width:0;
+}
+
+.presenceName{
+  font-weight:900;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  max-width:220px;
+}
+
+.presenceBadge{
+  margin-left:8px;
+  font-size:11px;
+  font-weight:900;
+  color:#ffd54f;
+  opacity:0.95;
+}
+    </style>
+</head>
+
+<body>
+<div id="app">
+
+    <div id="center">
+        <div id="halo">
+            <img id="logo" src="logo_coravox.png" alt="Radio Coravox" />
+        </div>
+    </div>
+
+    <div id="controls">
+        <div id="listenersLabel">👥 Oyentes: 0</div>
+        <button id="btnPlay" type="button">▶ Escuchar</button>
+        <div id="status">Listo para conectar…</div>
+        <div id="songLabel">🎵 Ahora suena: —</div>
+    </div>
+
+    <div id="belowZone">
+        <div id="chatPanel">
+            <div id="chatBox"></div>
+        </div>
+
+        <div id="rightPanel">
+            <div id="fansPanel">
+                <div id="likeRanking"></div>
+            </div>
+
+            <!-- ✅ Solo letras palpitando -->
+            <div id="fansActions">
+                <button id="superFansBtn" class="pulseLink" type="button">⭐ Super Fans $1/mes</button>
+                <button id="requestSongBtn" class="pulseLink" type="button">🎧 , Pide tu canción</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="bottomBar">
+        <input id="chatInput" type="text" placeholder="Escribe un mensaje..." />
+        <button id="chatSend" type="button">Enviar</button>
+
+        <button id="btnName" class="roundBtn" type="button" title="Cambiar nombre">👤</button>
+        <button id="btnFB" class="roundBtn" type="button" title="Facebook">f</button>
+        <button id="btnWA" class="roundBtn" type="button" title="WhatsApp">W</button>
+        <button id="btnGift" class="roundBtn" type="button" title="Regalito">🎁</button>
+    </div>
+
+</div>
+
+<!-- Nombre -->
+<div id="nameOverlay">
+    <div class="modalBox">
+        <div class="modalTitle">Bienvenido al chat</div>
+        <div class="modalSub">Escribe tu nombre</div>
+        <input id="nameInput" class="modalInput" type="text" value="Oyente"/>
+        <button id="nameOk" class="modalBtn" type="button">Entrar</button>
+        <div style="font-size:11px;opacity:.85;margin-top:8px;">
+            El nombre <b>Coravox</b> está reservado para el administrador ⭐
+        </div>
+    </div>
+</div>
+
+<!-- Pin admin -->
+<div id="pinOverlay">
+    <div class="modalBox">
+        <div class="modalTitle">PIN de administrador</div>
+        <input id="pinInput" class="modalInput" type="password" placeholder="Ingresa el PIN"/>
+        <button id="pinOk" class="modalBtn" type="button">Confirmar</button>
+        <div id="pinError">PIN incorrecto.</div>
+    </div>
+</div>
+
+<!-- Regalito modal -->
+<div id="loveOverlay">
+    <div class="modalBox">
+        <div class="modalTitle">🎁 Enviar Regalito</div>
+        <div style="margin-top:6px;font-size:13px;color:#fff;opacity:.95">
+            Elige tu método de apoyo 💛
+        </div>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
+            <button id="payPaypal" class="modalBtn" type="button" style="width:auto;padding:10px 14px">PayPal</button>
+            <button id="payCashApp" class="modalBtn" type="button" style="width:auto;padding:10px 14px">Cash App</button>
+            <button id="payZelle" class="modalBtn" type="button" style="width:auto;padding:10px 14px">Zelle (copiar)</button>
+            <button id="payBtc" class="modalBtn" type="button" style="width:auto;padding:10px 14px">Bitcoin (copiar)</button>
+            <button id="closeLove" class="modalBtn" type="button" style="width:auto;padding:10px 14px;background:#222;color:#f5c85b;border:1px solid rgba(245,200,91,.5)">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Requests modal -->
+<div id="requestOverlay">
+    <div id="requestModal">
+        <div id="requestHeader">
+            <span>🎧 Pide tu canción (Auto DJ)</span>
+            <button id="requestClose" type="button">✕</button>
+        </div>
+        <iframe id="requestFrame"
+                src="https://a13.my-control-panel.com/public/radio_coravox/embed-requests?theme=dark"
+                allow="autoplay; clipboard-write"></iframe>
+    </div>
+</div>
+
+<!-- ✅ BOTÓN CONECTADOS -->
+<button id="presenceBtn" type="button">Conectados: 0</button>
+
+<!-- ✅ MODAL LISTA CONECTADOS -->
+<div id="presenceOverlay">
+    <div id="presenceModal">
+        <div id="presenceTitleRow">
+            <div id="presenceTitle">Conectados ahora</div>
+            <button id="presenceClose" type="button">✕</button>
+        </div>
+        <div id="presenceList"></div>
+    </div>
+</div>
+
+<audio id="player"></audio>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+<script>
+    /* ======== CONFIG ======== */
+    var STREAM_URL = "https://a13.my-control-panel.com/listen/radio_coravox/radio.mp3";
+    var META_URL   = "https://a13.my-control-panel.com/api/nowplaying/radio_coravox";
+
+    var SUPER_FANS_URL = "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-02N26347CY290173YNFQSTTY";
+    var DONATE_URL     = "https://www.paypal.com/donate/?hosted_button_id=7W9NHUDF5X3WG";
+
+    var CASHAPP_URL = "https://cash.app/coravox";
+    var ZELLE_EMAIL = "vis-party@hotmail.com";
+    var BTC_ADDRESS = "3QYuSZarVNTgHuo9UmPxWMmxLgeWyu9Juo";
+
+    var PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.example.radiocoravox";
+
+    /* ======== Firebase ======== */
+    var firebaseConfig = {
+      apiKey: "AIzaSyC8jq2iODj6DwfTSktgZ7ia84oeMxxPjNE",
+      authDomain: "coravox-602a0.firebaseapp.com",
+      projectId: "coravox-602a0",
+      storageBucket: "coravox-602a0.firebasestorage.app",
+      messagingSenderId: "629472102664",
+      appId: "1:629472102664:web:56e539689983458ada84bd"
+    };
+    firebase.initializeApp(firebaseConfig);
+    var db = firebase.firestore();
+    var messagesRef = db.collection("mensajes-chat");
+    var likesRef    = db.collection("likes-ranking");
+
+
+    // ==========================
+// ✅ PRESENCIA: conectados + lista
+// ==========================
+var presenceRef = db.collection("presence");
+
+// sessionId único por dispositivo/app
+function getSessionId() {
+  try {
+    var s = localStorage.getItem("rcx_session_id");
+    if (s) return s;
+    s = "s_" + Math.random().toString(36).slice(2) + "_" + Date.now();
+    localStorage.setItem("rcx_session_id", s);
+    return s;
+  } catch (e) {
+    return "s_" + Math.random().toString(36).slice(2) + "_" + Date.now();
+  }
+}
+
+var sessionId = getSessionId();
+var presenceDoc = presenceRef.doc(sessionId);
+
+// UI
+var presenceBtn = document.getElementById("presenceBtn");
+var presenceOverlay = document.getElementById("presenceOverlay");
+var presenceClose = document.getElementById("presenceClose");
+var presenceList = document.getElementById("presenceList");
+
+// heartbeat config
+var PRESENCE_TTL_MS = 45000;   // consideramos "conectado" si vio actividad < 45s
+var PRESENCE_PING_MS = 20000;  // ping cada 20s
+
+async function pingPresence() {
+  try {
+    var name = nickname || "Oyente";
+    await presenceDoc.set({
+      name: name,
+      admin: !!isAdmin,
+      lastSeen: firebase.firestore.FieldValue.serverTimestamp()
+    }, { merge: true });
+  } catch (e) {
+    console.log("presence ping error", e);
+  }
+}
+
+// Llamar al ping cuando:
+// - se carga la app
+// - se cambia nombre
+// - y cada X segundos
+setTimeout(pingPresence, 800);
+setInterval(pingPresence, PRESENCE_PING_MS);
+
+// también al volver a la app
+document.addEventListener("visibilitychange", function() {
+  if (!document.hidden) pingPresence();
+});
+
+// Render conectado
+function renderPresence(docs) {
+  var now = Date.now();
+  var online = [];
+
+  docs.forEach(function(d) {
+    var data = d.data() || {};
+    var ts = data.lastSeen;
+    var ms = 0;
+
+    try {
+      if (ts && typeof ts.toMillis === "function") ms = ts.toMillis();
+    } catch(e) {}
+
+    if (ms && (now - ms) <= PRESENCE_TTL_MS) {
+      online.push({
+        id: d.id,
+        name: data.name || "Oyente",
+        admin: !!data.admin,
+        ms: ms
+      });
+    }
+  });
+
+  // ordenar por más reciente
+  online.sort(function(a,b){ return b.ms - a.ms; });
+
+  // contador
+  if (presenceBtn) presenceBtn.textContent = "Conectados: " + online.length;
+
+  // lista
+  if (presenceList) {
+    presenceList.innerHTML = "";
+    if (online.length === 0) {
+      presenceList.innerHTML = "<div style='opacity:.85;padding:10px 0;'>Nadie conectado aún.</div>";
+      return;
+    }
+
+    online.forEach(function(u) {
+      var row = document.createElement("div");
+      row.className = "presenceItem";
+
+      var left = document.createElement("div");
+      left.className = "presenceNameRow";
+
+      var dot = document.createElement("div");
+      dot.className = "presenceDot";
+
+      var nm = document.createElement("div");
+      nm.className = "presenceName";
+      nm.textContent = u.name;
+
+      left.appendChild(dot);
+      left.appendChild(nm);
+
+      var right = document.createElement("div");
+      if (u.admin) {
+        right.className = "presenceBadge";
+        right.textContent = "ADMIN";
+      } else {
+        right.textContent = "";
+      }
+
+      row.appendChild(left);
+      row.appendChild(right);
+      presenceList.appendChild(row);
+    });
+  }
+}
+
+// escuchar presence en tiempo real
+presenceRef.onSnapshot(function(snapshot) {
+  renderPresence(snapshot.docs);
+});
+
+// abrir/cerrar modal
+if (presenceBtn) {
+  presenceBtn.addEventListener("click", function(e){
+    e.preventDefault(); e.stopPropagation();
+    if (!presenceOverlay) return;
+    presenceOverlay.style.display = "flex";
+  }, true);
+}
+
+if (presenceClose) {
+  presenceClose.addEventListener("click", function(){
+    if (presenceOverlay) presenceOverlay.style.display = "none";
+  }, true);
+}
+
+if (presenceOverlay) {
+  presenceOverlay.addEventListener("click", function(e){
+    if (e.target && e.target.id === "presenceOverlay") {
+      presenceOverlay.style.display = "none";
+    }
+  }, true);
+}
+
+
+    // ==========================
+// ✅ ADMIN COMMANDS (resetfans / clearchat)
+// ==========================
+async function resetTopFans() {
+  try {
+    const snap = await likesRef.get();
+    const batch = db.batch();
+    snap.forEach((doc) => batch.delete(doc.ref));
+    await batch.commit();
+
+    await messagesRef.add({
+      usuario: "Sistema",
+      mensaje: "✅ TOP FANS reiniciado por Coravox.",
+      rol: "system",
+      tipo: "system",
+      creado: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch (err) {
+    console.log("resetfans error:", err);
+    await messagesRef.add({
+      usuario: "Sistema",
+      mensaje: "❌ No se pudo reiniciar TOP FANS.",
+      rol: "system",
+      tipo: "system",
+      creado: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }
+}
+
+async function clearChat() {
+  try {
+    const snap = await messagesRef.get();
+    const batch = db.batch();
+    snap.forEach((doc) => batch.delete(doc.ref));
+    await batch.commit();
+
+    // re-crea un mensaje base para que se vea que limpiaste (opcional pero recomendado)
+    await messagesRef.add({
+      usuario: "Sistema",
+      mensaje: "🧹 Chat limpiado por Coravox.",
+      rol: "system",
+      tipo: "system",
+      creado: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch (err) {
+    console.log("clearchat error:", err);
+    await messagesRef.add({
+      usuario: "Sistema",
+      mensaje: "❌ No se pudo limpiar el chat.",
+      rol: "system",
+      tipo: "system",
+      creado: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  }
+}
+
+    /* ======== UI ======== */
+    var audio = document.getElementById("player");
+    var btnPlay = document.getElementById("btnPlay");
+    var statusText = document.getElementById("status");
+    var listenersLabel = document.getElementById("listenersLabel");
+    var songLabel = document.getElementById("songLabel");
+    var likeRankingBox = document.getElementById("likeRanking");
+    var chatBox = document.getElementById("chatBox");
+    var chatInput = document.getElementById("chatInput");
+    var chatSend = document.getElementById("chatSend");
+
+    var superFansBtn = document.getElementById("superFansBtn");
+    var requestSongBtn = document.getElementById("requestSongBtn");
+
+    var requestOverlay = document.getElementById("requestOverlay");
+    var requestClose = document.getElementById("requestClose");
+
+    var loveOverlay = document.getElementById("loveOverlay");
+    var closeLove = document.getElementById("closeLove");
+
+    var payPaypal = document.getElementById("payPaypal");
+    var payCashApp = document.getElementById("payCashApp");
+    var payZelle = document.getElementById("payZelle");
+    var payBtc = document.getElementById("payBtc");
+
+    var btnFB = document.getElementById("btnFB");
+    var btnWA = document.getElementById("btnWA");
+    var btnGift = document.getElementById("btnGift");
+    var btnName = document.getElementById("btnName");
+
+    var nameOverlay = document.getElementById("nameOverlay");
+    var nameInput = document.getElementById("nameInput");
+    var nameOk = document.getElementById("nameOk");
+
+    var pinOverlay = document.getElementById("pinOverlay");
+    var pinInput = document.getElementById("pinInput");
+    var pinOk = document.getElementById("pinOk");
+    var pinError = document.getElementById("pinError");
+
+    /* ======== Colores por usuario (VUELVEN) ======== */
+    var colorPalette = ["#f5c85b","#ff7ad9","#7ad9ff","#9dff7a","#ffb27a","#c7a6ff","#ff6b6b"];
+    var userColors = {};
+
+    function hashString(str){
+      var h=0;
+      for (var i=0;i<str.length;i++){
+        h = (h<<5) - h + str.charCodeAt(i);
+        h |= 0;
+      }
+      return Math.abs(h);
+    }
+    function getColorForUser(user){
+      if(!user) user="Oyente";
+      if(userColors[user]) return userColors[user];
+      var idx = hashString(user) % colorPalette.length;
+      userColors[user] = colorPalette[idx];
+      return userColors[user];
+    }
+
+    /* ======== Admin / Nick ======== */
+    var ADMIN_NAME="Coravox";
+    var ADMIN_PIN="2486";
+    var nickname=null;
+    var isAdmin=false;
+    var pendingAdminName=null;
+
+    function setStatus(t){ if(statusText) statusText.textContent=t; }
+
+    function applyNickname(nm, forceAdmin){
+      nickname = (nm && nm.trim()) ? nm.trim() : "Oyente";
+      isAdmin = forceAdmin ? true : (nickname.toLowerCase() === ADMIN_NAME.toLowerCase());
+      try{
+        localStorage.setItem("rcx_nickname", nickname);
+        localStorage.setItem("rcx_is_admin", isAdmin ? "1":"0");
+      }catch(e){}
+        pingPresence();
+    }
+
+    async function sendJoinMessage(name) {
+  try {
+    await messagesRef.add({
+      usuario: "Sistema",
+      mensaje: "👋 " + name + " se conectó.",
+      rol: "system",
+      tipo: "system",
+      creado: firebase.firestore.FieldValue.serverTimestamp()
+    });
+  } catch (e) { console.log("join msg error", e);}
+}
+
+    (function(){
+      try{
+        var stored = localStorage.getItem("rcx_nickname");
+        var storedAdmin = localStorage.getItem("rcx_is_admin");
+        if(stored){
+        applyNickname(stored, storedAdmin==="1");
+        sendJoinMessage(stored);
+        } else {
+        nameOverlay.style.display="flex";
+        }
+
+      }catch(e){
+        nameOverlay.style.display="flex";
+      }
+    })();
+
+    nameOk.addEventListener("click", function(){
+      var val=(nameInput.value||"Oyente").trim();
+      if(!val) val="Oyente";
+
+      if(val.toLowerCase()===ADMIN_NAME.toLowerCase()){
+        pendingAdminName=ADMIN_NAME;
+        nameOverlay.style.display="none";
+        pinOverlay.style.display="flex";
+        pinError.style.display="none";
+        pinInput.value="";
+        return;
+      }
+      applyNickname(val,false);
+      nameOverlay.style.display="none";
+      sendJoinMessage(nickname || "Oyente");
+    });
+
+    pinOk.addEventListener("click", function(){
+      var pin=pinInput.value.trim();
+      if(pin===ADMIN_PIN && pendingAdminName){
+        applyNickname(pendingAdminName,true);
+        pendingAdminName=null;
+        pinOverlay.style.display="none";
+        sendJoinMessage(nickname || ADMIN_NAME);
+      } else {
+        pinError.style.display="block";
+        applyNickname("Oyente",false);
+      }
+    });
+
+    btnName.addEventListener("click", function(){
+      nameOverlay.style.display="flex";
+    });
+
+    /* ======== Audio ======== */
+    var isPlaying=false;
+    btnPlay.addEventListener("click", async function(e){
+      e.preventDefault();
+      try{
+        if(!isPlaying){
+          var url = STREAM_URL + "?t=" + Date.now();
+          audio.pause();
+          audio.removeAttribute("src");
+          audio.load();
+          audio.src = url;
+
+          setStatus("Conectando con Radio Coravox…");
+          var p=audio.play();
+          if(p) await p;
+
+          isPlaying=true;
+          btnPlay.textContent="⏸ Pausar";
+          setStatus("Conectado: Radio Coravox en vivo.");
+          document.body.classList.add("playing");
+        } else {
+          audio.pause();
+          isPlaying=false;
+          btnPlay.textContent="▶ Escuchar";
+          setStatus("Pausado.");
+          document.body.classList.remove("playing");
+        }
+      }catch(err){
+        console.log(err);
+        setStatus("Error al conectar con el streaming.");
+        isPlaying=false;
+        btnPlay.textContent="▶ Escuchar";
+        document.body.classList.remove("playing");
+      }
+    });
+
+    function updateMeta(){
+      fetch(META_URL).then(r=>r.json()).then(function(data){
+        var listeners=(data.listeners && data.listeners.current) ? data.listeners.current : 0;
+        var title="—";
+        if (data.now_playing && data.now_playing.song){
+          var s=data.now_playing.song;
+          title=(s.title && s.title.trim()!=="") ? s.title : (s.text || "—");
+        }
+        var parts=title.split(" - ");
+        if(parts.length>1) title=parts[parts.length-1].trim();
+
+        listenersLabel.textContent="👥 Oyentes: " + listeners;
+        songLabel.textContent="🎵 Ahora suena: " + title;
+      }).catch(()=>{});
+    }
+    updateMeta();
+    setInterval(updateMeta,15000);
+
+    /* ======== Likes tap-tap ======== */
+    function registerLike(){
+      var user = nickname || "Oyente";
+      likesRef.doc(user).set({
+        usuario:user,
+        likes: firebase.firestore.FieldValue.increment(1),
+        updated: firebase.firestore.FieldValue.serverTimestamp()
+      }, { merge:true }).catch(function(e){ console.log("like error", e); });
+    }
+
+    function spawnHeartAt(x,y){
+      var h=document.createElement("div");
+      h.className="heart";
+      h.textContent="❤";
+      h.style.left=x+"px";
+      h.style.top=y+"px";
+      document.body.appendChild(h);
+      registerLike();
+      setTimeout(()=>{ if(h.parentNode) h.parentNode.removeChild(h); }, 1700);
+    }
+
+    document.addEventListener("click", function(e){
+      if (e.target.closest && (
+        e.target.closest("#bottomBar") ||
+        e.target.closest("#nameOverlay") ||
+        e.target.closest("#pinOverlay") ||
+        e.target.closest("#loveOverlay") ||
+        e.target.closest("#requestOverlay") ||
+        e.target.closest("#controls") ||
+        e.target.closest("#fansActions")
+      )) return;
+
+      var tag=(e.target.tagName||"").toLowerCase();
+      if(tag==="button" || tag==="input" || tag==="iframe") return;
+
+      spawnHeartAt(e.clientX, e.clientY);
+    }, true);
+
+    likesRef.orderBy("likes","desc").limit(10).onSnapshot(function(snapshot){
+      likeRankingBox.innerHTML="";
+      var t=document.createElement("div");
+      t.className="likeTitle";
+      t.textContent="TOP FANS ❤";
+      likeRankingBox.appendChild(t);
+
+      var idx=0;
+      snapshot.forEach(function(doc){
+        idx++;
+        var d=doc.data();
+        var row=document.createElement("div");
+        row.className="likeRow";
+        row.innerHTML="<span class='likeName'>"+idx+". "+(d.usuario||doc.id)+"</span><span class='likeCount'>"+(d.likes||0)+"</span>";
+        likeRankingBox.appendChild(row);
+      });
+    });
+
+    /* ======== Chat ======== */
+    function renderChat(docs){
+      chatBox.innerHTML="";
+      var info=document.createElement("div");
+      info.className="chatInfo";
+      info.textContent="Chat en vivo";
+      chatBox.appendChild(info);
+
+      docs.forEach(function(d){
+        var line=document.createElement("div");
+        line.className="chatLine";
+
+        if(d.tipo==="system"){
+          line.classList.add("chatSys");
+          line.textContent=d.mensaje || "";
+        } else {
+          var name=(d.usuario||"Oyente");
+          var msg=(d.mensaje||"");
+          var spanName=document.createElement("span");
+          spanName.className="chatUserName"+((d.rol==="admin")?" admin":"");
+          spanName.textContent=name+":";
+          // ✅ color por usuario
+          if(d.rol!=="admin"){
+            spanName.style.color = getColorForUser(name);
+          }
+
+          var spanMsg=document.createElement("span");
+          spanMsg.textContent=" "+msg;
+
+          line.appendChild(spanName);
+          line.appendChild(spanMsg);
+        }
+        chatBox.appendChild(line);
+      });
+      chatBox.scrollTop=chatBox.scrollHeight;
+    }
+
+    messagesRef.orderBy("creado","desc").limit(40).onSnapshot(function(snapshot){
+      var arr=[];
+      snapshot.forEach(doc=>arr.push(doc.data()));
+      arr.reverse();
+      renderChat(arr);
+    });
+
+    async function sendMessage(){
+  var t = (chatInput.value || "").trim();
+  if (!t) return;
+
+  // ✅ comandos solo admin (Coravox)
+  if (isAdmin) {
+    var lower = t.toLowerCase();
+
+    if (lower === "resetfans" || lower === "/resetfans") {
+      chatInput.value = "";
+      await resetTopFans();
+      return;
+    }
+
+    if (lower === "clearchat" || lower === "/clearchat") {
+      chatInput.value = "";
+      await clearChat();
+      return;
+    }
+  }
+
+  chatInput.value = "";
+
+  messagesRef.add({
+    usuario: nickname || "Oyente",
+    mensaje: t,
+    rol: isAdmin ? "admin" : "user",
+    tipo: "mensaje",
+    creado: firebase.firestore.FieldValue.serverTimestamp()
+  });
+}
+
+    chatSend.addEventListener("click", function(e){ e.preventDefault(); sendMessage(); });
+    chatInput.addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); sendMessage(); } });
+
+    /* ======== Botones ======== */
+    btnWA.addEventListener("click", function(){
+      var text="🔥 Descarga Radio Coravox:\n"+PLAY_STORE_URL;
+      window.location.href="https://wa.me/?text="+encodeURIComponent(text);
+    });
+    btnFB.addEventListener("click", function(){
+      window.location.href="https://www.facebook.com/sharer/sharer.php?u="+encodeURIComponent(PLAY_STORE_URL);
+    });
+
+    btnGift.addEventListener("click", function(){
+      loveOverlay.style.display="flex";
+    });
+
+    superFansBtn.addEventListener("click", function(){
+      window.location.href = SUPER_FANS_URL;
+    });
+
+    requestSongBtn.addEventListener("click", function(){
+      requestOverlay.style.display="flex";
+    });
+    requestClose.addEventListener("click", function(){
+      requestOverlay.style.display="none";
+    });
+    requestOverlay.addEventListener("click", function(e){
+      if(e.target && e.target.id==="requestOverlay") requestOverlay.style.display="none";
+    });
+
+    /* ======== Pagos ======== */
+    function copyToClipboardWebView(text, okMsg){
+      try{
+        var ta=document.createElement("textarea");
+        ta.value=text;
+        ta.setAttribute("readonly","");
+        ta.style.position="fixed";
+        ta.style.left="-9999px";
+        ta.style.top="0";
+        ta.style.opacity="0";
+        document.body.appendChild(ta);
+        ta.focus(); ta.select();
+        var ok=false;
+        try{ ok=document.execCommand("copy"); }catch(e){ ok=false; }
+        document.body.removeChild(ta);
+        if(ok) alert(okMsg);
+        else prompt("Copia manualmente:", text);
+      }catch(e){
+        prompt("Copia manualmente:", text);
+      }
+    }
+
+    payPaypal.addEventListener("click", function(e){
+      e.preventDefault(); e.stopPropagation();
+      window.location.href = DONATE_URL;
+    }, true);
+
+    payCashApp.addEventListener("click", function(e){
+      e.preventDefault(); e.stopPropagation();
+      window.location.href = CASHAPP_URL;
+    }, true);
+
+    payZelle.addEventListener("click", function(e){
+      e.preventDefault(); e.stopPropagation();
+      copyToClipboardWebView(ZELLE_EMAIL, "💙 Correo Zelle copiado:\n" + ZELLE_EMAIL);
+    }, true);
+
+    payBtc.addEventListener("click", function(e){
+      e.preventDefault(); e.stopPropagation();
+      copyToClipboardWebView(BTC_ADDRESS, "🧡 Dirección Bitcoin copiada:\n" + BTC_ADDRESS);
+    }, true);
+
+    closeLove.addEventListener("click", function(){
+      loveOverlay.style.display="none";
+    });
+    loveOverlay.addEventListener("click", function(e){
+      if(e.target && e.target.id==="loveOverlay") loveOverlay.style.display="none";
+    });
+
+    /* ======== Globos arriba ======== */
+    var adMessages = [
+      "💛 Gracias por escuchar Radio Coravox",
+      "🎧 Pide tu canción y hazla sonar",
+      "🔥 Invita a tus amigos a Coravox",
+      "💬 Escribe en el chat y saluda",
+      "🎁 Enviar Regalito nos ayuda a seguir",
+      "⭐ Únete a Super Fans (apoyo voluntario)"
+    ];
+    var adVariants = ["variant-gold","variant-blue","variant-pink"];
+
+    function showAdBubble(){
+      var msg = adMessages[Math.floor(Math.random()*adMessages.length)];
+      var variant = adVariants[Math.floor(Math.random()*adVariants.length)];
+      var b = document.createElement("div");
+      b.className = "adBubble " + variant;
+      b.textContent = msg;
+
+      var left = Math.floor(Math.random()*(Math.max(40, window.innerWidth-280))) + 20;
+      var top  = Math.floor(Math.random()*60) + 20;
+
+      b.style.left = left + "px";
+      b.style.top  = top + "px";
+
+      document.body.appendChild(b);
+
+      setTimeout(()=>b.classList.add("adBubble-show"), 60);
+      setTimeout(()=>b.classList.add("adBubble-hide"), 4600);
+      setTimeout(()=>{ if(b.parentNode) b.parentNode.removeChild(b); }, 5600);
+    }
+
+    setTimeout(showAdBubble, 2500);
+    setInterval(showAdBubble, 20000);
+
+</script>
+</body>
+</html>
