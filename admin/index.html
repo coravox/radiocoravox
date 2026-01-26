@@ -1,20 +1,15 @@
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
   <title>Panel Admin • Radio Coravox</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
-  <title>Radio Coravox • Panel v2</title>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{
       font-family:system-ui,-apple-system,Roboto,Segoe UI,Arial,sans-serif;
       background:#070707; color:#f5c85b;
       min-height:100vh;
-      font-family:system-ui,-apple-system,Roboto,Arial,sans-serif;
-      background:#0b0b0b;
-      color:#fff;
-      padding:16px;
     }
     a{color:#7ad9ff;text-decoration:none}
     .wrap{max-width:1100px;margin:0 auto;padding:16px}
@@ -24,15 +19,6 @@
       border-radius:14px;background:rgba(0,0,0,.35);
       box-shadow:0 0 18px rgba(0,0,0,.55);
       margin-bottom:14px;
-    .wrap{max-width:980px;margin:0 auto}
-    h1{font-size:20px;margin-bottom:14px;color:#f5c85b}
-    .card{
-      background:rgba(255,255,255,0.04);
-      border:1px solid rgba(245,200,91,0.16);
-      border-radius:14px;
-      padding:14px;
-      margin-bottom:12px;
-      box-shadow:0 0 18px rgba(0,0,0,0.6);
     }
     .brand{font-weight:900;letter-spacing:.06em}
     .pill{
@@ -41,41 +27,16 @@
       border:1px solid rgba(245,200,91,.25);
       background:rgba(0,0,0,.25); color:#fff;
       font-size:12px;
-    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-    .col{flex:1;min-width:220px}
-    label{display:block;font-size:12px;opacity:.85;margin-bottom:6px}
-    input[type="email"], input[type="password"], input[type="number"], input[type="text"], textarea{
-      width:100%;
-      padding:10px 12px;
-      border-radius:12px;
-      border:1px solid rgba(245,200,91,0.22);
-      background:#0a0a0a;
-      color:#f5c85b;
-      outline:none;
-      font-size:14px;
     }
-    textarea{min-height:42px;resize:vertical}
     .btn{
       border:none;border-radius:12px;padding:10px 12px;
       font-weight:900;cursor:pointer;
       background:#f5c85b;color:#000;
       box-shadow:0 0 10px rgba(0,0,0,.5);
-      border:none;
-      border-radius:12px;
-      padding:10px 12px;
-      font-weight:900;
-      cursor:pointer;
-      background:#f5c85b;
-      color:#000;
-      box-shadow:0 0 12px rgba(0,0,0,0.6);
-      white-space:nowrap;
     }
     .btn.secondary{
       background:rgba(245,200,91,.12); color:#f5c85b;
       border:1px solid rgba(245,200,91,.35);
-      background:rgba(245,200,91,0.12);
-      border:1px solid rgba(245,200,91,0.35);
-      color:#f5c85b;
       box-shadow:none;
     }
     .btn.danger{
@@ -91,8 +52,6 @@
     }
     @media (max-width:900px){
       .grid{grid-template-columns:1fr}
-      background:#ff5c5c;
-      color:#000;
     }
     .card{
       border:1px solid rgba(245,200,91,.18);
@@ -116,41 +75,19 @@
       background:#000;border:1px solid rgba(245,200,91,.28);
       border-radius:12px;padding:10px 12px;color:#f5c85b;
       outline:none;
-    .muted{opacity:.75;font-size:12px}
-    .pill{
-      display:inline-flex;
-      padding:6px 10px;
-      border-radius:999px;
-      background:rgba(245,200,91,0.10);
-      border:1px solid rgba(245,200,91,0.25);
-      color:#f5c85b;
-      font-size:12px;
-      font-weight:900;
     }
     .field::placeholder{color:rgba(245,200,91,.55)}
     .split{
       display:grid;
       grid-template-columns:1fr 1fr;
-    .switch{
-      display:flex;
-      align-items:center;
       gap:10px;
-      padding:10px 12px;
-      border-radius:12px;
-      border:1px solid rgba(245,200,91,0.16);
-      background:rgba(0,0,0,0.35);
     }
     @media (max-width:520px){
       .split{grid-template-columns:1fr}
     }
-    .switch input{transform:scale(1.2)}
     .list{
       display:flex;flex-direction:column;gap:8px;
       max-height:320px;overflow:auto;padding-right:6px;
-      margin-top:10px;
-      display:flex;
-      flex-direction:column;
-      gap:10px;
     }
     .item{
       display:flex;justify-content:space-between;align-items:center;gap:10px;
@@ -198,42 +135,9 @@
       background:rgba(0,0,0,.35);
       border:1px solid rgba(245,200,91,.12);
       border-radius:12px;
-      border:1px solid rgba(245,200,91,0.16);
-      background:rgba(0,0,0,0.35);
-      border-radius:14px;
       padding:10px;
       overflow:auto;
-      display:flex;
-      gap:10px;
-      align-items:flex-start;
     }
-    .num{
-      width:32px;height:32px;border-radius:10px;
-      background:rgba(245,200,91,0.12);
-      border:1px solid rgba(245,200,91,0.25);
-      color:#f5c85b;
-      display:flex;align-items:center;justify-content:center;
-      font-weight:900;
-      flex:0 0 auto;
-    }
-    .itemMain{flex:1}
-    .itemBtns{display:flex;gap:8px;flex:0 0 auto}
-    .mini{
-      padding:8px 10px;
-      border-radius:10px;
-      border:1px solid rgba(245,200,91,0.22);
-      background:rgba(0,0,0,0.35);
-      color:#f5c85b;
-      font-weight:900;
-      cursor:pointer;
-    }
-    .mini.danger{border-color:rgba(255,92,92,.55);color:#ff9a9a}
-    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-    @media(max-width:820px){.grid2{grid-template-columns:1fr}}
-    .hr{height:1px;background:rgba(245,200,91,0.14);margin:10px 0}
-    .ok{color:#9dff7a;font-weight:900}
-    .bad{color:#ff6b6b;font-weight:900}
-    .topRow{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
   </style>
 </head>
 
@@ -247,7 +151,6 @@
         <button id="btnLogout" class="btn secondary small" style="display:none">Salir</button>
       </div>
     </div>
-    <h1>Radio Coravox • Panel de Control v2</h1>
 
     <!-- LOGIN -->
     <div id="loginView" class="card loginCard">
@@ -259,35 +162,15 @@
         <div class="split">
           <input id="email" class="field" type="email" placeholder="Correo" value="vis-party@hotmail.com" />
           <input id="pass" class="field" type="password" placeholder="Contraseña" />
-    <div class="card" id="loginCard">
-      <div class="topRow">
-        <div class="pill">Acceso (Firebase Auth)</div>
-        <div class="muted" id="authState">No conectado</div>
-      </div>
-      <div class="hr"></div>
-      <div class="row">
-        <div class="col">
-          <label>Correo</label>
-          <input id="email" type="email" placeholder="tu@email.com" value="vis-party@hotmail.com" />
         </div>
         <div class="row" style="margin-top:10px">
           <button id="btnLogin" class="btn">Entrar</button>
           <button id="btnReset" class="btn secondary">Olvidé mi contraseña</button>
-        <div class="col">
-          <label>Contraseña</label>
-          <input id="pass" type="password" placeholder="Tu contraseña" />
         </div>
         <div class="divider"></div>
         <div class="smalltxt muted">
           Si te falla el login, revisa en Firebase → Authentication que “Correo/contraseña” esté habilitado.
-        <div class="col" style="flex:0 0 auto;min-width:auto">
-          <label>&nbsp;</label>
-          <button class="btn" id="btnLogin" type="button">Entrar</button>
         </div>
-      </div>
-      <div class="row" style="margin-top:10px">
-        <button class="btn secondary" id="btnLogout" type="button" style="display:none">Salir</button>
-        <div class="muted" id="loginMsg"></div>
       </div>
     </div>
 
@@ -325,30 +208,16 @@
                 <label for="togPresence"><b>Presence</b> habilitado</label>
               </div>
             </div>
-    <!-- PANEL -->
-    <div class="card" id="panelCard" style="display:none">
-      <div class="topRow">
-        <div class="pill">Configuración Global</div>
-        <div class="muted">Doc: <span class="pill">config/global</span></div>
-      </div>
 
             <div class="row" style="margin-top:10px">
               <button id="btnSaveCfg" class="btn">Guardar cambios</button>
               <span class="smalltxt muted">*Se guarda en config/global</span>
             </div>
-      <div class="hr"></div>
 
             <div class="divider"></div>
             <div class="smalltxt muted">
               Nota: Estos switches solo controlan lo que tú decidas respetar desde la app (si ya lo tienes conectado).
             </div>
-      <!-- Switches básicos -->
-      <div class="grid2">
-        <div class="switch">
-          <input id="chatEnabled" type="checkbox" />
-          <div>
-            <div style="font-weight:900">Chat habilitado</div>
-            <div class="muted">Activa/Desactiva el chat en la app</div>
           </div>
         </div>
 
@@ -369,14 +238,8 @@
               “Activar” = cambia el campo <b>active</b> en djs/{id}.  
               “Poner DJ activo” = escribe <b>activeDj</b> y <b>currentProgram</b> en config/global.
             </div>
-        <div class="switch">
-          <input id="likesEnabled" type="checkbox" />
-          <div>
-            <div style="font-weight:900">TOP FANS habilitado</div>
-            <div class="muted">Activa/Desactiva likes / ranking</div>
           </div>
         </div>
-      </div>
 
         <!-- CONNECTED USERS -->
         <div class="card">
@@ -396,7 +259,6 @@
             </div>
           </div>
         </div>
-      <div class="hr"></div>
 
         <!-- CHAT MODERATION -->
         <div class="card">
@@ -417,11 +279,6 @@
             </div>
           </div>
         </div>
-      <!-- GOTAS / ANUNCIOS -->
-      <div class="topRow">
-        <div style="font-weight:900;color:#f5c85b">Gotas / Mensajes de Anuncios (Globales)</div>
-        <div class="muted" id="adsLiveState"></div>
-      </div>
 
         <!-- TOP FANS -->
         <div class="card">
@@ -436,12 +293,6 @@
               <span class="smalltxt muted">Borra todos los likes</span>
             </div>
             <div id="fansList" class="list"></div>
-      <div class="grid2" style="margin-top:10px">
-        <div class="switch">
-          <input id="adsEnabled" type="checkbox" />
-          <div>
-            <div style="font-weight:900">Activar gotas</div>
-            <div class="muted">Si está OFF, no aparecen globos en la app</div>
           </div>
         </div>
 
@@ -454,10 +305,6 @@
             </div>
             <div id="debug" class="code">Listo.</div>
           </div>
-        <div>
-          <label>Intervalo (segundos)</label>
-          <input id="adsIntervalSec" type="number" min="5" step="1" />
-          <div class="muted" style="margin-top:6px">Recomendado: 15–30 segundos</div>
         </div>
 
       </div>
@@ -500,7 +347,6 @@
     var presenceRef = db.collection("presence");
     var chatRef     = db.collection("mensajes-chat");
     var likesRef    = db.collection("likes-ranking");
-      <div class="hr"></div>
 
     /***********************
      * UI
@@ -856,10 +702,6 @@
           row.appendChild(right);
           chatList.appendChild(row);
         });
-      <div class="topRow">
-        <div style="font-weight:900">Mensajes (en secuencia)</div>
-        <div class="muted">Lo que pongas aquí saldrá <b>en el orden exacto</b></div>
-      </div>
 
         logDebug("Chat cargado: " + arr.length);
       }catch(e){
@@ -868,27 +710,17 @@
       }
     }
     btnReloadChat.addEventListener("click", loadChat);
-      <div class="row" style="margin-top:10px">
-        <div class="col">
-          <input id="newMsg" type="text" placeholder="Escribe un nuevo mensaje para la gota..." />
-        </div>
-        <div style="flex:0 0 auto">
-          <button class="btn secondary" id="btnAddMsg" type="button">Agregar</button>
-        </div>
-      </div>
 
     async function deleteCollectionBatch(colRef, limit){
       // borra en lotes (máx 500 operaciones por batch)
       var snap = await colRef.orderBy("__name__").limit(limit).get();
       if (snap.empty) return 0;
-      <div class="list" id="msgList"></div>
 
       var batch = db.batch();
       snap.docs.forEach(doc => batch.delete(doc.ref));
       await batch.commit();
       return snap.size;
     }
-      <div class="hr"></div>
 
     btnClearChat.addEventListener("click", async function(){
       if(!confirm("¿Seguro que quieres limpiar el chat (borrar mensajes)?")) return;
@@ -902,12 +734,6 @@
         showToast("Error clearchat: " + (e.message||e));
       }
     });
-      <div class="row">
-        <button class="btn" id="btnSaveAds" type="button">Guardar Gotas</button>
-        <button class="btn secondary" id="btnForceReloadAds" type="button">Forzar refresco en la app</button>
-        <div class="muted" id="saveMsg"></div>
-      </div>
-    </div>
 
     /***********************
      * TOP FANS
@@ -944,13 +770,6 @@
       }
     }
     btnReloadFans.addEventListener("click", loadFans);
-    <!-- HERRAMIENTAS (OPCIONAL) -->
-    <div class="card" id="toolsCard" style="display:none">
-      <div class="topRow">
-        <div class="pill">Herramientas (Admin)</div>
-        <div class="muted">Borra datos en Firestore (solo si estás seguro)</div>
-      </div>
-      <div class="hr"></div>
 
     btnResetFans.addEventListener("click", async function(){
       if(!confirm("¿Seguro que quieres RESET TOP FANS (borrar likes-ranking)?")) return;
@@ -963,11 +782,6 @@
         showToast("Error resetfans: " + (e.message||e));
       }
     });
-      <div class="row">
-        <button class="btn danger" id="btnResetFans" type="button">Reset TOP FANS</button>
-        <button class="btn danger" id="btnClearChat" type="button">Clear Chat</button>
-        <div class="muted" id="toolMsg"></div>
-     
 
     /***********************
      * Helpers
@@ -979,6 +793,4 @@
     }
   </script>
 </body>
-          
 </html>
-          
