@@ -208,8 +208,8 @@
                 <label for="togPresence"><b>Presence</b> habilitado</label>
               </div>
               <div class="toggle">
-                <input id="togMensajes de Gotas" type="checkbox" />
-                <label for="togMensajes de Gotas"><b>Mensajes de Gotas</b> habilitado</label>
+                <input id="togMensajesdeGotas" type="checkbox" />
+                <label for="togMensajesdeGotas"><b>MensajesdeGotas</b> habilitado</label>
               </div>
             </div>
 
@@ -493,6 +493,7 @@
         togLikes.checked = (data.likesEnabled !== false);
         togReq.checked = (data.allowRequests !== false);
         togPresence.checked = (data.presenceEnabled !== false);
+        togChat.checked = (data.MensajesdeGotasEnabled !== false);
 
         cfgBadge.textContent = "ok";
         cfgBadge.className = "badge on";
