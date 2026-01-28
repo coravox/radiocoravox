@@ -407,7 +407,6 @@
     var debugBox = document.getElementById("debug");
     var toast = document.getElementById("toast");
 
-    // config/global
     var c = await cfgRef.get();
     if(!c.exists){
       await cfgRef.set({
