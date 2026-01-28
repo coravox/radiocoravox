@@ -407,27 +407,7 @@
     var debugBox = document.getElementById("debug");
     var toast = document.getElementById("toast");
 
-    var c = await cfgRef.get();
-    if(!c.exists){
-      await cfgRef.set({
-        currentProgram:"AutoDJ Coravox",
-        activeDj:"AutoDJ Coravox",
-        chatEnabled:true,
-        likesEnabled:true,
-        presenceEnabled:true,
-        allowRequests:true,
-        adsEnabled:true,
-        adsIntervalSec:20,
-        adsMessages:[
-          "💛 Gracias por escuchar Radio Coravox",
-          "🎧 Pide tu canción y hazla sonar",
-          "🎁 Enviar Regalito nos ayuda a seguir",
-          "⭐ Únete a Super Fans $1/mes"
-        ]
-      }, {merge:true});
-    }
-
-
+    
     function logDebug(msg){
       debugBox.textContent = (new Date()).toLocaleString() + " • " + msg;
       console.log(msg);
