@@ -177,6 +177,33 @@
     <!-- DASHBOARD -->
     <div id="dashView" style="display:none">
       <div class="grid">
+        <!-- GOTAS / ANUNCIOS -->
+<div class="card">
+  <h3>
+    💧 Gotas / Anuncios
+    <span id="adsBadge" class="badge">—</span>
+  </h3>
+  <div class="body">
+
+    <div class="toggle" style="margin-bottom:10px">
+      <input id="adsEnabled" type="checkbox">
+      <label for="adsEnabled"><b>Activar gotas</b></label>
+    </div>
+
+    <div class="row" style="margin-bottom:10px">
+      <input id="adsInterval" class="field" type="number" min="5" step="1"
+             placeholder="Intervalo en segundos (ej: 20)">
+    </div>
+
+    <div class="smalltxt muted" style="margin-bottom:6px">
+      Mensajes (en orden):
+    </div>
+
+    <div id="adsList" class="list"></div>
+
+    <div class="row" style="margin-top:10px">
+      <input id="adsNewMsg" class="field" placeholder
+
 
         <!-- CONFIG GLOBAL -->
         <div class="card">
