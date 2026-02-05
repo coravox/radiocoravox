@@ -703,6 +703,7 @@
 <audio id="player"></audio>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <script>
@@ -728,11 +729,23 @@
       messagingSenderId: "629472102664",
       appId: "1:629472102664:web:56e539689983458ada84bd"
     };
-    firebase.initializeApp(firebaseConfig);
-    var db = firebase.firestore();
-    var messagesRef = db.collection("mensajes-chat");
-    var likesRef    = db.collection("likes-ranking");
-    var cfgRef = db.collection("config").doc("global");
+    function startApp(){
+  var db = firebase.firestore();
+
+  // refs
+  var messagesRef = db.collection("mensajes-chat");
+  var likesRef    = db.collection("likes-ranking");
+  var presenceRef = db.collection("presence");
+  var cfgRef = db.collection("config").doc("global");
+
+  // aquí van:
+  // - onSnapshot del chat
+  // - registerLike()
+  // - pingPresence()
+  // - botones send chat
+  // - etc
+}
+    
 
 
     // ==========================
