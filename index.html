@@ -732,6 +732,7 @@
     var db = firebase.firestore();
     var messagesRef = db.collection("mensajes-chat");
     var likesRef    = db.collection("likes-ranking");
+    var cfgRef = db.collection("config").doc("global");
 
 
     // ==========================
@@ -1350,39 +1351,73 @@ async function clearChat() {
       if(e.target && e.target.id==="loveOverlay") loveOverlay.style.display="none";
     });
 
-    /* ======== Globos arriba ======== */
-    var adMessages = [
-      "💛 Gracias por escuchar Radio Coravox",
-      "🎧 Pide tu canción y hazla sonar",
-      "🔥 Invita a tus amigos a Coravox",
-      "💬 Escribe en el chat y saluda",
-      "🎁 Enviar Regalito nos ayuda a seguir",
-      "⭐ Únete a Super Fans (apoyo voluntario)"
-    ];
-    var adVariants = ["variant-gold","variant-blue","variant-pink"];
+  
+/* ======== Globos arriba (DESDE FIRESTORE) ======== */
+var adVariants = ["variant-gold","variant-blue","variant-pink"];
 
-    function showAdBubble(){
-      var msg = adMessages[Math.floor(Math.random()*adMessages.length)];
-      var variant = adVariants[Math.floor(Math.random()*adVariants.length)];
-      var b = document.createElement("div");
-      b.className = "adBubble " + variant;
-      b.textContent = msg;
+// Estado controlado por el panel
+var adsEnabledLocal = true;
+var adsIntervalMs = 20000;
+var adsMessagesLocal = [];
+var adsTimer = null;
+var adsIndex = 0;
 
-      var left = Math.floor(Math.random()*(Math.max(40, window.innerWidth-280))) + 20;
-      var top  = Math.floor(Math.random()*60) + 20;
+// crea el globo
+function showAdBubble(){
+  if(!adsEnabledLocal) return;
+  if(!adsMessagesLocal.length) return;
 
-      b.style.left = left + "px";
-      b.style.top  = top + "px";
+  var msg = adsMessagesLocal[adsIndex % adsMessagesLocal.length];
+  adsIndex++;
 
-      document.body.appendChild(b);
+  var variant = adVariants[Math.floor(Math.random()*adVariants.length)];
+  var b = document.createElement("div");
+  b.className = "adBubble " + variant;
+  b.textContent = msg;
 
-      setTimeout(()=>b.classList.add("adBubble-show"), 60);
-      setTimeout(()=>b.classList.add("adBubble-hide"), 4600);
-      setTimeout(()=>{ if(b.parentNode) b.parentNode.removeChild(b); }, 5600);
-    }
+  var left = Math.floor(Math.random()*(Math.max(40, window.innerWidth-280))) + 20;
+  var top  = Math.floor(Math.random()*60) + 20;
 
-    setTimeout(showAdBubble, 2500);
-    setInterval(showAdBubble, 20000);
+  b.style.left = left + "px";
+  b.style.top  = top + "px";
+
+  document.body.appendChild(b);
+
+  setTimeout(()=>b.classList.add("adBubble-show"), 60);
+  setTimeout(()=>b.classList.add("adBubble-hide"), 4600);
+  setTimeout(()=>{ if(b.parentNode) b.parentNode.removeChild(b); }, 5600);
+}
+
+// reinicia el interval con la config nueva
+function restartAdsTimer(){
+  if(adsTimer) clearInterval(adsTimer);
+  // primer globo a los 2.5s (si hay mensajes)
+  setTimeout(showAdBubble, 2500);
+  // luego cada intervalo
+  adsTimer = setInterval(showAdBubble, adsIntervalMs);
+}
+
+// escucha cambios del panel en tiempo real
+cfgRef.onSnapshot(function(snap){
+  var data = snap.exists ? (snap.data()||{}) : {};
+
+  adsEnabledLocal = (data.adsEnabled === true);
+  var sec = Number(data.adsIntervalSec || 20);
+  if(!sec || sec < 5) sec = 20;
+  adsIntervalMs = sec * 1000;
+
+  adsMessagesLocal = Array.isArray(data.adsMessages) ? data.adsMessages.slice() : [];
+
+  // si está deshabilitado, no mostramos nada
+  if(!adsEnabledLocal){
+    if(adsTimer) clearInterval(adsTimer);
+    adsTimer = null;
+    return;
+  }
+
+  restartAdsTimer();
+});
+
 
 </script>
 </body>
