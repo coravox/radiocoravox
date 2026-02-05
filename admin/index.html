@@ -297,7 +297,7 @@
           </div>
         </div>
 
-         <!-- GOTAS / ANUNCIOS -->
+   <!-- GOTAS / ANUNCIOS -->
 <div class="card">
   <h3>
     💧 Gotas / Anuncios
@@ -319,12 +319,27 @@
       Mensajes (en orden):
     </div>
 
+    <div class="row" style="margin-bottom:10px">
+      <input id="adsNewMsg" class="field" placeholder="Escribe un mensaje nuevo…">
+      <button id="btnAdsAdd" class="btn secondary small" type="button">Agregar</button>
+    </div>
+
     <div id="adsList" class="list"></div>
 
-    <div class="row" style="margin-top:10px">
-      <input id="adsNewMsg" class="field" placeholder
-       </div>
-      </div>
+    <div class="divider"></div>
+
+    <div class="row">
+      <button id="btnAdsReload" class="btn secondary small" type="button">Recargar</button>
+      <button id="btnAdsSave" class="btn small" type="button">Guardar</button>
+      <button id="btnAdsForce" class="btn secondary small" type="button">Forzar refresco en app</button>
+    </div>
+
+    <div class="smalltxt muted" style="margin-top:10px">
+      Se guarda en <b>config/global</b> como: <code>adsEnabled</code>, <code>adsIntervalSec</code>, <code>adsMessages</code>.
+    </div>
+
+  </div>
+</div>
     
         <!-- LOGS / DEBUG -->
         <div class="card">
@@ -420,6 +435,155 @@
     var debugBox = document.getElementById("debug");
     var toast = document.getElementById("toast");
 
+    /***********************
+ * 💧 GOTAS / ANUNCIOS (config/global)
+ ***********************/
+var adsBadge    = document.getElementById("adsBadge");
+var adsEnabled  = document.getElementById("adsEnabled");
+var adsInterval = document.getElementById("adsInterval");
+var adsNewMsg   = document.getElementById("adsNewMsg");
+var adsList     = document.getElementById("adsList");
+
+var btnAdsAdd   = document.getElementById("btnAdsAdd");
+var btnAdsReload= document.getElementById("btnAdsReload");
+var btnAdsSave  = document.getElementById("btnAdsSave");
+var btnAdsForce = document.getElementById("btnAdsForce");
+
+var adsMessagesLocal = [];
+
+// Render lista
+function renderAdsList(){
+  adsList.innerHTML = "";
+  if(!adsMessagesLocal.length){
+    adsList.innerHTML = "<div class='smalltxt muted'>No hay mensajes. Agrega uno arriba.</div>";
+    return;
+  }
+
+  adsMessagesLocal.forEach(function(text, i){
+    var row = document.createElement("div");
+    row.className = "item";
+
+    var left = document.createElement("div");
+    left.innerHTML =
+      "<b>#"+(i+1)+"</b>" +
+      "<div class='smalltxt muted' style='margin-top:4px'>" + escapeHtml(text) + "</div>";
+
+    var right = document.createElement("div");
+    right.className = "row";
+
+    var btnUp = document.createElement("button");
+    btnUp.className = "btn secondary small";
+    btnUp.textContent = "↑";
+    btnUp.onclick = function(){
+      if(i===0) return;
+      var tmp = adsMessagesLocal[i-1];
+      adsMessagesLocal[i-1] = adsMessagesLocal[i];
+      adsMessagesLocal[i] = tmp;
+      renderAdsList();
+    };
+
+    var btnDown = document.createElement("button");
+    btnDown.className = "btn secondary small";
+    btnDown.textContent = "↓";
+    btnDown.onclick = function(){
+      if(i===adsMessagesLocal.length-1) return;
+      var tmp = adsMessagesLocal[i+1];
+      adsMessagesLocal[i+1] = adsMessagesLocal[i];
+      adsMessagesLocal[i] = tmp;
+      renderAdsList();
+    };
+
+    var btnDel = document.createElement("button");
+    btnDel.className = "btn danger small";
+    btnDel.textContent = "Eliminar";
+    btnDel.onclick = function(){
+      adsMessagesLocal.splice(i,1);
+      renderAdsList();
+    };
+
+    right.appendChild(btnUp);
+    right.appendChild(btnDown);
+    right.appendChild(btnDel);
+
+    row.appendChild(left);
+    row.appendChild(right);
+    adsList.appendChild(row);
+  });
+}
+
+// Cargar ads desde config/global
+async function loadAds(){
+  try{
+    adsBadge.textContent = "cargando…";
+    adsBadge.className = "badge";
+
+    var snap = await cfgRef.get();
+    var data = snap.exists ? (snap.data()||{}) : {};
+
+    adsEnabled.checked = (data.adsEnabled === true);
+    adsInterval.value = Number(data.adsIntervalSec || 20);
+
+    adsMessagesLocal = Array.isArray(data.adsMessages) ? data.adsMessages.slice() : [];
+    renderAdsList();
+
+    adsBadge.textContent = "ok";
+    adsBadge.className = "badge on";
+  }catch(e){
+    adsBadge.textContent = "error";
+    adsBadge.className = "badge off";
+    showToast("Error cargando gotas: " + (e.message||e));
+    logDebug("ADS LOAD ERROR: " + (e.message||e));
+  }
+}
+
+// Guardar ads en config/global
+async function saveAds(){
+  try{
+    // limpiar mensajes vacíos
+    adsMessagesLocal = adsMessagesLocal
+      .map(s => (s||"").trim())
+      .filter(s => s.length>0);
+
+    await cfgRef.set({
+      adsEnabled: !!adsEnabled.checked,
+      adsIntervalSec: Number(adsInterval.value || 20),
+      adsMessages: adsMessagesLocal
+    }, {merge:true});
+
+    showToast("Gotas guardadas ✅");
+    await loadAds();
+  }catch(e){
+    showToast("Error guardando gotas: " + (e.message||e));
+    logDebug("ADS SAVE ERROR: " + (e.message||e));
+  }
+}
+
+// Forzar refresco en app
+async function forceAdsReload(){
+  try{
+    await cfgRef.set({
+      adsForceReloadAt: firebase.firestore.FieldValue.serverTimestamp()
+    }, {merge:true});
+    showToast("Refresco forzado ✅");
+  }catch(e){
+    showToast("Error forzando refresco: " + (e.message||e));
+  }
+}
+
+// Botones
+btnAdsAdd && btnAdsAdd.addEventListener("click", function(){
+  var t = (adsNewMsg.value||"").trim();
+  if(!t) return;
+  adsMessagesLocal.push(t);
+  adsNewMsg.value = "";
+  renderAdsList();
+});
+
+btnAdsReload && btnAdsReload.addEventListener("click", loadAds);
+btnAdsSave && btnAdsSave.addEventListener("click", saveAds);
+btnAdsForce && btnAdsForce.addEventListener("click", forceAdsReload);
+
+
     
     function logDebug(msg){
       debugBox.textContent = (new Date()).toLocaleString() + " • " + msg;
@@ -486,6 +650,7 @@
       await loadPresence();
       await loadChat();
       await loadFans();
+      await loadAds();
       logDebug("Dashboard cargado.");
     });
 
