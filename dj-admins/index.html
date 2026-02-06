@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Panel DJ • Radio Coravox</title>
+
+<style>
+body{
+  margin:0;font-family:system-ui;background:#0b0b0b;color:#fff
+}
+.wrap{max-width:900px;margin:auto;padding:16px}
+.card{
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(245,200,91,.25);
+  border-radius:14px;
+  padding:14px;
+  margin-bottom:14px
+}
+h2{color:#f5c85b;margin:0 0 10px}
+input{
+  width:100%;padding:10px;border-radius:10px;
+  border:1px solid #f5c85b;background:#000;color:#f5c85b
+}
+button{
+  padding:10px 14px;border:none;border-radius:10px;
+  background:#f5c85b;color:#000;font-weight:900;cursor:pointer
+}
+button.danger{
+  background:#ff6b6b;color:#000
+}
+.list{max-height:280px;overflow:auto}
+.item{
+  display:flex;justify-content:space-between;
+  border-bottom:1px solid rgba(255,255,255,.08);
+  padding:6px 0;font-size:13px
+}
+.badge{
+  padding:4px 8px;border-radius:999px;font-size:11px
+}
+.ok{background:#2bdc66;color:#000}
+</style>
+</head>
+
+<body>
+<div class="wrap">
+
+<div id="login" class="card">
+  <h2>🔐 Panel DJ</h2>
+  <input id="email" placeholder="Correo">
+  <input id="pass" type="password" placeholder="Contraseña" style="margin-top:8px">
+  <button id="btnLogin" style="margin-top:10px">Entrar</button>
+  <div id="loginMsg"></div>
+</div>
+
+<div id="panel" style="display:none">
+
+<div class="card">
+  <h2>🟢 Conectados</h2>
+  <div id="presence" class="list"></div>
+</div>
+
+<div class="card">
+  <h2>💬 Chat</h2>
+  <div id="chat" class="list"></div>
+</div>
+
+<div class="card">
+  <h2>❤️ Top Fans</h2>
+  <div id="fans" class="list"></div>
+  <button id="btnResetFans" class="danger" style="display:none;margin-top:8px">
+    Reset Fans
+  </button>
+</div>
+
+<button onclick="firebase.auth().signOut()">Salir</button>
+
+</div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+
+<script>
+firebase.initializeApp({
+  apiKey: "AIzaSyC8jq2iODj6DwfTSktgZ7ia84oeMxxPjNE",
+  authDomain: "coravox-602a0.firebaseapp.com",
+  projectId: "coravox-602a0"
+});
+const auth=firebase.auth();
+const db=firebase.firestore();
+
+const login=document.getElementById("login");
+const panel=document.getElementById("panel");
+const msg=document.getElementById("loginMsg");
+
+let canReset=false;
+
+// LOGIN
+btnLogin.onclick=async()=>{
+  try{
+    await auth.signInWithEmailAndPassword(email.value,pass.value);
+  }catch(e){ msg.textContent=e.message }
+};
+
+// AUTH STATE
+auth.onAuthStateChanged(async u=>{
+  if(!u){ login.style.display="block";panel.style.display="none";return; }
+
+  const ref=db.collection("dj-admins").doc(u.email);
+  const snap=await ref.get();
+
+  if(!snap.exists||!snap.data().enabled){
+    msg.textContent="No autorizado";
+    auth.signOut();return;
+  }
+
+  canReset=!!snap.data().canResetFans;
+  btnResetFans.style.display=canReset?"block":"none";
+
+  login.style.display="none";
+  panel.style.display="block";
+
+  loadPresence();
+  loadChat();
+  loadFans();
+});
+
+// PRESENCE
+function loadPresence(){
+  db.collection("presence").onSnapshot(s=>{
+    presence.innerHTML="";
+    const now=Date.now();
+    s.forEach(d=>{
+      const t=d.data().lastSeen?.toMillis?.()||0;
+      if(now-t<90000){
+        presence.inner
