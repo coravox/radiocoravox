@@ -1,138 +1,617 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Panel DJ • Radio Coravox</title>
-
-<style>
-body{
-  margin:0;font-family:system-ui;background:#0b0b0b;color:#fff
-}
-.wrap{max-width:900px;margin:auto;padding:16px}
-.card{
-  background:rgba(255,255,255,.05);
-  border:1px solid rgba(245,200,91,.25);
-  border-radius:14px;
-  padding:14px;
-  margin-bottom:14px
-}
-h2{color:#f5c85b;margin:0 0 10px}
-input{
-  width:100%;padding:10px;border-radius:10px;
-  border:1px solid #f5c85b;background:#000;color:#f5c85b
-}
-button{
-  padding:10px 14px;border:none;border-radius:10px;
-  background:#f5c85b;color:#000;font-weight:900;cursor:pointer
-}
-button.danger{
-  background:#ff6b6b;color:#000
-}
-.list{max-height:280px;overflow:auto}
-.item{
-  display:flex;justify-content:space-between;
-  border-bottom:1px solid rgba(255,255,255,.08);
-  padding:6px 0;font-size:13px
-}
-.badge{
-  padding:4px 8px;border-radius:999px;font-size:11px
-}
-.ok{background:#2bdc66;color:#000}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1" />
+  <title>Panel DJ • Radio Coravox</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:system-ui,-apple-system,Roboto,Segoe UI,Arial,sans-serif;
+      background:#070707; color:#f5c85b; min-height:100vh;
+    }
+    .wrap{max-width:1100px;margin:0 auto;padding:16px}
+    .topbar{
+      display:flex;align-items:center;justify-content:space-between;gap:12px;
+      padding:12px 14px;border:1px solid rgba(245,200,91,.18);
+      border-radius:14px;background:rgba(0,0,0,.35);
+      box-shadow:0 0 18px rgba(0,0,0,.55);
+      margin-bottom:14px; flex-wrap:wrap;
+    }
+    .brand{font-weight:900;letter-spacing:.06em;color:#fff}
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:8px 10px;border-radius:999px;
+      border:1px solid rgba(245,200,91,.25);
+      background:rgba(0,0,0,.25); color:#fff;
+      font-size:12px;
+    }
+    .btn{
+      border:none;border-radius:12px;padding:10px 12px;
+      font-weight:900;cursor:pointer;
+      background:#f5c85b;color:#000;
+      box-shadow:0 0 10px rgba(0,0,0,.5);
+    }
+    .btn.secondary{
+      background:rgba(245,200,91,.12); color:#f5c85b;
+      border:1px solid rgba(245,200,91,.35);
+      box-shadow:none;
+    }
+    .btn.danger{
+      background:rgba(255,107,107,.15); color:#ff6b6b;
+      border:1px solid rgba(255,107,107,.35);
+      box-shadow:none;
+    }
+    .btn.small{padding:7px 9px;border-radius:10px;font-size:12px}
+    .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+    @media (max-width:900px){.grid{grid-template-columns:1fr}}
+    .card{
+      border:1px solid rgba(245,200,91,.18);
+      border-radius:14px;background:rgba(0,0,0,.35);
+      box-shadow:0 0 18px rgba(0,0,0,.55);
+      overflow:hidden; min-height:140px;
+    }
+    .card h3{
+      padding:12px 14px;
+      border-bottom:1px solid rgba(245,200,91,.14);
+      font-size:14px; color:#fff;
+      display:flex;align-items:center;justify-content:space-between;gap:10px;
+      flex-wrap:wrap;
+    }
+    .card .body{padding:12px 14px}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .muted{opacity:.85;color:#fff}
+    .smalltxt{font-size:12px;opacity:.9;color:#fff}
+    .field{
+      width:100%;
+      background:#000;border:1px solid rgba(245,200,91,.28);
+      border-radius:12px;padding:10px 12px;color:#f5c85b;
+      outline:none;
+    }
+    .field::placeholder{color:rgba(245,200,91,.55)}
+    .split{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    @media (max-width:520px){.split{grid-template-columns:1fr}}
+    .list{
+      display:flex;flex-direction:column;gap:8px;
+      max-height:320px;overflow:auto;padding-right:6px;
+    }
+    .item{
+      display:flex;justify-content:space-between;align-items:flex-start;gap:10px;
+      padding:10px 10px;border-radius:12px;
+      background:rgba(0,0,0,.25);
+      border:1px solid rgba(245,200,91,.12);
+    }
+    .item b{color:#fff}
+    .badge{
+      font-size:11px;font-weight:900;
+      padding:5px 8px;border-radius:999px;
+      border:1px solid rgba(245,200,91,.25);
+      background:rgba(245,200,91,.12);
+      color:#f5c85b;
+      white-space:nowrap;
+    }
+    .badge.on{border-color:rgba(157,255,122,.35);background:rgba(157,255,122,.12);color:#9dff7a}
+    .badge.off{border-color:rgba(255,107,107,.35);background:rgba(255,107,107,.12);color:#ff6b6b}
+    .toast{
+      position:fixed;left:50%;bottom:18px;transform:translateX(-50%);
+      background:rgba(0,0,0,.88);
+      border:1px solid rgba(245,200,91,.25);
+      color:#fff;border-radius:14px;
+      padding:10px 12px;
+      box-shadow:0 0 20px rgba(0,0,0,.75);
+      display:none;z-index:99999;
+      max-width:92%; text-align:center;
+      font-size:13px;
+    }
+    .divider{height:1px;background:rgba(245,200,91,.14);margin:10px 0}
+    .loginCard{max-width:520px;margin:9vh auto 0}
+    .code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+      font-size:12px;color:#fff;opacity:.9;
+      background:rgba(0,0,0,.35);
+      border:1px solid rgba(245,200,91,.12);
+      border-radius:12px;
+      padding:10px;
+      overflow:auto;
+    }
+  </style>
 </head>
 
 <body>
-<div class="wrap">
+  <div class="wrap">
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="brand">🎚️ Panel DJ • Radio Coravox</div>
+      <div class="row">
+        <div id="who" class="pill">No autenticado</div>
+        <div id="programPill" class="pill" style="display:none">🎧 Programa: <b id="programLabel" style="color:#fff">—</b></div>
+        <button id="btnLogout" class="btn secondary small" style="display:none">Salir</button>
+      </div>
+    </div>
 
-<div id="login" class="card">
-  <h2>🔐 Panel DJ</h2>
-  <input id="email" placeholder="Correo">
-  <input id="pass" type="password" placeholder="Contraseña" style="margin-top:8px">
-  <button id="btnLogin" style="margin-top:10px">Entrar</button>
-  <div id="loginMsg"></div>
-</div>
+    <!-- LOGIN -->
+    <div id="loginView" class="card loginCard">
+      <h3>🔐 Iniciar sesión (DJ)</h3>
+      <div class="body">
+        <div class="smalltxt muted" style="margin-bottom:10px">
+          Entra con tu correo y contraseña. Si te dice “No autorizado”, pídele a Coravox que te active en el panel admin.
+        </div>
+        <div class="split">
+          <input id="email" class="field" type="email" placeholder="Correo" />
+          <input id="pass" class="field" type="password" placeholder="Contraseña" />
+        </div>
+        <div class="row" style="margin-top:10px">
+          <button id="btnLogin" class="btn">Entrar</button>
+          <button id="btnReset" class="btn secondary">Olvidé mi contraseña</button>
+        </div>
+        <div class="divider"></div>
+        <div class="smalltxt muted">
+          Requisito: Firebase → Authentication → habilitar “Correo/contraseña”.
+        </div>
+      </div>
+    </div>
 
-<div id="panel" style="display:none">
+    <!-- DASHBOARD -->
+    <div id="dashView" style="display:none">
+      <div class="grid">
 
-<div class="card">
-  <h2>🟢 Conectados</h2>
-  <div id="presence" class="list"></div>
-</div>
+        <!-- PRESENCE -->
+        <div class="card">
+          <h3>
+            🟢 Conectados (presence)
+            <span id="onlineBadge" class="badge">0</span>
+          </h3>
+          <div class="body">
+            <div class="row" style="margin-bottom:10px">
+              <button id="btnReloadPresence" class="btn secondary small">Refrescar</button>
+              <span class="smalltxt muted">Activos si pinguearon en ~90s</span>
+            </div>
+            <div id="presenceList" class="list"></div>
+          </div>
+        </div>
 
-<div class="card">
-  <h2>💬 Chat</h2>
-  <div id="chat" class="list"></div>
-</div>
+        <!-- CHAT -->
+        <div class="card">
+          <h3>
+            💬 Chat (mensajes-chat)
+            <span class="badge">moderar</span>
+          </h3>
+          <div class="body">
+            <div class="row" style="margin-bottom:10px">
+              <button id="btnReloadChat" class="btn secondary small">Recargar</button>
+              <button id="btnClearChat" class="btn danger small" style="display:none">🧹 ClearChat</button>
+              <span class="smalltxt muted">Borrar mensajes individuales ✅</span>
+            </div>
+            <div id="chatList" class="list"></div>
+            <div class="divider"></div>
+            <div class="smalltxt muted">
+              Si necesitas el botón “ClearChat”, Coravox puede darte permiso con <b>canClearChat:true</b>.
+            </div>
+          </div>
+        </div>
 
-<div class="card">
-  <h2>❤️ Top Fans</h2>
-  <div id="fans" class="list"></div>
-  <button id="btnResetFans" class="danger" style="display:none;margin-top:8px">
-    Reset Fans
-  </button>
-</div>
+        <!-- TOP FANS -->
+        <div class="card">
+          <h3>
+            ❤️ Top Fans (likes-ranking)
+            <span class="badge">moderar</span>
+          </h3>
+          <div class="body">
+            <div class="row" style="margin-bottom:10px">
+              <button id="btnReloadFans" class="btn secondary small">Recargar</button>
+              <button id="btnResetFans" class="btn danger small" style="display:none">♻ ResetFans</button>
+              <span class="smalltxt muted">Puedes borrar un usuario ✅</span>
+            </div>
+            <div id="fansList" class="list"></div>
+            <div class="divider"></div>
+            <div class="smalltxt muted">
+              Si necesitas reset total, Coravox puede darte permiso con <b>canResetLikes:true</b>.
+            </div>
+          </div>
+        </div>
 
-<button onclick="firebase.auth().signOut()">Salir</button>
+        <!-- DEBUG -->
+        <div class="card">
+          <h3>🧾 Estado / Debug <span class="badge">útil</span></h3>
+          <div class="body">
+            <div class="smalltxt muted" style="margin-bottom:8px">
+              Si algo falla, revisa el último estado:
+            </div>
+            <div id="debug" class="code">Listo.</div>
+          </div>
+        </div>
 
-</div>
-</div>
+      </div>
+    </div>
+  </div>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+  <div id="toast" class="toast"></div>
 
-<script>
-firebase.initializeApp({
-  apiKey: "AIzaSyC8jq2iODj6DwfTSktgZ7ia84oeMxxPjNE",
-  authDomain: "coravox-602a0.firebaseapp.com",
-  projectId: "coravox-602a0"
-});
-const auth=firebase.auth();
-const db=firebase.firestore();
+  <!-- Firebase v8 -->
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
-const login=document.getElementById("login");
-const panel=document.getElementById("panel");
-const msg=document.getElementById("loginMsg");
+  <script>
+    /***********************
+     * ✅ FIREBASE CONFIG (TUYO)
+     ***********************/
+    var firebaseConfig = {
+      apiKey: "AIzaSyC8jq2iODj6DwfTSktgZ7ia84oeMxxPjNE",
+      authDomain: "coravox-602a0.firebaseapp.com",
+      projectId: "coravox-602a0",
+      storageBucket: "coravox-602a0.firebasestorage.app",
+      messagingSenderId: "629472102664",
+      appId: "1:629472102664:web:56e539689983458ada84bd"
+    };
+    firebase.initializeApp(firebaseConfig);
+    var auth = firebase.auth();
+    var db = firebase.firestore();
 
-let canReset=false;
+    /***********************
+     * ✅ REFS
+     ***********************/
+    var cfgRef      = db.collection("config").doc("global");
+    var djsRef      = db.collection("djs");              // /djs/{uid}
+    var presenceRef = db.collection("presence");
+    var chatRef     = db.collection("mensajes-chat");
+    var likesRef    = db.collection("likes-ranking");
 
-// LOGIN
-btnLogin.onclick=async()=>{
-  try{
-    await auth.signInWithEmailAndPassword(email.value,pass.value);
-  }catch(e){ msg.textContent=e.message }
-};
+    /***********************
+     * UI
+     ***********************/
+    var loginView = document.getElementById("loginView");
+    var dashView  = document.getElementById("dashView");
+    var who       = document.getElementById("who");
+    var btnLogout = document.getElementById("btnLogout");
+    var programPill = document.getElementById("programPill");
+    var programLabel = document.getElementById("programLabel");
 
-// AUTH STATE
-auth.onAuthStateChanged(async u=>{
-  if(!u){ login.style.display="block";panel.style.display="none";return; }
+    var email = document.getElementById("email");
+    var pass  = document.getElementById("pass");
+    var btnLogin = document.getElementById("btnLogin");
+    var btnReset = document.getElementById("btnReset");
 
-  const ref=db.collection("dj-admins").doc(u.email);
-  const snap=await ref.get();
+    var onlineBadge = document.getElementById("onlineBadge");
+    var btnReloadPresence = document.getElementById("btnReloadPresence");
+    var presenceList = document.getElementById("presenceList");
 
-  if(!snap.exists||!snap.data().enabled){
-    msg.textContent="No autorizado";
-    auth.signOut();return;
-  }
+    var btnReloadChat = document.getElementById("btnReloadChat");
+    var btnClearChat = document.getElementById("btnClearChat");
+    var chatList = document.getElementById("chatList");
 
-  canReset=!!snap.data().canResetFans;
-  btnResetFans.style.display=canReset?"block":"none";
+    var btnReloadFans = document.getElementById("btnReloadFans");
+    var btnResetFans = document.getElementById("btnResetFans");
+    var fansList = document.getElementById("fansList");
 
-  login.style.display="none";
-  panel.style.display="block";
+    var debugBox = document.getElementById("debug");
+    var toast = document.getElementById("toast");
 
-  loadPresence();
-  loadChat();
-  loadFans();
-});
+    function logDebug(msg){
+      debugBox.textContent = (new Date()).toLocaleString() + " • " + msg;
+      console.log(msg);
+    }
+    function showToast(msg){
+      toast.textContent = msg;
+      toast.style.display = "block";
+      setTimeout(()=>toast.style.display="none", 2600);
+    }
 
-// PRESENCE
-function loadPresence(){
-  db.collection("presence").onSnapshot(s=>{
-    presence.innerHTML="";
-    const now=Date.now();
-    s.forEach(d=>{
-      const t=d.data().lastSeen?.toMillis?.()||0;
-      if(now-t<90000){
-        presence.inner
+    /***********************
+     * AUTH
+     ***********************/
+    btnLogin.addEventListener("click", async function(){
+      try{
+        await auth.signInWithEmailAndPassword(email.value.trim(), pass.value);
+      }catch(e){
+        showToast("Error login: " + (e.message||e));
+        logDebug("LOGIN ERROR: " + (e.message||e));
+      }
+    });
+
+    btnReset.addEventListener("click", async function(){
+      try{
+        var em = email.value.trim();
+        if(!em){ showToast("Escribe tu correo primero"); return; }
+        await auth.sendPasswordResetEmail(em);
+        showToast("Te envié un correo para resetear contraseña");
+      }catch(e){
+        showToast("Error reset: " + (e.message||e));
+      }
+    });
+
+    btnLogout.addEventListener("click", function(){
+      auth.signOut();
+    });
+
+    // Permisos DJ desde /djs/{uid}
+    var djDoc = null; // {active, name, canClearChat, canResetLikes}
+
+    async function gateDjAccess(user){
+      // Lee /djs/{uid}
+      var snap = await djsRef.doc(user.uid).get();
+      if(!snap.exists){
+        throw new Error("No autorizado: tu DJ no existe en /djs/" + user.uid);
+      }
+      var d = snap.data() || {};
+      if(d.active !== true){
+        throw new Error("No autorizado: DJ desactivado (active=false)");
+      }
+      djDoc = d;
+
+      // UI nombre
+      var displayName = d.name || user.email || ("DJ " + user.uid.slice(0,6));
+      who.textContent = "✅ " + displayName;
+
+      // Permisos opcionales
+      btnClearChat.style.display = (d.canClearChat === true) ? "inline-flex" : "none";
+      btnResetFans.style.display = (d.canResetLikes === true) ? "inline-flex" : "none";
+
+      // Programa actual (solo lectura)
+      try{
+        var cfg = await cfgRef.get();
+        var cd = cfg.exists ? (cfg.data()||{}) : {};
+        programLabel.textContent = cd.currentProgram || cd.activeDj || "—";
+        programPill.style.display = "inline-flex";
+      }catch(_){
+        programPill.style.display = "none";
+      }
+    }
+
+    auth.onAuthStateChanged(async function(user){
+      if(!user){
+        djDoc = null;
+        who.textContent="No autenticado";
+        btnLogout.style.display="none";
+        dashView.style.display="none";
+        loginView.style.display="block";
+        programPill.style.display="none";
+        return;
+      }
+
+      try{
+        await gateDjAccess(user);
+
+        btnLogout.style.display="inline-flex";
+        loginView.style.display="none";
+        dashView.style.display="block";
+
+        await loadPresence();
+        await loadChat();
+        await loadFans();
+        logDebug("Panel DJ listo.");
+      }catch(e){
+        showToast(e.message || String(e));
+        logDebug("GATE ERROR: " + (e.message||e));
+        await auth.signOut();
+      }
+    });
+
+    /***********************
+     * PRESENCE
+     ***********************/
+    async function loadPresence(){
+      try{
+        var snap = await presenceRef.orderBy("lastSeen","desc").limit(80).get();
+        var now = Date.now();
+        var active = [];
+
+        snap.forEach(doc=>{
+          var d = doc.data()||{};
+          var ts = d.lastSeen;
+          var ms = ts && ts.toMillis ? ts.toMillis() : 0;
+          if(ms && (now - ms) <= 90000){
+            active.push({ name: d.name || doc.id, admin: !!d.admin, ms });
+          }
+        });
+
+        onlineBadge.textContent = String(active.length);
+        presenceList.innerHTML = "";
+
+        if(active.length===0){
+          presenceList.innerHTML = "<div class='smalltxt muted'>Nadie conectado (o no hay pings recientes).</div>";
+          return;
+        }
+
+        active.sort((a,b)=>b.ms-a.ms);
+        active.forEach(u=>{
+          var ago = Math.max(0, Math.floor((now - u.ms)/1000));
+          var row = document.createElement("div");
+          row.className = "item";
+          row.innerHTML =
+            "<div><b>"+escapeHtml(u.name)+"</b><div class='smalltxt muted'>hace "+ago+"s</div></div>" +
+            "<span class='badge "+(u.admin?"on":"")+"' style='"+(u.admin?"":"opacity:.7")+"'>"+(u.admin?"ADMIN":"ONLINE")+"</span>";
+          presenceList.appendChild(row);
+        });
+
+        logDebug("Presence cargado. Online: " + active.length);
+      }catch(e){
+        showToast("Error presence: " + (e.message||e));
+        logDebug("PRESENCE ERROR: " + (e.message||e));
+      }
+    }
+    btnReloadPresence.addEventListener("click", loadPresence);
+
+    // auto refresco
+    setInterval(function(){
+      if(dashView.style.display==="block") loadPresence();
+    }, 15000);
+
+    /***********************
+     * CHAT (moderar)
+     ***********************/
+    async function loadChat(){
+      try{
+        var snap = await chatRef.orderBy("creado","desc").limit(80).get();
+        var arr = [];
+        snap.forEach(doc=>{
+          var d = doc.data()||{};
+          arr.push({
+            id: doc.id,
+            usuario: d.usuario || "—",
+            mensaje: d.mensaje || "",
+            tipo: d.tipo || "mensaje",
+            rol: d.rol || "user"
+          });
+        });
+        arr.reverse();
+
+        chatList.innerHTML = "";
+        if(arr.length===0){
+          chatList.innerHTML = "<div class='smalltxt muted'>No hay mensajes.</div>";
+          return;
+        }
+
+        arr.forEach(m=>{
+          var row = document.createElement("div");
+          row.className = "item";
+
+          var left = document.createElement("div");
+          var prefix = (m.tipo==="system") ? "⚙️" : (m.rol==="admin" ? "⭐" : "💬");
+          left.innerHTML =
+            "<b>"+prefix+" "+escapeHtml(m.usuario)+"</b>" +
+            "<div class='smalltxt muted' style='margin-top:2px'>"+escapeHtml(m.mensaje)+"</div>";
+
+          var right = document.createElement("div");
+          right.className = "row";
+
+          var btnDel = document.createElement("button");
+          btnDel.className = "btn danger small";
+          btnDel.textContent = "Borrar";
+          btnDel.onclick = async function(){
+            if(!confirm("¿Borrar este mensaje?")) return;
+            try{
+              await chatRef.doc(m.id).delete();
+              showToast("Mensaje borrado ✅");
+              await loadChat();
+            }catch(e){ showToast("Error borrar: " + (e.message||e)); }
+          };
+
+          right.appendChild(btnDel);
+          row.appendChild(left);
+          row.appendChild(right);
+          chatList.appendChild(row);
+        });
+
+        logDebug("Chat cargado: " + arr.length);
+      }catch(e){
+        showToast("Error chat: " + (e.message||e));
+        logDebug("CHAT ERROR: " + (e.message||e));
+      }
+    }
+    btnReloadChat.addEventListener("click", loadChat);
+
+    async function deleteCollectionBatch(colRef, limit){
+      var snap = await colRef.orderBy("__name__").limit(limit).get();
+      if (snap.empty) return 0;
+      var batch = db.batch();
+      snap.docs.forEach(doc => batch.delete(doc.ref));
+      await batch.commit();
+      return snap.size;
+    }
+
+    btnClearChat.addEventListener("click", async function(){
+      if(!djDoc || djDoc.canClearChat !== true){
+        showToast("No tienes permiso para ClearChat.");
+        return;
+      }
+      if(!confirm("¿Seguro que quieres limpiar el chat (borrar mensajes)?")) return;
+      try{
+        showToast("Borrando chat…");
+        var deleted = await deleteCollectionBatch(chatRef, 450);
+        showToast("Chat borrado: " + deleted);
+        await loadChat();
+      }catch(e){
+        showToast("Error clearchat: " + (e.message||e));
+      }
+    });
+
+    /***********************
+     * TOP FANS (moderar)
+     ***********************/
+    async function loadFans(){
+      try{
+        var snap = await likesRef.orderBy("likes","desc").limit(30).get();
+        fansList.innerHTML = "";
+        var arr = [];
+        snap.forEach(doc=>{
+          var d = doc.data()||{};
+          arr.push({ id: doc.id, usuario: d.usuario || doc.id, likes: d.likes || 0 });
+        });
+
+        if(arr.length===0){
+          fansList.innerHTML = "<div class='smalltxt muted'>Sin datos.</div>";
+          return;
+        }
+
+        arr.forEach(function(u, idx){
+          var row = document.createElement("div");
+          row.className = "item";
+
+          var left = document.createElement("div");
+          left.innerHTML = "<b>"+(idx+1)+". "+escapeHtml(u.usuario)+"</b>";
+
+          var right = document.createElement("div");
+          right.className = "row";
+
+          var badge = document.createElement("span");
+          badge.className = "badge on";
+          badge.textContent = "❤ " + u.likes;
+
+          var btnDel = document.createElement("button");
+          btnDel.className = "btn danger small";
+          btnDel.textContent = "Borrar";
+          btnDel.onclick = async function(){
+            if(!confirm("¿Borrar a este usuario del ranking?")) return;
+            try{
+              await likesRef.doc(u.id).delete();
+              showToast("Usuario borrado ✅");
+              await loadFans();
+            }catch(e){
+              showToast("Error borrando: " + (e.message||e));
+            }
+          };
+
+          right.appendChild(badge);
+          right.appendChild(btnDel);
+
+          row.appendChild(left);
+          row.appendChild(right);
+          fansList.appendChild(row);
+        });
+
+        logDebug("Top fans cargado: " + arr.length);
+      }catch(e){
+        showToast("Error top fans: " + (e.message||e));
+        logDebug("FANS ERROR: " + (e.message||e));
+      }
+    }
+    btnReloadFans.addEventListener("click", loadFans);
+
+    btnResetFans.addEventListener("click", async function(){
+      if(!djDoc || djDoc.canResetLikes !== true){
+        showToast("No tienes permiso para ResetFans.");
+        return;
+      }
+      if(!confirm("¿Seguro que quieres RESET TOP FANS (borrar likes-ranking)?")) return;
+      try{
+        showToast("Reseteando TOP FANS…");
+        var deleted = await deleteCollectionBatch(likesRef, 450);
+        showToast("Top Fans borrado: " + deleted);
+        await loadFans();
+      }catch(e){
+        showToast("Error resetfans: " + (e.message||e));
+      }
+    });
+
+    /***********************
+     * Helpers
+     ***********************/
+    function escapeHtml(s){
+      return String(s||"").replace(/[&<>"']/g, function(m){
+        return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]);
+      });
+    }
+  </script>
+</body>
+</html>
