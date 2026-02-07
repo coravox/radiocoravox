@@ -338,9 +338,9 @@
       var displayName = d.name || user.email || ("DJ " + user.uid.slice(0,6));
       who.textContent = "✅ " + displayName;
 
-      // Permisos opcionales
-      btnClearChat.style.display = (d.canClearChat === true) ? "inline-flex" : "none";
-      btnResetFans.style.display = (d.canResetLikes === true) ? "inline-flex" : "none";
+     var perms = d.permissions || {};
+btnClearChat.style.display = (perms.chatModerate === true) ? "inline-flex" : "none";
+btnResetFans.style.display = (perms.topfansReset === true) ? "inline-flex" : "none";
 
       // Programa actual (solo lectura)
       try{
