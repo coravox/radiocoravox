@@ -583,21 +583,24 @@ btnResetFans.style.display = (perms.topfansReset === true) ? "inline-flex" : "no
     }
     btnReloadFans.addEventListener("click", loadFans);
 
-    btnResetFans.addEventListener("click", async function(){
-      if(!djDoc || djDoc.canResetLikes !== true){
-        showToast("No tienes permiso para ResetFans.");
-        return;
-      }
-      if(!confirm("¿Seguro que quieres RESET TOP FANS (borrar likes-ranking)?")) return;
-      try{
-        showToast("Reseteando TOP FANS…");
-        var deleted = await deleteCollectionBatch(likesRef, 450);
-        showToast("Top Fans borrado: " + deleted);
-        await loadFans();
-      }catch(e){
-        showToast("Error resetfans: " + (e.message||e));
-      }
-    });
+   btnResetFans.addEventListener("click", async function(){
+  var perms = (djDoc && djDoc.permissions) ? djDoc.permissions : {};
+  if(perms.topfansReset !== true){
+    showToast("No tienes permiso para ResetFans.");
+    return;
+  }
+
+  if(!confirm("¿Seguro que quieres RESET TOP FANS (borrar likes-ranking)?")) return;
+
+  try{
+    showToast("Reseteando TOP FANS…");
+    var deleted = await deleteCollectionBatch(likesRef, 450);
+    showToast("Top Fans borrado: " + deleted);
+    await loadFans();
+  }catch(e){
+    showToast("Error resetfans: " + (e.message||e));
+  }
+});
 
     /***********************
      * Helpers
