@@ -457,18 +457,21 @@ function lanzarJitsi() {
     document.getElementById('probador-video').innerHTML = ""; // Limpiamos el mensaje previo
     const domain = 'meet.jit.si';
    const options = {
-            roomName: 'Coravox_Test_Room_' + Math.floor(Math.random() * 1000),
+            roomName: 'Coravox_Test_Room_' + Math.floor(Math.random() * 10000),
             width: '100%',
             height: '100%',
-            parentNode: document.querySelector('#probador-video'),
+            parentNode: contenedor,
             configOverwrite: { 
                 startWithAudioMuted: true, 
                 prejoinPageEnabled: false,
-                disableDeepLinking: true 
+                disableDeepLinking: true,
+                enableWelcomePage: false,
+                enableClosePage: false
             },
             interfaceConfigOverwrite: { 
                 TOOLBAR_BUTTONS: ['camera', 'microphone'],
-                MOBILE_APP_PROMO: false
+                MOBILE_APP_PROMO: false,
+                SHOW_JITSI_WATERMARK: false
             }
         };
     new JitsiMeetExternalAPI(domain, options);
