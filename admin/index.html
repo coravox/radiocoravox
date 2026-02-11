@@ -389,6 +389,43 @@
     firebase.initializeApp(firebaseConfig);
     var auth = firebase.auth();
     var db = firebase.firestore();
+    // --- FUNCIÓN PARA AGREGAR NUEVO DJ DESDE EL PANEL ---
+async function crearNuevoDJ() {
+    const nombre = document.getElementById('addName').value;
+    const email = document.getElementById('addEmail').value;
+
+    if (!nombre || !email) {
+        alert("Por favor, ingresa el nombre y el correo del locutor.");
+        return;
+    }
+
+    try {
+        // Esto crea el documento en la colección 'djs' que tus reglas ya protegen
+        await db.collection('djs').add({
+            name: nombre,
+            email: email,
+            vis: email,
+            active: false, // Se crea desactivado para que tú lo apruebes después
+            permissions: {
+                chatModerate: false,
+                canResetTopFans: false
+            }
+        });
+
+        alert("¡DJ " + nombre + " registrado con éxito!");
+        
+        // Limpiamos los cuadros de texto
+        document.getElementById('addName').value = "";
+        document.getElementById('addEmail').value = "";
+        
+        // Recargamos la página para que aparezca en tu lista de abajo
+        location.reload(); 
+        
+    } catch (error) {
+        console.error("Error al guardar: ", error);
+        alert("No se pudo guardar. Revisa que tu cuenta de administrador esté activa.");
+    }
+}
 
     /***********************
      * ✅ ADMIN AUTORIZADO
