@@ -167,9 +167,6 @@
       min-height:0;
     }
     
-   <div id="chatPanel" style="position: relative; overflow: visible;">
-    <img src="LOCUTOR.png" class="locutor-flotante" style="left: 10px; bottom: 100%; width: 70px; margin-bottom: -5px;">
-    
     /* CHAT */
     #chatPanel{
       border-radius:14px;
@@ -203,8 +200,6 @@
       gap:10px;
       min-height:0;
     }
-
-    <img src="LOCUTURA.png" class="locutor-flotante" style="right: 10px; bottom: 100%; width: 70px; margin-bottom: -5px;">
 
     #fansPanel{
       border-radius:14px;
@@ -600,7 +595,7 @@
     }
   </style>
 </head>
-
+  
 <body>
 <div id="app">
 
@@ -1428,5 +1423,9 @@
   });
 
 </script>
+  
+  <img src="LOCUTOR.png" style="position: fixed; bottom: 80px; left: 5%; width: 75px; z-index: 999; pointer-events: none;">
+<img src="LOCUTURA.png" style="position: fixed; bottom: 80px; right: 5%; width: 75px; z-index: 999; pointer-events: none;">
+
 </body>
 </html>
