@@ -440,12 +440,11 @@ async function crearNuevoDJ() {
     }
 } //
 
-  // --- SISTEMA DE CÁMARA EN VIVO CORAVOX ---
+ // --- SISTEMA DE CÁMARA PROFESIONAL CORAVOX ---
 function iniciarPruebaCamara() {
     const contenedor = document.getElementById('probador-video');
     contenedor.innerHTML = "<span style='color:#f1c40f'>Iniciando cámara en vivo...</span>";
 
-    // Cargamos el motor de video si no está presente
     if (!window.JitsiMeetExternalAPI) {
         const script = document.createElement('script');
         script.src = "https://meet.jit.si/external_api.js";
@@ -457,26 +456,28 @@ function iniciarPruebaCamara() {
 }
 
 function activarStreaming() {
-    document.getElementById('probador-video').innerHTML = ""; // Limpiamos el texto
-    const domain = 'meet.jit.si';
+    document.getElementById('probador-video').innerHTML = ""; 
     const options = {
-        roomName: 'RadioCoravox_LiveStream_Global', // Sala fija para tu radio
+        roomName: 'RadioCoravox_Oficial_Studio_Final', // Nombre único y estable
         width: '100%',
         height: '100%',
         parentNode: document.querySelector('#probador-video'),
+        userInfo: {
+            displayName: 'DJ Coravox' 
+        },
         configOverwrite: { 
             startWithAudioMuted: true, 
             prejoinPageEnabled: false,
             disableDeepLinking: true,
             enableWelcomePage: false
         },
-        interfaceConfigOverwrite: { 
+        interfaceConfigOverwrite: {
             TOOLBAR_BUTTONS: ['camera', 'microphone'],
             MOBILE_APP_PROMO: false,
             SHOW_JITSI_WATERMARK: false
         }
     };
-    new JitsiMeetExternalAPI(domain, options);
+    new JitsiMeetExternalAPI('meet.jit.si', options);
 }
 
     /***********************
