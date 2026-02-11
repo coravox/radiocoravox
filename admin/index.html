@@ -252,6 +252,19 @@
             </div>
           </div>
         </div>
+        
+        <div class="card" style="background: #1a1a1a; padding: 20px; border-radius: 10px; border: 1px solid #f1c40f; margin-bottom: 25px;">
+    <h3 style="color: #f1c40f; margin-top: 0;">📸 Prueba de Cámara (DJ Live)</h3>
+    <p style="font-size: 0.8em; color: #888;">Usa esto para medir el retraso entre tu cámara y el audio de la radio.</p>
+    
+    <div id="probador-video" style="width: 100%; height: 250px; background: #000; border-radius: 8px; margin-bottom: 10px; display: flex; align-items: center; justify-content: center;">
+        <span style="color: #444;">La cámara aparecerá aquí...</span>
+    </div>
+
+    <button onclick="iniciarPruebaCamara()" style="background: #f1c40f; color: black; border: none; padding: 10px 20px; font-weight: bold; border-radius: 5px; cursor: pointer; width: 100%;">
+        ENCENDER MI CÁMARA
+    </button>
+</div>
 
         <!-- CONNECTED USERS -->
         <div class="card">
@@ -426,6 +439,33 @@ async function crearNuevoDJ() {
         alert("No se pudo guardar. Revisa que tu cuenta de administrador esté activa.");
     }
 } //
+
+    // Función para iniciar la cámara de prueba
+function iniciarPruebaCamara() {
+    // Primero cargamos el motor de video si no existe
+    if (!window.JitsiMeetExternalAPI) {
+        const script = document.createElement('script');
+        script.src = "https://meet.jit.si/external_api.js";
+        script.onload = () => lanzarJitsi();
+        document.head.appendChild(script);
+    } else {
+        lanzarJitsi();
+    }
+}
+
+function lanzarJitsi() {
+    document.getElementById('probador-video').innerHTML = ""; // Limpiamos el mensaje previo
+    const domain = 'meet.jit.si';
+    const options = {
+        roomName: 'Coravox_Test_Room_' + Math.floor(Math.random() * 1000),
+        width: '100%',
+        height: '100%',
+        parentNode: document.querySelector('#probador-video'),
+        configOverwrite: { startWithAudioMuted: true, prejoinPageEnabled: false },
+        interfaceConfigOverwrite: { TOOLBAR_BUTTONS: ['camera', 'microphone'] }
+    };
+    new JitsiMeetExternalAPI(domain, options);
+}
 
     /***********************
      * ✅ ADMIN AUTORIZADO
