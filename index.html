@@ -104,6 +104,16 @@
       50%  { transform:scale(1.25);opacity:1; }
       100% { transform:scale(1.55);opacity:0; }
     }
+    .locutor-flotante {
+    width: 75px; 
+    height: auto;
+    position: absolute;
+    z-index: 10;
+    pointer-events: none;
+    /* Este es el brillo amarillo neón como el logo */
+    filter: drop-shadow(0 0 10px rgba(245, 200, 91, 0.8)); 
+}
+}
 
     /* =========================
        CONTROLES AUDIO
@@ -156,13 +166,16 @@
       pointer-events:auto;
       min-height:0;
     }
-
+    
+   <div id="chatPanel" style="position: relative; overflow: visible;">
+    <img src="LOCUTOR.png" class="locutor-flotante" style="left: 10px; bottom: 100%; width: 70px; margin-bottom: -5px;">
+    
     /* CHAT */
     #chatPanel{
       border-radius:14px;
       background: rgba(0,0,0,0.25);
       border:1px solid rgba(245,200,91,0.18);
-      overflow:hidden;
+      overflow: visible;
       display:flex;
       flex-direction:column;
       min-height:0;
@@ -191,12 +204,14 @@
       min-height:0;
     }
 
+    <img src="LOCUTURA.png" class="locutor-flotante" style="right: 10px; bottom: 100%; width: 70px; margin-bottom: -5px;">
+
     #fansPanel{
       border-radius:14px;
       background: rgba(0,0,0,0.25);
       border:1px solid rgba(245,200,91,0.18);
       padding:10px 10px;
-      overflow:hidden;
+      overflow: visible;
       pointer-events:none;
       min-height:0;
     }
