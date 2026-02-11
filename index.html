@@ -104,16 +104,6 @@
       50%  { transform:scale(1.25);opacity:1; }
       100% { transform:scale(1.55);opacity:0; }
     }
-    .locutor-flotante {
-    width: 75px; 
-    height: auto;
-    position: absolute;
-    z-index: 10;
-    pointer-events: none;
-    /* Este es el brillo amarillo neón como el logo */
-    filter: drop-shadow(0 0 10px rgba(245, 200, 91, 0.8)); 
-}
-}
 
     /* =========================
        CONTROLES AUDIO
@@ -166,13 +156,13 @@
       pointer-events:auto;
       min-height:0;
     }
-    
+
     /* CHAT */
     #chatPanel{
       border-radius:14px;
       background: rgba(0,0,0,0.25);
       border:1px solid rgba(245,200,91,0.18);
-      overflow: visible;
+      overflow:hidden;
       display:flex;
       flex-direction:column;
       min-height:0;
@@ -206,7 +196,7 @@
       background: rgba(0,0,0,0.25);
       border:1px solid rgba(245,200,91,0.18);
       padding:10px 10px;
-      overflow: visible;
+      overflow:hidden;
       pointer-events:none;
       min-height:0;
     }
@@ -595,7 +585,7 @@
     }
   </style>
 </head>
-  
+
 <body>
 <div id="app">
 
@@ -1423,9 +1413,5 @@
   });
 
 </script>
-
-<img src="LOCUTOR.png" style="position: fixed; bottom: 18%; left: 3%; width: 85px; z-index: 9999; pointer-events: none; filter: drop-shadow(0px 0px 8px rgba(245,200,91,0.6));">
-<img src="LOCUTURA.png" style="position: fixed; bottom: 18%; right: 3%; width: 85px; z-index: 9999; pointer-events: none; filter: drop-shadow(0px 0px 8px rgba(245,200,91,0.6));">
-
 </body>
 </html>
