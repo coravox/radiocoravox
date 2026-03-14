@@ -9,690 +9,109 @@
   <style>
     *{ margin:0; padding:0; box-sizing:border-box; }
     html, body{
-      width:100%;
-      height:100%;
-      overflow:hidden;
-      background:#000;
-      font-family: system-ui, -apple-system, Roboto, sans-serif;
-      color:#f5c85b;
-      -webkit-text-size-adjust:100%;
-      touch-action:manipulation;
+      width:100%; height:100%; overflow:hidden;
+      background:#000; font-family: system-ui, -apple-system, sans-serif;
+      color:#f5c85b; -webkit-text-size-adjust:100%; touch-action:manipulation;
     }
+    :root{ --safe-b: env(safe-area-inset-bottom, 0px); --safe-t: env(safe-area-inset-top, 0px); }
 
-    :root{
-      --safe-b: env(safe-area-inset-bottom, 0px);
-      --safe-t: env(safe-area-inset-top, 0px);
-    }
-
-    #app{
-      position:fixed;
-      inset:0;
-      overflow:hidden;
-    }
-
-    button, input, iframe{
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
-    }
-
-    /* =========================
-        ARO / LOGO
-    ========================= */
-    #center{
-      position:absolute;
-      left:0; right:0;
-      top: calc(14px + var(--safe-t));
-      display:flex;
-      justify-content:center;
-      pointer-events:none;
-      z-index:2;
-    }
-
-    #halo{
-      width:300px;
-      height:300px;
-      border-radius:50%;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      background:radial-gradient(circle at center, #000 0 60%, #000 60%, transparent 61%);
-      border:3px solid #f5c85b;
-      box-shadow:0 0 55px rgba(245,200,91,0.9);
-      position:relative;
-      overflow:visible;
-    }
-
-    #logo{
-      width:88%;
-      height:88%;
-      border-radius:50%;
-      object-fit:contain;
-      box-shadow:0 0 25px rgba(0,0,0,0.9);
-    }
-
-    #halo::before, #halo::after{
-      content:"";
-      position:absolute;
-      inset:-55%;
-      border-radius:50%;
-      pointer-events:none;
-      opacity:0;
-      background:
-        radial-gradient(circle at 20% 0%,   rgba(75,224,255,0.35), transparent 70%),
-        radial-gradient(circle at 80% 0%,   rgba(0,255,138,0.35),  transparent 70%),
-        radial-gradient(circle at 0% 70%,   rgba(255,232,75,0.35), transparent 70%),
-        radial-gradient(circle at 100% 40%, rgba(255,107,75,0.35), transparent 70%),
-        radial-gradient(circle at 50% 100%, rgba(255,75,242,0.35), transparent 70%);
-    }
-
-    body.playing #halo::before { animation:bigRays 2.2s infinite ease-out; }
-    body.playing #halo::after  { animation:smallRays 1.4s infinite ease-out; }
+    #app{ position:fixed; inset:0; overflow:hidden; }
+    
+    /* ARO / LOGO */
+    #center{ position:absolute; left:0; right:0; top: calc(14px + var(--safe-t)); display:flex; justify-content:center; pointer-events:none; z-index:2; }
+    #halo{ width:300px; height:300px; border-radius:50%; display:flex; align-items:center; justify-content:center; border:3px solid #f5c85b; box-shadow:0 0 55px rgba(245,200,91,0.9); position:relative; }
+    #logo{ width:88%; height:88%; border-radius:50%; object-fit:contain; }
+    
+    /* ANIMACIONES */
     body.playing #halo { animation:glowPulse 1.2s infinite ease-in-out; }
+    @keyframes glowPulse { 0% { box-shadow:0 0 40px rgba(255,255,255,0.25); } 50% { box-shadow:0 0 95px rgba(255,255,255,0.95); } 100% { box-shadow:0 0 40px rgba(255,255,255,0.25); } }
 
-    @keyframes glowPulse {
-      0%   { box-shadow:0 0 40px rgba(255,255,255,0.25); }
-      50%  { box-shadow:0 0 95px rgba(255,255,255,0.95); }
-      100% { box-shadow:0 0 40px rgba(255,255,255,0.25); }
-    }
-    @keyframes bigRays {
-      0%   { transform:scale(0.9); opacity:0; }
-      40%  { transform:scale(1.2); opacity:1; }
-      100% { transform:scale(1.9); opacity:0; }
-    }
-    @keyframes smallRays {
-      0%   { transform:scale(0.9); opacity:0; }
-      50%  { transform:scale(1.25);opacity:1; }
-      100% { transform:scale(1.55);opacity:0; }
-    }
+    /* CONTROLES */
+    #controls{ position:absolute; left:50%; transform:translateX(-50%); top: calc(320px + var(--safe-t)); width: 92%; text-align:center; z-index:3; }
+    #btnPlay{ padding:12px 18px; border-radius:999px; border:none; background:#f5c85b; color:#000; font-weight:900; min-width:200px; cursor:pointer; }
+    #songLabel{ margin-top:8px; font-size:13px; color:#fff; }
 
-    /* =========================
-        CONTROLES AUDIO
-    ========================= */
-    #controls{
-      position:absolute;
-      left:50%;
-      transform:translateX(-50%);
-      top: calc(14px + var(--safe-t) + 300px + 10px);
-      width: 92%;
-      max-width: 420px;
-      text-align:center;
-      z-index:3;
-      pointer-events:auto;
-    }
-
-    #listenersLabel{ font-size:13px; color:#fff; opacity:.95; margin-bottom:4px; }
-
-    #btnPlay{
-      padding:12px 18px;
-      border-radius:999px;
-      border:none;
-      background:#f5c85b;
-      color:#000;
-      font-size:14px;
-      font-weight:900;
-      letter-spacing:.08em;
-      text-transform:uppercase;
-      min-width:200px;
-      box-shadow:0 0 10px rgba(0,0,0,0.7);
-      cursor:pointer;
-    }
-
-    #status{ margin-top:8px; font-size:13px; color:#fff; opacity:.92; }
-    #songLabel{ margin-top:4px; font-size:13px; color:#fff; opacity:.95; }
-
-    /* =========================
-        ZONA DEBAJO DEL ARO
-    ========================= */
-    #belowZone{
-      position:absolute;
-      left:10px;
-      right:10px;
-      top: calc(14px + var(--safe-t) + 300px + 120px);
-      bottom: calc(96px + var(--safe-b));
-      display:grid;
-      grid-template-columns: 1.3fr 0.7fr;
-      gap:10px;
-      z-index:4;
-      pointer-events:auto;
-      min-height:0;
-    }
-
-    /* CHAT */
-    #chatPanel{
-      border-radius:14px;
-      background: rgba(0,0,0,0.25);
-      border:1px solid rgba(245,200,91,0.18);
-      overflow:hidden;
-      display:flex;
-      flex-direction:column;
-      min-height:0;
-    }
-
-    #chatBox{
-      padding:10px;
-      overflow-y:auto;
-      min-height:0;
-      flex:1;
-      font-size:12px;
-      color:#fff;
-    }
-
-    .chatInfo{ font-size:11px; opacity:.75; margin-bottom:6px; }
-    .chatLine{ margin-bottom:6px; line-height:1.25; word-break:break-word; }
-    .chatUserName{ font-weight:900; margin-right:6px; }
+    /* ZONA INFERIOR (Chat y Ranking) */
+    #belowZone{ position:absolute; left:10px; right:10px; top: calc(440px + var(--safe-t)); bottom: calc(100px + var(--safe-b)); display:grid; grid-template-columns: 1.3fr 0.7fr; gap:10px; z-index:4; }
+    #chatPanel{ border-radius:14px; background: rgba(255,255,255,0.05); border:1px solid rgba(245,200,91,0.18); display:flex; flex-direction:column; overflow:hidden; }
+    #chatBox{ padding:10px; overflow-y:auto; flex:1; font-size:12px; color:#fff; }
+    .chatLine{ margin-bottom:6px; }
+    .chatUserName{ font-weight:900; margin-right:4px; }
     .chatUserName.admin{ color:#ffd86b; text-shadow:0 0 6px rgba(255,216,107,.7); }
-    .chatSys{ color:#f5c85b; opacity:.95; font-style:italic; }
+    .chatSys{ color:#f5c85b; font-style:italic; opacity:0.8; }
 
-    /* COLUMNA DERECHA: TOP FANS + BOTONES ABAJO */
-    #rightPanel{
-      display:flex;
-      flex-direction:column;
-      gap:10px;
-      min-height:0;
-    }
+    /* BOTONES */
+    #fansActions{ display:flex; flex-direction:column; gap:8px; }
+    .pulseLink{ background:transparent; border:none; font-weight:900; cursor:pointer; animation: pulseText 1.2s infinite; text-align:left; }
+    @keyframes pulseText{ 0%, 100%{ transform:scale(1); } 50%{ transform:scale(1.05); } }
+    #requestSongBtn{ color:#7ad9ff; }
 
-    #fansPanel{
-      border-radius:14px;
-      background: rgba(0,0,0,0.25);
-      border:1px solid rgba(245,200,91,0.18);
-      padding:10px 10px;
-      overflow:hidden;
-      pointer-events:none;
-      min-height:0;
-    }
-
-    #likeRanking{
-      color:#fff;
-      font-size:12px;
-      text-shadow:0 0 6px rgba(0,0,0,0.9);
-    }
-    .likeTitle{
-      font-weight:900;
-      letter-spacing:.06em;
-      text-transform:uppercase;
-      margin-bottom:8px;
-      opacity:.95;
-    }
-    .likeRow{
-      display:flex;
-      justify-content:space-between;
-      gap:8px;
-      margin-bottom:6px;
-      opacity:.95;
-    }
-    .likeName{
-      max-width:110px;
-      overflow:hidden;
-      white-space:nowrap;
-      text-overflow:ellipsis;
-    }
-    .likeCount{ font-weight:900; }
-
-    /* BOTONES BAJO TOP FANS */
-    #fansActions{
-      border-radius:0;
-      padding:0;
-      display:flex;
-      flex-direction:row;
-      align-items: center;
-      gap:14px;
-      pointer-events:auto;
-      background:transparent;
-      border:none;
-    }
-
-    .pulseLink{
-      border:none;
-      background:transparent;
-      text-align:left;
-      font-size:14px;
-      font-weight:900;
-      cursor:pointer;
-      padding:6px 4px;
-      letter-spacing:.02em;
-      animation: pulseText 1.2s ease-in-out infinite;
-    }
-
-    @keyframes pulseText{
-      0%{ transform:scale(1); opacity:0.85; }
-      50%{ transform:scale(1.06); opacity:1; }
-      100%{ transform:scale(1); opacity:0.85; }
-    }
-
-    #superFansBtn{
-      color:#ffd54f;
-      text-shadow:0 0 12px rgba(255,213,79,0.55);
-    }
-
-    #requestSongBtn{
-      color:#7ad9ff;
-      text-shadow:0 0 12px rgba(122,217,255,0.55);
-    }
-
-    /* =========================
-        BARRA INFERIOR FIJA
-    ========================= */
-    #bottomBar{
-      position:absolute;
-      left:0; right:0;
-      bottom:0;
-      padding: 10px 10px calc(14px + var(--safe-b));
-      z-index:10;
-      display:flex;
-      align-items:center;
-      gap:8px;
-      background: linear-gradient(to top, rgba(0,0,0,0.90), rgba(0,0,0,0.12));
-      pointer-events:auto;
-    }
-
-    #chatInput{
-      flex:1;
-      border-radius:999px;
-      border:1px solid rgba(245,200,91,0.35);
-      background:rgba(0,0,0,0.7);
-      color:#f5c85b;
-      font-size:12px;
-      padding:10px 12px;
-      outline:none;
-    }
-    #chatInput::placeholder{ color:rgba(245,200,91,0.5); }
-
-    #chatSend{
-      border:none;
-      border-radius:999px;
-      padding:10px 12px;
-      background:#f5c85b;
-      color:#000;
-      font-weight:900;
-      font-size:12px;
-      cursor:pointer;
-    }
-
-    .roundBtn{
-      width:40px;
-      height:40px;
-      border-radius:999px;
-      border:none;
-      cursor:pointer;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      box-shadow:0 0 10px rgba(0,0,0,0.65);
-      font-size:18px;
-      font-weight:900;
-    }
-
-    #btnFB{ background: radial-gradient(circle at top, #7ad9ff, #2b8cff); color:#000; }
-    #btnWA{ background: radial-gradient(circle at top, #9dff7a, #2bdc66); color:#000; font-size:16px; }
-    #btnGift{ background: radial-gradient(circle at top, #ffd54f, #ff7ad9); color:#000; }
-    #btnName{ background: radial-gradient(circle at top, #f5c85b, #ffd54f); color:#000; font-size:16px; }
-
-    /* Tap tap corazones */
-    .heart{
-      position:fixed;
-      left:0; top:0;
-      font-size:34px;
-      color:#ff1744;
-      text-shadow:0 0 12px rgba(255,0,0,0.85);
-      pointer-events:none;
-      z-index:20000;
-      animation:floatHeart 1.6s ease-out forwards;
-    }
-    @keyframes floatHeart{
-      0%   { transform:translate(-50%,-50%) scale(0.8); opacity:1; }
-      40%  { transform:translate(-50%,-220%) scale(1.3); opacity:0.95; color:#ff6bb5; }
-      80%  { transform:translate(-50%,-420%) scale(1.9); opacity:1; color:#ffd54f; }
-      100% { transform:translate(-50%,-500%) scale(0.4); opacity:0; }
-    }
-
-    /* Globos arriba */
-    .adBubble{
-      position:fixed;
-      min-width:170px;
-      max-width:260px;
-      padding:12px 16px;
-      color:#fff;
-      font-size:13px;
-      font-weight:900;
-      line-height:1.25;
-      border-radius:999px;
-      box-shadow:0 0 18px rgba(0,0,0,0.9);
-      z-index:13000;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      text-align:center;
-      pointer-events:none;
-      opacity:0;
-      transform:translateY(-10px) scale(0.7);
-      transition:opacity .5s ease, transform .5s ease;
-    }
-    .adBubble::after{
-      content:"";
-      position:absolute;
-      bottom:-14px;
-      left:50%;
-      transform:translateX(-50%);
-      width:30px;
-      height:30px;
-      border-radius:50%;
-      opacity:0.9;
-      background:inherit;
-    }
-    .adBubble.variant-gold{ background:radial-gradient(circle at top, #ffd54f, #f5a623); }
-    .adBubble.variant-blue{ background:radial-gradient(circle at top, #7ad9ff, #2b8cff); }
-    .adBubble.variant-pink{ background:radial-gradient(circle at top, #ff7ad9, #ff4081); }
-    .adBubble-show{ opacity:1; transform:translateY(0) scale(1); }
-    .adBubble-hide{ opacity:0; transform:translateY(-15px) scale(0.8); }
-
-    /* Modales */
-    #loveOverlay, #requestOverlay, #nameOverlay, #pinOverlay{
-      position:fixed;
-      inset:0;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      background:rgba(0,0,0,0.86);
-      z-index:99999;
-      pointer-events:auto;
-    }
-    .modalBox{
-      width:86%;
-      max-width:360px;
-      background:rgba(0,0,0,0.92);
-      border:1px solid rgba(245,200,91,0.7);
-      border-radius:18px;
-      padding:16px;
-      box-shadow:0 0 20px rgba(0,0,0,1);
-      color:#fff;
-    }
-    .modalTitle{ font-size:16px; font-weight:900; color:#f5c85b; margin-bottom:6px; }
-    .modalSub{ font-size:12px; opacity:.9; margin-bottom:10px; }
-    .modalInput{
-      width:100%;
-      border-radius:999px;
-      border:1px solid rgba(245,200,91,0.6);
-      background:#000;
-      color:#f5c85b;
-      padding:10px 12px;
-      font-size:13px;
-      outline:none;
-      margin-bottom:10px;
-    }
-    .modalBtn{
-      width:100%;
-      border:none;
-      border-radius:999px;
-      padding:10px 12px;
-      background:#f5c85b;
-      color:#000;
-      font-weight:900;
-      cursor:pointer;
-    }
-    #pinError{
-      margin-top:8px;
-      color:#ff6b6b;
-      display:none;
-      font-weight:900;
-      font-size:12px;
-      text-align:center;
-    }
-
-    #requestModal{
-      width:92%;
-      max-width:420px;
-      background:rgba(0,0,0,0.95);
-      border-radius:18px;
-      border:1px solid rgba(245,200,91,0.6);
-      padding:20px;
-      text-align:center;
-    }
-    #requestHeader{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      margin-bottom:15px;
-      color:#f5c85b;
-      font-weight:900;
-    }
-    #requestClose{
-      background:transparent;
-      border:none;
-      color:#f5c85b;
-      font-size:22px;
-      cursor:pointer;
-    }
-
-    /* ====== PRESENCIA (Conectados) ====== */
-    #presenceBtn{
-      position:fixed;
-      top: calc(10px + var(--safe-t));
-      right: 10px;
-      z-index: 25000;
-      border:none;
-      border-radius:999px;
-      padding:8px 10px;
-      font-size:12px;
-      font-weight:900;
-      background: rgba(0,0,0,0.55);
-      color:#fff;
-      border:1px solid rgba(245,200,91,0.35);
-      box-shadow:0 0 12px rgba(0,0,0,0.8);
-      cursor:pointer;
-      pointer-events:auto;
-    }
-
-    #presenceOverlay{
-      position:fixed;
-      inset:0;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      background: rgba(0,0,0,0.70);
-      z-index: 99998;
-      pointer-events:auto;
-    }
-
-    #presenceModal{
-      width:86%;
-      max-width:360px;
-      border-radius:18px;
-      padding:14px 14px 12px;
-      background: rgba(0,0,0,0.92);
-      border:1px solid rgba(245,200,91,0.55);
-      box-shadow:0 0 22px rgba(0,0,0,1);
-      color:#fff;
-    }
-
-    #presenceTitleRow{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      margin-bottom:8px;
-    }
-
-    #presenceTitle{
-      font-weight:900;
-      color:#f5c85b;
-      font-size:14px;
-    }
-
-    #presenceClose{
-      border:none;
-      background:transparent;
-      color:#f5c85b;
-      font-size:18px;
-      cursor:pointer;
-    }
-
-    #presenceList{
-      max-height:260px;
-      overflow:auto;
-      padding-top:6px;
-      border-top:1px solid rgba(245,200,91,0.18);
-    }
-
-    .presenceItem{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      padding:8px 0;
-      border-bottom:1px solid rgba(255,255,255,0.06);
-      font-size:13px;
-    }
-
-    .presenceDot{
-      width:8px;
-      height:8px;
-      border-radius:50%;
-      background:#2bdc66;
-      box-shadow:0 0 10px rgba(43,220,102,0.8);
-      margin-right:10px;
-      flex-shrink:0;
-    }
-
-    .presenceNameRow{
-      display:flex;
-      align-items:center;
-      min-width:0;
-    }
-
-    .presenceName{
-      font-weight:900;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
-      max-width:220px;
-    }
-
-    .presenceBadge{
-      margin-left:8px;
-      font-size:11px;
-      font-weight:900;
-      color:#ffd54f;
-      opacity:0.95;
-    }
+    /* BARRA CHAT */
+    #bottomBar{ position:absolute; left:0; right:0; bottom:0; padding: 10px 10px calc(10px + var(--safe-b)); display:flex; gap:8px; background: rgba(0,0,0,0.8); }
+    #chatInput{ flex:1; border-radius:999px; border:1px solid #f5c85b; background:#000; color:#fff; padding:8px 15px; outline:none; }
+    #chatSend{ background:#f5c85b; border:none; border-radius:999px; padding:0 15px; font-weight:900; }
+    
+    /* MODALES */
+    .overlay{ position:fixed; inset:0; background:rgba(0,0,0,0.9); display:none; align-items:center; justify-content:center; z-index:9999; }
+    .modalBox{ width:90%; max-width:380px; background:#111; border:1px solid #f5c85b; border-radius:15px; padding:20px; }
+    .modalInput{ width:100%; padding:10px; margin:10px 0; border-radius:5px; border:1px solid #333; background:#000; color:#fff; }
+    .modalBtn{ width:100%; padding:10px; background:#f5c85b; border:none; font-weight:900; border-radius:5px; }
   </style>
 </head>
 
 <body>
 <div id="app">
-
   <div id="center">
-    <div id="halo">
-      <img id="logo" src="logo_coravox.png" alt="Radio Coravox" />
-    </div>
+    <div id="halo"><img id="logo" src="logo_coravox.png" /></div>
   </div>
 
   <div id="controls">
     <div id="listenersLabel">👥 Oyentes: 0</div>
-    <button id="btnPlay" type="button">▶ Escuchar</button>
-    <div id="status">Listo para conectar…</div>
+    <button id="btnPlay">▶ Escuchar</button>
     <div id="songLabel">🎵 Ahora suena: —</div>
   </div>
 
   <div id="belowZone">
-    <div id="chatPanel">
-      <div id="chatBox"></div>
-    </div>
-
+    <div id="chatPanel"><div id="chatBox"></div></div>
     <div id="rightPanel">
-      <div id="fansPanel">
-        <div id="likeRanking"></div>
-      </div>
-
-      <div id="fansActions">
-        <button id="superFansBtn" class="pulseLink" type="button">⭐ Super Fans $1/mes</button>
-        <button id="requestSongBtn" class="pulseLink" type="button">🎧 Pide tu canción</button>
-      </div>
+        <div id="fansActions">
+            <button id="requestSongBtn" class="pulseLink">🎧 Pide tu canción</button>
+        </div>
     </div>
   </div>
 
   <div id="bottomBar">
-    <input id="chatInput" type="text" placeholder="Escribe un mensaje..." />
-    <button id="chatSend" type="button">Enviar</button>
-
-    <button id="btnName" class="roundBtn" type="button" title="Cambiar nombre">👤</button>
-    <button id="btnFB" class="roundBtn" type="button" title="Facebook">f</button>
-    <button id="btnWA" class="roundBtn" type="button" title="WhatsApp">W</button>
-    <button id="btnGift" class="roundBtn" type="button" title="Regalito">🎁</button>
-  </div>
-
-</div>
-
-<div id="nameOverlay">
-  <div class="modalBox">
-    <div class="modalTitle">Bienvenido al chat</div>
-    <div class="modalSub">Escribe tu nombre</div>
-    <input id="nameInput" class="modalInput" type="text" value="Oyente"/>
-    <button id="nameOk" class="modalBtn" type="button">Entrar</button>
-    <div style="font-size:11px;opacity:.85;margin-top:8px;">
-      El nombre <b>Coravox</b> está reservado para el administrador ⭐
-    </div>
+    <input id="chatInput" placeholder="Escribe algo..." />
+    <button id="chatSend">Enviar</button>
+    <button id="btnName" style="background:none; border:none; font-size:20px;">👤</button>
   </div>
 </div>
 
-<div id="pinOverlay">
-  <div class="modalBox">
-    <div class="modalTitle">PIN de administrador</div>
-    <input id="pinInput" class="modalInput" type="password" placeholder="Ingresa el PIN"/>
-    <button id="pinOk" class="modalBtn" type="button">Confirmar</button>
-    <div id="pinError">PIN incorrecto.</div>
-  </div>
+<div id="requestOverlay" class="overlay">
+    <div class="modalBox">
+        <h3 style="color:#f5c85b">Pide tu canción</h3>
+        <input id="inputCancion" class="modalInput" placeholder="Artista - Canción" />
+        <button id="btnEnviarPedido" class="modalBtn">ENVIAR A CABINA</button>
+        <button onclick="document.getElementById('requestOverlay').style.display='none'" style="background:none; border:none; color:#666; width:100%; margin-top:10px;">Cerrar</button>
+    </div>
 </div>
 
-<div id="loveOverlay">
-  <div class="modalBox">
-    <div class="modalTitle">🎁 Enviar Regalito</div>
-    <div style="margin-top:6px;font-size:13px;color:#fff;opacity:.95">
-      Elige tu método de apoyo 💛
+<div id="nameOverlay" class="overlay" style="display:flex;">
+    <div class="modalBox">
+        <h3>Tu Nombre</h3>
+        <input id="nameInput" class="modalInput" value="Oyente" />
+        <button id="nameOk" class="modalBtn">Entrar</button>
     </div>
-    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
-      <button id="payPaypal" class="modalBtn" type="button" style="width:auto;padding:10px 14px">PayPal</button>
-      <button id="payCashApp" class="modalBtn" type="button" style="width:auto;padding:10px 14px">Cash App</button>
-      <button id="payZelle" class="modalBtn" type="button" style="width:auto;padding:10px 14px">Zelle (copiar)</button>
-      <button id="payBtc" class="modalBtn" type="button" style="width:auto;padding:10px 14px">Bitcoin (copiar)</button>
-      <button id="closeLove" class="modalBtn" type="button" style="width:auto;padding:10px 14px;background:#222;color:#f5c85b;border:1px solid rgba(245,200,91,.5)">Cerrar</button>
-    </div>
-  </div>
-</div>
-
-<div id="requestOverlay">
-  <div id="requestModal">
-    <div id="requestHeader">
-      <span>🎧 Pide tu canción (Spotify)</span>
-      <button id="requestClose" type="button">✕</button>
-    </div>
-    <p style="font-size:12px; margin-bottom:10px; opacity:0.8;">Tu pedido llegará directo a la cabina.</p>
-    <input id="inputCancion" class="modalInput" type="text" placeholder="Artista o canción..."/>
-    <button id="btnEnviarPedido" class="modalBtn" type="button">ENVIAR PEDIDO</button>
-    <p id="confirmPedido" style="display:none; color:#2bdc66; font-size:12px; margin-top:10px; font-weight:bold;">¡Enviado! Aparecerá en pantalla pronto.</p>
-  </div>
-</div>
-
-<button id="presenceBtn" type="button">Conectados: 0</button>
-
-<div id="presenceOverlay">
-  <div id="presenceModal">
-    <div id="presenceTitleRow">
-      <div id="presenceTitle">Conectados ahora</div>
-      <button id="presenceClose" type="button">✕</button>
-    </div>
-    <div id="presenceList"></div>
-  </div>
 </div>
 
 <audio id="player"></audio>
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <script>
-  /* ======== CONFIG ======== */
+  /* CONFIG */
   var STREAM_URL = "https://a13.my-control-panel.com/listen/radio_coravox/radio.mp3";
-  var META_URL   = "https://a13.my-control-panel.com/api/nowplaying/radio_coravox";
-
   var firebaseConfig = {
     apiKey: "AIzaSyC8jq2iODj6DwfTSktgZ7ia84oeMxxPjNE",
     authDomain: "coravox-602a0.firebaseapp.com",
@@ -704,104 +123,105 @@
   firebase.initializeApp(firebaseConfig);
   var db = firebase.firestore();
 
-  // ======== UI ========
-  var audio = document.getElementById("player");
-  var btnPlay = document.getElementById("btnPlay");
-  var songLabel = document.getElementById("songLabel");
-  var requestOverlay = document.getElementById("requestOverlay");
-  var requestClose = document.getElementById("requestClose");
-  var requestSongBtn = document.getElementById("requestSongBtn");
-  var btnEnviarPedido = document.getElementById("btnEnviarPedido");
-  var inputCancion = document.getElementById("inputCancion");
-  var confirmPedido = document.getElementById("confirmPedido");
+  var nickname = localStorage.getItem("rcx_nickname") || "Oyente";
+  var isAdmin = (nickname === "Coravox");
+  // Validar si el usuario es administrador para mostrar funciones extra
+if (nickname === "Coravox") {
+    // Aquí puedes añadir elementos que solo tú verás
+    // Por ejemplo, si tienes un botón para borrar mensajes o gestionar la radio:
+    const adminPanel = document.createElement('div');
+    adminPanel.style.cssText = "background: rgba(245, 200, 91, 0.2); padding: 10px; border-radius: 10px; margin-top: 10px; font-size: 12px; border: 1px dashed #f5c85b;";
+    adminPanel.innerHTML = "<strong>Modo Admin Activo</strong><br>Panel de control de pedidos listo.";
+    
+    document.getElementById("rightPanel").prepend(adminPanel);
+    
+    // Cambiar visualmente el estilo del nombre en el chat para el usuario local
+    document.getElementById("btnName").style.color = "#f5c85b";
+}
+  if(nickname !== "Oyente") document.getElementById("nameOverlay").style.display="none";
+
+  /* CHAT RESTAURADO */
   var chatBox = document.getElementById("chatBox");
-
-  /* ======== Audio Play/Pause (SIN TOCAR) ======== */
-  var isPlaying=false;
-  btnPlay.addEventListener("click", async function(e){
-    e.preventDefault();
-    try{
-      if(!isPlaying){
-        var url = STREAM_URL + "?t=" + Date.now();
-        audio.src = url;
-        audio.play();
-        isPlaying=true;
-        btnPlay.textContent="⏸ Pausar";
-        document.body.classList.add("playing");
-      } else {
-        audio.pause();
-        isPlaying=false;
-        btnPlay.textContent="▶ Escuchar";
-        document.body.classList.remove("playing");
-      }
-    }catch(err){ console.log(err); }
-  });
-
-  /* ======== Metadatos Inteligentes (Modo TikTok) ======== */
-  function updateMeta(){
-    // 1. Oyentes desde AzuraCast
-    fetch(META_URL).then(r=>r.json()).then(data => {
-      document.getElementById("listenersLabel").textContent="👥 Oyentes: " + (data.listeners.current || 0);
-    });
-
-    // 2. Canción desde Firebase (Vigilando lo que tú pongas en 'settings/now_playing')
-    db.collection("settings").doc("now_playing").get().then((doc) => {
-        if (doc.exists && doc.data().trackName) {
-            songLabel.textContent = "🎵 Ahora suena: " + doc.data().trackName;
-        } else {
-            // Backup si no hay nada en Firebase
-            fetch(META_URL).then(r=>r.json()).then(data => {
-                songLabel.textContent = "🎵 Ahora suena: " + (data.now_playing.song.text || "—");
-            });
-        }
-    });
+  var colorPalette = ["#f5c85b","#ff7ad9","#7ad9ff","#9dff7a","#ffb27a"];
+  
+  function getColor(name) {
+    let hash = 0;
+    for (let i = 0; i < name.length; i++) hash = name.charCodeAt(i) + ((hash << 5) - hash);
+    return colorPalette[Math.abs(hash) % colorPalette.length];
   }
-  setInterval(updateMeta, 10000);
-  updateMeta();
 
-  /* ======== Mando a Distancia (Pedidos Spotify) ======== */
-  requestSongBtn.addEventListener("click", () => {
-    requestOverlay.style.display = "flex";
-    confirmPedido.style.display = "none";
+  db.collection("mensajes-chat").orderBy("creado", "desc").limit(20).onSnapshot(snap => {
+    chatBox.innerHTML = "";
+    snap.docs.reverse().forEach(doc => {
+        let d = doc.data();
+        let line = document.createElement("div");
+        line.className = "chatLine";
+        
+        if(d.tipo === "system") {
+            line.className += " chatSys";
+            line.textContent = d.mensaje;
+        } else {
+            let color = (d.usuario === "Coravox") ? "#ffd86b" : getColor(d.usuario);
+            let adminClass = (d.usuario === "Coravox") ? " admin" : "";
+            line.innerHTML = `<span class="chatUserName${adminClass}" style="color:${color}">${d.usuario}:</span> ${d.mensaje}`;
+        }
+        chatBox.appendChild(line);
+    });
+    chatBox.scrollTop = chatBox.scrollHeight;
   });
 
-  requestClose.addEventListener("click", () => { requestOverlay.style.display = "none"; });
-
-  btnEnviarPedido.addEventListener("click", () => {
-    var val = inputCancion.value.trim();
-    if(val !== ""){
-        db.collection("pedidos_spotify").add({
-            cancion: val,
-            oyente: localStorage.getItem("rcx_nickname") || "Oyente",
-            atendido: false,
-            fecha: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(() => {
-            confirmPedido.style.display = "block";
-            inputCancion.value = "";
-            setTimeout(() => { requestOverlay.style.display = "none"; }, 2500);
+  document.getElementById("chatSend").onclick = () => {
+    let msg = document.getElementById("chatInput").value.trim();
+    if(msg) {
+        db.collection("mensajes-chat").add({
+            usuario: nickname,
+            mensaje: msg,
+            creado: firebase.firestore.FieldValue.serverTimestamp()
         });
+        document.getElementById("chatInput").value = "";
     }
-  });
+  };
 
-  /* ======== Chat (Simple) ======== */
-  db.collection("mensajes-chat").orderBy("creado", "desc").limit(15).onSnapshot(snap => {
-      chatBox.innerHTML = "<div class='chatInfo'>Chat en vivo</div>";
-      snap.docs.reverse().forEach(doc => {
-          let d = doc.data();
-          let line = document.createElement("div");
-          line.className = "chatLine";
-          line.innerHTML = `<span class="chatUserName" style="color:#f5c85b">${d.usuario}:</span> ${d.mensaje}`;
-          chatBox.appendChild(line);
-      });
-      chatBox.scrollTop = chatBox.scrollHeight;
-  });
+  /* SPOTIFY & AUDIO */
+  document.getElementById("requestSongBtn").onclick = () => document.getElementById("requestOverlay").style.display="flex";
+  
+  document.getElementById("btnEnviarPedido").onclick = () => {
+      let cancion = document.getElementById("inputCancion").value.trim();
+      if(cancion) {
+          db.collection("pedidos_spotify").add({
+              cancion: cancion,
+              oyente: nickname,
+              atendido: false,
+              fecha: firebase.firestore.FieldValue.serverTimestamp()
+          });
+          document.getElementById("requestOverlay").style.display="none";
+          document.getElementById("inputCancion").value = "";
+      }
+  };
 
-  // Funciones de cierre de modales restantes
-  document.getElementById("closeLove").onclick = () => { document.getElementById("loveOverlay").style.display="none"; };
-  document.getElementById("btnGift").onclick = () => { document.getElementById("loveOverlay").style.display="flex"; };
+  var audio = document.getElementById("player");
+  document.getElementById("btnPlay").onclick = function() {
+      if(audio.paused) {
+          audio.src = STREAM_URL + "?t=" + Date.now();
+          audio.play();
+          this.textContent = "⏸ Pausar";
+          document.body.classList.add("playing");
+      } else {
+          audio.pause();
+          this.textContent = "▶ Escuchar";
+          document.body.classList.remove("playing");
+      }
+  };
+
   document.getElementById("nameOk").onclick = () => {
-      localStorage.setItem("rcx_nickname", document.getElementById("nameInput").value);
-      document.getElementById("nameOverlay").style.display="none";
+      nickname = document.getElementById("nameInput").value.trim() || "Oyente";
+      localStorage.setItem("rcx_nickname", nickname);
+      document.getElementById("nameOverlay").style.display = "none";
+      db.collection("mensajes-chat").add({
+          mensaje: "👋 " + nickname + " se unió.",
+          tipo: "system",
+          creado: firebase.firestore.FieldValue.serverTimestamp()
+      });
   };
 </script>
 </body>
