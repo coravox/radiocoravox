@@ -583,32 +583,6 @@
       color:#ffd54f;
       opacity:0.95;
     }
-
-    /* ===== BOTON SUPER FANS ARRIBA DEL CHAT ===== */
-
-#superFansTop{
-  position:absolute;
-  left:10px;
-  top: calc(14px + var(--safe-t) + 300px + 88px);
-  z-index:5;
-  width: calc(58% - 10px);
-  max-width:260px;
-  pointer-events:auto;
-}
-
-#superFansTop #superFansBtn{
-  width:100%;
-  text-align:center;
-  border:none;
-  border-radius:999px;
-  padding:10px 14px;
-  background:rgba(0,0,0,0.75);
-  color:#ffd54f;
-  font-size:14px;
-  font-weight:900;
-  box-shadow:0 0 12px rgba(0,0,0,0.7);
-  text-shadow:0 0 12px rgba(255,213,79,0.55);
-}
   </style>
 </head>
 
@@ -627,11 +601,7 @@
     <div id="status">Listo para conectar…</div>
     <div id="songLabel">🎵 Ahora suena: —</div>
   </div>
-  
-<div id="superFansTop">
-  <button id="superFansBtn" class="pulseLink" type="button">⭐ Super Fans $1/mes</button>
-</div>
-  
+
   <div id="belowZone">
     <div id="chatPanel">
       <div id="chatBox"></div>
@@ -646,6 +616,13 @@
       <div id="fansPanel">
         <div id="likeRanking"></div>
       </div>
+
+      <div id="fansActions">
+        <button id="superFansBtn" class="pulseLink" type="button">⭐ Super Fans $1/mes</button>
+        <button id="requestSongBtn" class="pulseLink" type="button">🎧 , Pide tu canción</button>
+      </div>
+    </div>
+  </div>
 
   <div id="bottomBar">
     <input id="chatInput" type="text" placeholder="Escribe un mensaje..." />
