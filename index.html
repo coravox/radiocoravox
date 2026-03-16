@@ -675,19 +675,6 @@
   </div>
 </div>
 
-<!-- Requests modal -->
-<div id="requestOverlay">
-  <div id="requestModal">
-    <div id="requestHeader">
-      <span>🎧 Pide tu canción (Auto DJ)</span>
-      <button id="requestClose" type="button">✕</button>
-    </div>
-    <iframe id="requestFrame"
-            src="https://a13.my-control-panel.com/public/radio_coravox/embed-requests?theme=dark"
-            allow="autoplay; clipboard-write"></iframe>
-  </div>
-</div>
-
 <!-- ✅ BOTÓN CONECTADOS -->
 <button id="presenceBtn" type="button">Conectados: 0</button>
 
@@ -764,11 +751,7 @@
   var chatSend = document.getElementById("chatSend");
 
   var superFansBtn = document.getElementById("superFansBtn");
-  var requestSongBtn = document.getElementById("requestSongBtn");
-
-  var requestOverlay = document.getElementById("requestOverlay");
-  var requestClose = document.getElementById("requestClose");
-
+ 
   var loveOverlay = document.getElementById("loveOverlay");
   var closeLove = document.getElementById("closeLove");
 
@@ -1237,16 +1220,6 @@
 
   superFansBtn.addEventListener("click", function(){
     window.location.href = SUPER_FANS_URL;
-  });
-
-  requestSongBtn.addEventListener("click", function(){
-    requestOverlay.style.display="flex";
-  });
-  requestClose.addEventListener("click", function(){
-    requestOverlay.style.display="none";
-  });
-  requestOverlay.addEventListener("click", function(e){
-    if(e.target && e.target.id==="requestOverlay") requestOverlay.style.display="none";
   });
 
   /* ======== Pagos ======== */
