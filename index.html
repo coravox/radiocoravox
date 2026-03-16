@@ -20,9 +20,7 @@
 
     #app{ position:fixed; inset:0; overflow:hidden; }
 
-    /* =========================
-       ARO / LOGO
-    ========================= */
+    /* ARO / LOGO */
     #center{
       position:absolute; left:0; right:0;
       top: calc(10px + var(--safe-t));
@@ -30,7 +28,7 @@
     }
 
     #halo{
-      width:260px; height:260px; /* Reducido un poco para ganar espacio */
+      width:240px; height:240px; 
       border-radius:50%; display:flex; align-items:center; justify-content:center;
       background:radial-gradient(circle at center, #000 0 60%, #000 60%, transparent 61%);
       border:3px solid #f5c85b; box-shadow:0 0 45px rgba(245,200,91,0.8);
@@ -39,12 +37,10 @@
 
     #logo{ width:88%; height:88%; border-radius:50%; object-fit:contain; }
 
-    /* =========================
-       CONTROLES Y BOTONES (ARRIBA)
-    ========================= */
+    /* CONTROLES Y BOTONES */
     #controls{
       position:absolute; left:50%; transform:translateX(-50%);
-      top: calc(10px + var(--safe-t) + 270px);
+      top: calc(10px + var(--safe-t) + 250px);
       width: 94%; max-width: 420px; text-align:center; z-index:3;
     }
 
@@ -52,20 +48,20 @@
       padding:10px 18px; border-radius:999px; border:none;
       background:#f5c85b; color:#000; font-size:14px; font-weight:900;
       text-transform:uppercase; min-width:180px; cursor:pointer;
+      margin-bottom: 10px;
     }
 
-    /* FILA DE BOTONES DE ACCIÓN (SPOTIFY Y SUPER FANS) */
     .action-row {
       display: flex;
       justify-content: center;
       gap: 10px;
-      margin-top: 12px;
+      margin-top: 5px;
     }
 
     .btn-action {
       flex: 1;
-      padding: 10px;
-      border-radius: 10px;
+      padding: 12px 8px;
+      border-radius: 12px;
       font-weight: bold;
       font-size: 12px;
       border: none;
@@ -79,17 +75,15 @@
 
     @keyframes pulseText{
       0%{ transform:scale(1); }
-      50%{ transform:scale(1.04); }
+      50%{ transform:scale(1.03); }
       100%{ transform:scale(1); }
     }
 
-    /* =========================
-       ZONA MEDIA (CHAT Y FANS)
-    ========================= */
+    /* ZONA MEDIA (CHAT Y FANS) */
     #belowZone{
       position:absolute; left:10px; right:10px;
-      top: calc(10px + var(--safe-t) + 270px + 140px);
-      bottom: calc(85px + var(--safe-b));
+      top: calc(10px + var(--safe-t) + 250px + 125px);
+      bottom: calc(70px + var(--safe-b));
       display:grid; grid-template-columns: 1.2fr 0.8fr;
       gap:8px; z-index:4;
     }
@@ -97,12 +91,12 @@
     #chatPanel{
       border-radius:14px; background: rgba(255,255,255,0.05);
       border:1px solid rgba(245,200,91,0.15); display:flex; flex-direction:column;
+      overflow: hidden;
     }
 
     #chatBox{
       padding:8px; overflow-y:auto; flex:1; font-size:12px; color:#fff;
-      /* LIMITAMOS LA ALTURA DEL CHAT */
-      max-height: 180px; 
+      max-height: 160px; /* Chat más compacto para que quepa todo */
     }
 
     #fansPanel{
@@ -113,14 +107,12 @@
     .likeTitle { font-size: 11px; font-weight: 900; margin-bottom: 5px; color: #f5c85b; }
     .likeRow { font-size: 11px; display: flex; justify-content: space-between; margin-bottom: 4px; }
 
-    /* =========================
-       BARRA INFERIOR
-    ========================= */
+    /* BARRA INFERIOR */
     #bottomBar{
       position:absolute; left:0; right:0; bottom:0;
       padding: 10px 10px calc(10px + var(--safe-b));
       display:flex; align-items:center; gap:6px;
-      background: rgba(0,0,0,0.8); z-index:10;
+      background: rgba(0,0,0,0.9); z-index:10;
     }
 
     #chatInput{
@@ -133,8 +125,7 @@
       display:flex; align-items:center; justify-content:center; font-size:16px;
     }
 
-    /* MODALES BÁSICOS */
-    #modalSpotify, #nameOverlay {
+    #modalSpotify {
       position:fixed; inset:0; background:rgba(0,0,0,0.9);
       z-index:100; display:none; align-items:center; justify-content:center;
     }
@@ -162,7 +153,7 @@
       </button>
     </div>
 
-    <div id="status" style="font-size:11px; margin-top:5px; opacity:0.7;">Listo...</div>
+    <div id="status" style="font-size:11px; margin-top:5px; opacity:0.7;">Listo para conectar...</div>
   </div>
 
   <div id="belowZone">
@@ -178,10 +169,10 @@
   </div>
 
   <div id="bottomBar">
-    <input id="chatInput" type="text" placeholder="Mensaje..." />
-    <button id="btnFB" class="roundBtn" style="background:#2b8cff;">f</button>
-    <button id="btnWA" class="roundBtn" style="background:#2bdc66;">W</button>
-    <button id="btnGift" class="roundBtn" style="background:#ff7ad9;">🎁</button>
+    <input id="chatInput" type="text" placeholder="Escribe un mensaje..." />
+    <button class="roundBtn" style="background:#2b8cff; color:white;">f</button>
+    <button class="roundBtn" style="background:#2bdc66; color:white;">w</button>
+    <button class="roundBtn" style="background:#ff7ad9; color:white;">🎁</button>
   </div>
 
 </div>
@@ -189,8 +180,8 @@
 <div id="modalSpotify">
     <div style="background:#111; border:2px solid #1DB954; border-radius:15px; padding:20px; width:280px;">
         <h3 style="color:#1DB954; margin-bottom:10px; font-size:16px;">Pedido Musical</h3>
-        <input id="inputCancion" type="text" placeholder="Artista - Canción" style="width:100%; padding:10px; background:#000; color:#fff; border:1px solid #333;">
-        <button id="btnEnviarSpotify" style="width:100%; padding:10px; background:#1DB954; color:white; border:none; margin-top:10px; font-weight:bold;">ENVIAR A CABINA</button>
+        <input id="inputCancion" type="text" placeholder="Artista - Canción" style="width:100%; padding:10px; background:#000; color:#fff; border:1px solid #333; border-radius:8px;">
+        <button id="btnEnviarSpotify" style="width:100%; padding:10px; background:#1DB954; color:white; border:none; margin-top:10px; font-weight:bold; border-radius:8px;">ENVIAR A CABINA</button>
         <button onclick="document.getElementById('modalSpotify').style.display='none'" style="width:100%; margin-top:10px; background:none; border:none; color:#777;">Cerrar</button>
     </div>
 </div>
@@ -201,7 +192,6 @@
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
 
 <script>
-  // Tu configuración de Firebase
   var firebaseConfig = {
     apiKey: "AIzaSyC8jq2iODj6DwfTSktgZ7ia84oeMxxPjNE",
     authDomain: "coravox-602a0.firebaseapp.com",
@@ -213,7 +203,6 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.firestore();
 
-  // Función para enviar a Spotify a través de Firebase
   document.getElementById('btnEnviarSpotify').addEventListener('click', async () => {
     const cancion = document.getElementById('inputCancion').value;
     if(cancion.trim() !== "") {
@@ -222,13 +211,11 @@
         atendido: false,
         fecha: firebase.firestore.FieldValue.serverTimestamp()
       });
-      alert("✅ Pedido enviado a la ventana negra");
+      alert("✅ Pedido enviado con éxito");
       document.getElementById('modalSpotify').style.display = 'none';
       document.getElementById('inputCancion').value = "";
     }
   });
-
-  // El resto de tu lógica de audio y chat iría aquí...
 </script>
 
 </body>
