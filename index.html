@@ -608,6 +608,11 @@
     </div>
 
     <div id="rightPanel">
+      <button id="btnSpotify" style="background:#1DB954; color:white; font-weight:bold; border:none; padding:10px; border-radius:8px; width:100%; cursor:pointer; margin-bottom:10px;">
+  🟢 Pide tu Canción ( Aqui )
+</button>
+
+    <div id="rightPanel">
       <div id="fansPanel">
         <div id="likeRanking"></div>
       </div>
@@ -697,6 +702,15 @@
     <div id="presenceList"></div>
   </div>
 </div>
+
+<div id="modalSpotify" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:9999; align-items:center; justify-content:center; padding:20px;">
+    <div style="background:#111; border:2px solid #1DB954; border-radius:15px; padding:20px; width:100%; max-width:300px;">
+        <h3 style="color:#1DB954; margin-bottom:10px;">Pedido Musical</h3>
+        <input id="inputCancion" type="text" placeholder="Artista - Canción" style="width:100%; padding:10px; border-radius:5px; border:1px solid #333; background:#000; color:#fff;">
+        <button id="btnEnviarSpotify" style="width:100%; padding:10px; background:#1DB954; color:white; border:none; border-radius:5px; font-weight:bold; margin-top:10px;">ENVIAR A CABINA</button>
+        <button onclick="document.getElementById('modalSpotify').style.display='none'" style="width:100%; margin-top:10px; background:none; border:none; color:#777;">Cancelar</button>
+    </div>
+</div>    
 
 <audio id="player"></audio>
 
@@ -1411,6 +1425,30 @@
     console.log("auth anon error", e);
     alert("Error login anónimo: " + (e.message || e));
   });
+
+  // Abrir el modal
+document.getElementById("btnSpotify").onclick = () => {
+    document.getElementById("modalSpotify").style.display = 'flex';
+};
+
+// Enviar el pedido a Firebase
+document.getElementById("btnEnviarSpotify").onclick = () => {
+    let cancion = document.getElementById("inputCancion").value.trim();
+    if(cancion) {
+        // Usamos tu base de datos actual
+        db.collection("pedidos_spotify").add({
+            cancion: cancion,
+            oyente: nickname, // Tu variable de nombre actual
+            atendido: false,
+            fecha: firebase.firestore.FieldValue.serverTimestamp()
+        }).then(() => {
+            alert("¡Pedido enviado!");
+            document.getElementById("modalSpotify").style.display = 'none';
+            document.getElementById("inputCancion").value = "";
+        });
+    }
+};
+
 
 </script>
 
