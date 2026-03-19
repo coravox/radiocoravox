@@ -268,19 +268,20 @@
     }
 
  #superFansBtn{
+  position:absolute;
+  left:10px;
+  right:10px;
+  top: calc(14px + var(--safe-t) + 300px + 88px);
   background: linear-gradient(135deg, #1e90ff, #0b63c5);
-  color: #fff;
-  font-weight: 900;
-  border: none;
-  padding: 10px;
-  border-radius: 8px;
-  cursor: pointer;
-  text-align: center;
-  box-shadow: 0 0 12px rgba(30,144,255,0.5);
-  animation: none;
-  width: 100%;
+  color:#fff;
+  font-weight:900;
+  border:none;
+  padding:12px 10px;
+  border-radius:8px;
+  cursor:pointer;
+  z-index:4;
+  box-shadow:0 0 12px rgba(30,144,255,0.5);
 }
-
 #superFansBtn:hover{
   transform: translateY(-2px);
   box-shadow: 0 0 18px rgba(30,144,255,0.7);
@@ -624,6 +625,10 @@
     <div id="listenersLabel">👥 Oyentes: 0</div>
   </div>
 
+  <div id="fansActions">
+        <button id="superFansBtn" class="pulseLink" type="button">⭐ Unete al Club de Fans (Aqui)</button>
+    </div>
+  
   <div id="belowZone">
     <div id="chatPanel">
       <div id="chatBox"></div>
@@ -636,10 +641,6 @@
 
       <div id="fansPanel">
         <div id="likeRanking"></div>
-      </div>
-
-      <div id="fansActions">
-        <button id="superFansBtn" class="pulseLink" type="button">⭐ Unete al Club de Fans (Aqui)</button>
       </div>
     </div>
   </div>
