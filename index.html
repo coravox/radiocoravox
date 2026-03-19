@@ -238,15 +238,15 @@
 
     /* BOTONES BAJO TOP FANS */
     #fansActions{
-      border-radius:0;
-      padding:0;
-      display:flex;
-      flex-direction:row;
-      align-items: center;
-      gap:14px;
-      pointer-events:auto;
-      background:transparent;
-      border:none;
+     border-radius:0;
+     padding:0;
+     display:flex;
+     flex-direction:column;   /* antes row */
+     align-items:stretch;     /* para que ocupe el ancho */
+     gap:10px;
+     pointer-events:auto;
+     background:transparent;
+     border:none;
     }
 
     .pulseLink{
@@ -267,7 +267,7 @@
       100%{ transform:scale(1); opacity:0.85; }
     }
 
-  #superFansBtn{
+ #superFansBtn{
   background: linear-gradient(135deg, #1e90ff, #0b63c5);
   color: #fff;
   font-weight: 900;
@@ -277,8 +277,8 @@
   cursor: pointer;
   text-align: center;
   box-shadow: 0 0 12px rgba(30,144,255,0.5);
+  animation: none;
   width: 100%;
-  transition: all .2s ease;
 }
 
 #superFansBtn:hover{
