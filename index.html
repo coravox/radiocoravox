@@ -283,14 +283,6 @@
   box-shadow:0 0 12px rgba(30,144,255,0.5);
   text-align:center;  
 }
-    @media (max-width: 350px){
-
-  #superFansBtn{
-    width: 65%; /* un poco más ancho para móvil */
-    top: calc(14px + var(--safe-t) + 300px + 110px); /* 👈 más arriba */
-  }
-
-}
     
 #superFansBtn:hover{
   transform: translateY(-2px);
@@ -300,7 +292,16 @@
     #requestSongBtn{
       color:#7ad9ff;
       text-shadow:0 0 12px rgba(122,217,255,0.55);
-    }
+}
+
+     @media (max-width: 350px){
+
+  #superFansBtn{
+    width: 65%; /* un poco más ancho para móvil */
+    top: calc(14px + var(--safe-t) + 300px + 110px); /* 👈 más arriba */
+  }
+
+}
 
     /* =========================
        BARRA INFERIOR FIJA
