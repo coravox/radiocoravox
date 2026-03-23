@@ -112,7 +112,7 @@
       position:absolute;
       left:50%;
       transform:translateX(-50%);
-      top: calc(14px + var(--safe-t) + 298px + 10px);
+      top: calc(14px + var(--safe-t) + 300px + 10px);
       width: 92%;
       max-width: 420px;
       text-align:center;
@@ -120,7 +120,7 @@
       pointer-events:auto;
     }
 
-    #listenersLabel{ font-size:13px; color:#fff; opacity:.95; margin-bottom:20px; }
+    #listenersLabel{ font-size:13px; color:#fff; opacity:.95; margin-bottom:4px; }
 
     #btnPlay{
       padding:12px 18px;
@@ -130,16 +130,15 @@
       color:#000;
       font-size:14px;
       font-weight:900;
-      letter-spacing:.06em;
+      letter-spacing:.08em;
       text-transform:uppercase;
       min-width:200px;
       box-shadow:0 0 10px rgba(0,0,0,0.7);
       cursor:pointer;
-      
     }
 
     #status{ margin-top:8px; font-size:13px; color:#fff; opacity:.92; }
-    #songLabel{ margin-bottom:10px; font-size:13px; color:#fff; opacity:.95; }
+    #songLabel{ margin-top:4px; font-size:13px; color:#fff; opacity:.95; }
 
     /* =========================
        ZONA DEBAJO DEL ARO
@@ -154,7 +153,7 @@
       grid-template-columns: 1.3fr 0.7fr;
       gap:10px;
       z-index:4;
-      pointer-events:none;
+      pointer-events:auto;
       min-height:0;
     }
 
@@ -166,16 +165,8 @@
       overflow:hidden;
       display:flex;
       flex-direction:column;
-      height:375px;
-      mini-height:5xp;
-      align-self:end;
-      pointer-events: auto;
+      min-height:0;
     }
-      @media (max-width: 480px){
-    #chatPanel{
-      height: 240px;
-     }
-   }
 
     #chatBox{
       padding:10px;
@@ -198,7 +189,6 @@
       flex-direction:column;
       gap:10px;
       min-height:0;
-      pointer-events: auto;
     }
 
     #fansPanel{
@@ -240,15 +230,15 @@
 
     /* BOTONES BAJO TOP FANS */
     #fansActions{
-     border-radius:0;
-     padding:0;
-     display:flex;
-     flex-direction:column;   /* antes row */
-     align-items:stretch;     /* para que ocupe el ancho */
-     gap:10px;
-     pointer-events:auto;
-     background:transparent;
-     border:none;
+      border-radius:0;
+      padding:0;
+      display:flex;
+      flex-direction:row;
+      align-items: center;
+      gap:14px;
+      pointer-events:auto;
+      background:transparent;
+      border:none;
     }
 
     .pulseLink{
@@ -269,51 +259,15 @@
       100%{ transform:scale(1); opacity:0.85; }
     }
 
- #superFansBtn{
-  position:absolute;
-  left:10px;
-  width:60%;
-  top: calc(14px + var(--safe-t) + 300px + 200px);
-  background: linear-gradient(135deg, #1e90ff, #0b63c5);
-  color:#fff;
-  font-weight:600;
-  font-size: 12px;
-  border:none;
-  padding:6px 10px;
-  border-radius:8px;
-  cursor:pointer;
-  z-index:999;
-  box-shadow:0 0 12px rgba(30,144,255,0.5);
-  text-align:center; 
-  pointer-events: auto;
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-   
-}
-    
-#superFansBtn:hover{
-  transform: none;
-  box-shadow: 0 0 12px rgba(30,144,255,0.5);
-}
-
-#superFansBtn:active{
-  transform: none;
-  box-shadow: 0 0 12px rgba(30,144,255,0.5);
-}
+       #superFansBtn{
+        color:#00aaff;
+        text-shadow:0 0 12px rgba(0,170,255,0.8);
+    }
 
     #requestSongBtn{
       color:#7ad9ff;
       text-shadow:0 0 12px rgba(122,217,255,0.55);
-}
-
-     @media (max-width: 480px){
-
-  #superFansBtn{
-    width: clamp(180px, 55%, 260px);
-    top: calc(14px + var(--safe-t) + 300px + 130px); /* 👈 más arriba */
-}
-
-}
+    }
 
     /* =========================
        BARRA INFERIOR FIJA
@@ -642,16 +596,12 @@
   </div>
 
   <div id="controls">
-    <div id="songLabel">🎵 Ahora suena: —</div>
+    <div id="listenersLabel">👥 Oyentes: 0</div>
     <button id="btnPlay" type="button">▶ Escuchar</button>
     <div id="status">Listo para conectar…</div>
-    <div id="listenersLabel">👥 Oyentes: 0</div>
+    <div id="songLabel">🎵 Ahora suena: —</div>
   </div>
 
-  <div id="fansActions">
-        <button id="superFansBtn" type="button">⭐ Unete al Club de Fans (Aqui)</button>
-    </div>
-  
   <div id="belowZone">
     <div id="chatPanel">
       <div id="chatBox"></div>
@@ -664,6 +614,10 @@
 
       <div id="fansPanel">
         <div id="likeRanking"></div>
+      </div>
+
+      <div id="fansActions">
+        <button id="superFansBtn" class="pulseLink" type="button">⭐ Unete al Club de Fans (Aqui)</button>
       </div>
     </div>
   </div>
