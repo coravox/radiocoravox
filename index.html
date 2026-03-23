@@ -232,7 +232,8 @@
     #fansActions{
       border-radius:0;
       padding:0;
-      display:flex;
+      margin-bottom:8px;
+      display:block;
       flex-direction:row;
       align-items: center;
       gap:14px;
@@ -259,7 +260,7 @@
       100%{ transform:scale(1); opacity:0.85; }
     }
 
-      #superFansBtn{
+  #superFansBtn{
      width:100%;
      background: linear-gradient(135deg, #1e90ff, #0b63c5);
      color:#fff;
@@ -275,7 +276,7 @@
      transform:none;
      transition:none;
      -webkit-tap-highlight-color: transparent;
-     touch-action: manipulation;  
+     touch-action: manipulation;
     }
 
     #requestSongBtn{
@@ -619,7 +620,7 @@
   <div id="belowZone">
     <div id="chatPanel">
    <div id="fansActions">
-        <button id="superFansBtn" class=" type="button">⭐ Unete al Club de Fans (Aqui)</button>
+        <button id="superFansBtn" type="button">⭐ Unete al Club de Fans (Aqui)</button>
       </div>   
       <div id="chatBox"></div>
     </div>
@@ -1436,8 +1437,9 @@ document.getElementById("btnEnviarSpotify").onclick = () => {
 
 </script>
 
-  <img src="LOCUTOR.png" style="position: fixed; bottom: 59%; left: 3%; width: 70px; z-index: 9999; pointer-events: none; filter: drop-shadow(0px 0px 8px rgba(245,200,91,0.6));">
+<img src="LOCUTOR.png" style="position: fixed; bottom: 59%; left: 3%; width: 70px; z-index: 9999; pointer-events: none; filter: drop-shadow(0px 0px 8px rgba(245,200,91,0.6));">
 <img src="LOCUTURA.png" style="position: fixed; bottom: 59%; right: 3%; width: 70px; z-index: 9999; pointer-events: none; filter: drop-shadow(0px 0px 8px rgba(245,200,91,0.6));">
+
 
   
 </body>
