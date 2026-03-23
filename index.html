@@ -286,6 +286,8 @@
   box-shadow:0 0 12px rgba(30,144,255,0.5);
   text-align:center; 
   pointer-events: auto;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent; 
 }
     
 #superFansBtn:hover{
@@ -298,11 +300,6 @@
   box-shadow: 0 0 12px rgba(30,144,255,0.5);
 }
 
-    #superFansBtn{
-  touch-action: manipulation;
-  -webkit-tap-highlight-color: transparent;
-}
-
     #requestSongBtn{
       color:#7ad9ff;
       text-shadow:0 0 12px rgba(122,217,255,0.55);
@@ -313,11 +310,6 @@
   #superFansBtn{
     width: 35%; /* un poco más ancho para móvil */
     top: calc(14px + var(--safe-t) + 300px + 130px); /* 👈 más arriba */
-    
-  }
-
-    #superFansBtn{
-  touch-action: manipulation;
 }
 
 }
