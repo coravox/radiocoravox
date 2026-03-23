@@ -154,7 +154,7 @@
       grid-template-columns: 1.3fr 0.7fr;
       gap:10px;
       z-index:4;
-      pointer-events:auto;
+      pointer-events:none;
       min-height:0;
     }
 
@@ -169,6 +169,7 @@
       height:375px;
       mini-height:5;
       align-self:end;
+      pointer-events: auto;
     }
       @media (max-width: 480px){
     #chatPanel{
@@ -197,6 +198,7 @@
       flex-direction:column;
       gap:10px;
       min-height:0;
+      pointer-events: auto;
     }
 
     #fansPanel{
@@ -280,9 +282,10 @@
   padding:6px 10px;
   border-radius:8px;
   cursor:pointer;
-  z-index:50;
+  z-index:999;
   box-shadow:0 0 12px rgba(30,144,255,0.5);
-  text-align:center;  
+  text-align:center; 
+  pointer-events: auto;
 }
     
 #superFansBtn:hover{
@@ -300,7 +303,12 @@
   #superFansBtn{
     width: 35%; /* un poco más ancho para móvil */
     top: calc(14px + var(--safe-t) + 300px + 130px); /* 👈 más arriba */
+    
   }
+
+    #superFansBtn{
+  touch-action: manipulation;
+}
 
 }
 
