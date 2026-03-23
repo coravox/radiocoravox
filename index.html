@@ -289,8 +289,18 @@
 }
     
 #superFansBtn:hover{
-  transform: translateY(-2px);
-  box-shadow: 0 0 18px rgba(30,144,255,0.7);
+  transform: none;
+  box-shadow: 0 0 12px rgba(30,144,255,0.5);
+}
+
+#superFansBtn:active{
+  transform: none;
+  box-shadow: 0 0 12px rgba(30,144,255,0.5);
+}
+
+    #superFansBtn{
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
 }
 
     #requestSongBtn{
