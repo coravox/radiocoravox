@@ -112,7 +112,7 @@
       position:absolute;
       left:50%;
       transform:translateX(-50%);
-      top: calc(14px + var(--safe-t) + 300px + 10px);
+      top: calc(14px + var(--safe-t) + 298px + 10px);
       width: 92%;
       max-width: 420px;
       text-align:center;
@@ -120,7 +120,7 @@
       pointer-events:auto;
     }
 
-    #listenersLabel{ font-size:13px; color:#fff; opacity:.95; margin-bottom:4px; }
+    #listenersLabel{ font-size:13px; color:#fff; opacity:.95; margin-bottom:20px; }
 
     #btnPlay{
       padding:12px 18px;
@@ -130,15 +130,16 @@
       color:#000;
       font-size:14px;
       font-weight:900;
-      letter-spacing:.08em;
+      letter-spacing:.06em;
       text-transform:uppercase;
       min-width:200px;
       box-shadow:0 0 10px rgba(0,0,0,0.7);
       cursor:pointer;
+      
     }
 
     #status{ margin-top:8px; font-size:13px; color:#fff; opacity:.92; }
-    #songLabel{ margin-top:4px; font-size:13px; color:#fff; opacity:.95; }
+    #songLabel{ margin-bottom:10px; font-size:13px; color:#fff; opacity:.95; }
 
     /* =========================
        ZONA DEBAJO DEL ARO
@@ -611,17 +612,18 @@
   </div>
 
   <div id="controls">
-    <div id="listenersLabel">👥 Oyentes: 0</div>
+    <div id="songLabel">🎵 Ahora suena: —</div>
     <button id="btnPlay" type="button">▶ Escuchar</button>
     <div id="status">Listo para conectar…</div>
-    <div id="songLabel">🎵 Ahora suena: —</div>
+    <div id="listenersLabel">👥 Oyentes: 0</div>
   </div>
-
+  
   <div id="belowZone">
     <div id="chatPanel">
-   <div id="fansActions">
+  <div id="fansActions">
         <button id="superFansBtn" type="button">⭐ Unete al Club de Fans (Aqui)</button>
       </div>   
+
       <div id="chatBox"></div>
     </div>
 
@@ -1437,9 +1439,8 @@ document.getElementById("btnEnviarSpotify").onclick = () => {
 
 </script>
 
-<img src="LOCUTOR.png" style="position: fixed; bottom: 59%; left: 3%; width: 70px; z-index: 9999; pointer-events: none; filter: drop-shadow(0px 0px 8px rgba(245,200,91,0.6));">
-<img src="LOCUTURA.png" style="position: fixed; bottom: 59%; right: 3%; width: 70px; z-index: 9999; pointer-events: none; filter: drop-shadow(0px 0px 8px rgba(245,200,91,0.6));">
-
+  <img src="LOCUTOR.png" style="position: fixed; bottom: 57%; left: 3%; width: 70px; z-index: 9999; pointer-events: none; filter: drop-shadow(0px 0px 8px rgba(245,200,91,0.6));">
+<img src="LOCUTURA.png" style="position: fixed; bottom: 57%; right: 3%; width: 70px; z-index: 9999; pointer-events: none; filter: drop-shadow(0px 0px 8px rgba(245,200,91,0.6));">
 
   
 </body>
