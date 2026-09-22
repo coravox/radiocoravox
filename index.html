@@ -1158,7 +1158,8 @@
     setTimeout(()=>{ if(h.parentNode) h.parentNode.removeChild(h); }, 1700);
   }
 
-    // ======== TAP TAP - CORAZONES EN TIEMPO REAL ========
+   
+ // ======== TAP TAP - CORAZONES EN TIEMPO REAL ========
   var tapTapsListenerStarted = false;
 
   function publishTapTap(){
@@ -1180,8 +1181,6 @@
 
   function initTapTapsRealtime(){
     if(!tapTapsRef || tapTapsListenerStarted) return;
-
-    tapTapsListenerStarted = true;
 
     tapTapsRef.onSnapshot(function(snapshot){
       snapshot.docChanges().forEach(function(change){
