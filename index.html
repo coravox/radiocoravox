@@ -1158,26 +1158,45 @@
     setTimeout(()=>{ if(h.parentNode) h.parentNode.removeChild(h); }, 1700);
   }
 
-   
- // ======== TAP TAP - CORAZONES EN TIEMPO REAL ========
-  var tapTapsListenerStarted = false;
+  // ======== TAP TAP - CORAZONES EN TIEMPO REAL ========
+var tapTapsListenerStarted = false;
 
-  function publishTapTap(){
-    if(!tapTapsRef || !auth.currentUser) return;
+function publishTapTap(){
 
-    tapTapsRef.add({
-      senderId: auth.currentUser.uid,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(function(docRef){
-      setTimeout(function(){
-        docRef.delete().catch(function(e){
-          console.log("tap-tap delete error", e);
-        });
-      }, 5000);
-    }).catch(function(e){
-      console.log("tap-tap send error", e);
-    });
+  console.log("❤️ TAP TAP: intentando enviar...");
+
+  console.log("tapTapsRef:", tapTapsRef);
+  console.log("usuario:", auth.currentUser ? auth.currentUser.uid : "NO HAY USUARIO");
+
+  if(!tapTapsRef || !auth.currentUser) {
+    console.log("❌ TAP TAP: NO SE PUEDE ENVIAR");
+    return;
   }
+
+  tapTapsRef.add({
+    senderId: auth.currentUser.uid,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  }).then(function(docRef){
+
+    console.log("✅ TAP TAP ENVIADO A FIREBASE:", docRef.id);
+
+    setTimeout(function(){
+      docRef.delete().then(function(){
+        console.log("🗑️ TAP TAP eliminado:", docRef.id);
+      }).catch(function(e){
+        console.log("❌ tap-tap delete error:", e);
+      });
+    }, 5000);
+
+  }).catch(function(e){
+
+    console.log("❌ TAP TAP SEND ERROR:", e);
+    console.log("Código:", e.code);
+    console.log("Mensaje:", e.message);
+
+  });
+} 
+
 
   function initTapTapsRealtime(){
     if(!tapTapsRef || tapTapsListenerStarted) return;
