@@ -1181,6 +1181,7 @@
 
   function initTapTapsRealtime(){
     if(!tapTapsRef || tapTapsListenerStarted) return;
+     tapTapsListenerStarted = true;
 
     tapTapsRef.onSnapshot(function(snapshot){
       snapshot.docChanges().forEach(function(change){
