@@ -1352,52 +1352,11 @@
     adsTimer = setInterval(showAdBubble, adsIntervalMs);
   }
 
-   /* ======== TAP TAP - CORAZON RECIBIDO ======== */
-  function spawnRemoteHeartAt(x, y){
-    var h = document.createElement("div");
-    h.className = "heart";
-    h.textContent = "❤";
-
-    h.style.left = x + "px";
-    h.style.top = y + "px";
-
-    document.body.appendChild(h);
-
-    setTimeout(function(){
-      if(h.parentNode) {
-        h.parentNode.removeChild(h);
-      }
-    }, 1700);
-  }
   
   /* ========= INICIO REAL (cuando ya está el login anónimo) ========= */
   function initFirestoreRealtime(){
     // ✅ presence doc listo
     presenceDoc = presenceRef.doc(sessionId);
-       
-    // ❤️ TAP TAP REALTIME
-    tapTapsRef.onSnapshot(function(snapshot){
-
-      snapshot.docChanges().forEach(function(change){
-
-        if(change.type !== "added") return;
-
-        var d = change.doc.data();
-
-        // No volver a mostrar nuestro propio corazón
-        if(d.usuario && d.usuario === (nickname || "Oyente")) {
-          return;
-        }
-
-        // Posición aleatoria para que se vea en el dispositivo receptor
-        var x = window.innerWidth * (0.20 + Math.random() * 0.60);
-        var y = window.innerHeight * (0.20 + Math.random() * 0.50);
-
-        spawnRemoteHeartAt(x, y);
-
-      });
-
-    });
 
     // ✅ presence realtime
     presenceRef.onSnapshot(function(snapshot) {
