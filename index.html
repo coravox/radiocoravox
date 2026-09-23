@@ -1114,33 +1114,6 @@
     }, { merge:true }).catch(function(e){ console.log("like error", e); });
   }
 
-    /* ======== TAP TAP - PRUEBA 1 ======== */
-  var tapTapsRef = null;
-
-  function publishTapTap(x, y){
-    if(!tapTapsRef) {
-      console.log("TAP TAP: tapTapsRef todavía no está listo");
-      return;
-    }
-
-    tapTapsRef.add({
-      x: x,
-      y: y,
-      usuario: nickname || "Oyente",
-      creado: firebase.firestore.FieldValue.serverTimestamp()
-    }).then(function(doc){
-      console.log("❤️ TAP TAP enviado:", doc.id);
-
-      setTimeout(function(){
-        doc.delete().catch(function(e){
-          console.log("Error eliminando Tap Tap:", e);
-        });
-      }, 5000);
-
-    }).catch(function(e){
-      console.error("❌ Error enviando TAP TAP:", e);
-    });
-  }
   function spawnHeartAt(x,y){
     var h=document.createElement("div");
     h.className="heart";
@@ -1149,7 +1122,6 @@
     h.style.top=y+"px";
     document.body.appendChild(h);
     registerLike();
-    publishTapTap(x, y); 
     setTimeout(()=>{ if(h.parentNode) h.parentNode.removeChild(h); }, 1700);
   }
 
@@ -1352,7 +1324,6 @@
     adsTimer = setInterval(showAdBubble, adsIntervalMs);
   }
 
-  
   /* ========= INICIO REAL (cuando ya está el login anónimo) ========= */
   function initFirestoreRealtime(){
     // ✅ presence doc listo
@@ -1429,7 +1400,6 @@
     db = firebase.firestore();
     messagesRef = db.collection("mensajes-chat");
     likesRef    = db.collection("likes-ranking");
-    tapTapsRef = db.collection("tap-taps");
     presenceRef = db.collection("presence");
     cfgRef      = db.collection("config").doc("global");
 
