@@ -1107,7 +1107,6 @@
 var tapTapsRef = null;
 
 function publishTapTap(){
-   alert("TAP TAP: LA FUNCION SI SE EJECUTA");
   if(!tapTapsRef){
     console.log("TAP TAP: referencia no lista");
     return;
@@ -1120,7 +1119,6 @@ function publishTapTap(){
     console.log("❤️ TAP TAP enviado:", doc.id);
   }).catch(function(e){
     console.error("❌ TAP TAP error:", e);
-    alert("ERROR TAP TAP:\n" + e.code + "\n" + e.message);
   });
 }
   
