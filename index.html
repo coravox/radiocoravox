@@ -1344,6 +1344,24 @@ function publishTapTap(){
     adsTimer = setInterval(showAdBubble, adsIntervalMs);
   }
 
+  /* ======== TAP TAP - CORAZON RECIBIDO ======== */
+function spawnRemoteHeartAt(x, y){
+  var h = document.createElement("div");
+
+  h.className = "heart";
+  h.textContent = "❤";
+
+  h.style.left = x + "px";
+  h.style.top = y + "px";
+
+  document.body.appendChild(h);
+
+  setTimeout(function(){
+    if(h.parentNode){
+      h.parentNode.removeChild(h);
+    }
+  }, 1700);
+}
   /* ========= INICIO REAL (cuando ya está el login anónimo) ========= */
   function initFirestoreRealtime(){
     // ✅ presence doc listo
@@ -1354,6 +1372,28 @@ function publishTapTap(){
       renderPresence(snapshot.docs);
     });
 
+    // ❤️ TAP TAP RECIBIDOS EN TIEMPO REAL
+tapTapsRef.onSnapshot(function(snapshot){
+
+  snapshot.docChanges().forEach(function(change){
+
+    if(change.type !== "added") return;
+
+    var data = change.doc.data();
+
+    // No mostrar nuestro propio Tap Tap
+    if(data.senderId === firebase.auth().currentUser.uid){
+      return;
+    }
+
+    var x = window.innerWidth * (0.20 + Math.random() * 0.60);
+    var y = window.innerHeight * (0.20 + Math.random() * 0.50);
+
+    spawnRemoteHeartAt(x, y);
+
+  });
+ });
+    
     // ✅ top fans realtime
     likesRef.orderBy("likes","desc").limit(10).onSnapshot(function(snapshot){
       likeRankingBox.innerHTML="";
