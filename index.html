@@ -1113,8 +1113,8 @@ function publishTapTap(){
   }
 
   tapTapsRef.add({
-    usuario: nickname || "Oyente",
-    creado: firebase.firestore.FieldValue.serverTimestamp()
+    senderId: firebase.auth().currentUser.uid,
+    createdAt: firebase.firestore.FieldValue.serverTimestamp() 
   }).then(function(doc){
     console.log("❤️ TAP TAP enviado:", doc.id);
   }).catch(function(e){
