@@ -22,6 +22,7 @@
     :root{
       --safe-b: env(safe-area-inset-bottom, 0px);
       --safe-t: env(safe-area-inset-top, 0px);
+      --studio-h: clamp(240px, 66.6667vw, 300px);
     }
 
     #app{
@@ -36,12 +37,14 @@
     }
 
     /* =========================
-       ARO / LOGO
+       CABECERA DEL ESTUDIO
     ========================= */
     #center{
       position:absolute;
       left:0; right:0;
-      top: calc(14px + var(--safe-t));
+      top: calc(10px + var(--safe-t));
+      height:var(--studio-h);
+      padding:0;
       display:flex;
       justify-content:center;
       pointer-events:none;
@@ -49,26 +52,120 @@
     }
 
     #halo{
-      width:300px;
-      height:300px;
-      border-radius:50%;
+      width:100%;
+      max-width:520px;
+      height:100%;
+      border-radius:0;
       display:flex;
       align-items:center;
       justify-content:center;
-      background:radial-gradient(circle at center, #000 0 60%, #000 60%, transparent 61%);
-      border:3px solid #f5c85b;
-      box-shadow:0 0 55px rgba(245,200,91,0.9);
+      background:transparent;
+      border:0;
+      box-shadow:none;
       position:relative;
       overflow:visible;
     }
 
     #logo{
-      width:88%;
-      height:88%;
-      border-radius:50%;
+      position:relative;
+      display:block;
+      width:100%;
+      height:100%;
+      max-width:none;
       object-fit:contain;
-      box-shadow:0 0 25px rgba(0,0,0,0.9);
+      object-position:center;
+      transform:none;
+      border-radius:0;
+      box-shadow:none;
     }
+
+    /* Reproductor centrado y superpuesto, sin placa opaca sobre el estudio. */
+    #controls{
+      position:absolute;
+      left:8px;
+      right:8px;
+      bottom:54px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:1px;
+      padding:0;
+      border:0;
+      border-radius:0;
+      background:transparent;
+      text-align:center;
+      z-index:2;
+      pointer-events:auto;
+    }
+
+    #listenersLabel{
+      display:block;
+      position:absolute;
+      right:2px;
+      bottom:calc(100% + 8px);
+      padding:5px 10px;
+      border:1px solid rgba(245,200,91,.65);
+      border-radius:18px;
+      background:rgba(0,0,0,.62);
+      color:#ffd54f;
+      font-size:13px;
+      font-weight:800;
+      white-space:nowrap;
+      text-shadow:0 1px 3px #000;
+    }
+    #btnPlay{
+      order:0;
+      align-self:center;
+      width:min(62%, 220px);
+      min-width:0;
+      padding:6px 12px;
+      border:0;
+      border-radius:999px;
+      background:linear-gradient(180deg,#ffe16b,#f5b92f);
+      color:#171000;
+      font-size:14px;
+      font-weight:900;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+      box-shadow:0 2px 8px rgba(0,0,0,.35);
+    }
+    #status{
+      order:1;
+      margin:0;
+      background:transparent;
+      color:#fff;
+      font-size:14px;
+      text-shadow:0 1px 2px #000, 0 0 3px #000;
+    }
+    #controls #songLabel{
+      order:2;
+      width:100%;
+      margin:0;
+      background:transparent;
+      color:#fff;
+      font-size:12px;
+      font-weight:800;
+      line-height:1.25;
+      text-shadow:0 1px 2px #000, 0 0 3px #000;
+      overflow:visible;
+      white-space:normal;
+      text-overflow:clip;
+      overflow-wrap:anywhere;
+    }
+    #status, #songLabel{ min-width:0; }
+
+    #greetingSlot{
+      position:absolute;
+      left:0;
+      right:0;
+      top:calc(10px + var(--safe-t) + var(--studio-h) + 6px);
+      z-index:4;
+      display:flex;
+      justify-content:center;
+      padding:0 10px;
+      pointer-events:auto;
+    }
+    #greetingSlot #coravoxGreetingButton{ margin:0 !important; max-width:360px; }
 
     #halo::before, #halo::after{
       content:"";
@@ -85,9 +182,8 @@
         radial-gradient(circle at 50% 100%, rgba(255,75,242,0.35), transparent 70%);
     }
 
-    body.playing #halo::before { animation:bigRays 2.2s infinite ease-out; }
-    body.playing #halo::after  { animation:smallRays 1.4s infinite ease-out; }
-    body.playing #halo { animation:glowPulse 1.2s infinite ease-in-out; }
+    #halo::before, #halo::after{ display:none; }
+    body.playing #halo { animation:none; }
 
     @keyframes glowPulse {
       0%   { box-shadow:0 0 40px rgba(255,255,255,0.25); }
@@ -108,37 +204,11 @@
     /* =========================
        CONTROLES AUDIO
     ========================= */
-    #controls{
-      position:absolute;
-      left:50%;
-      transform:translateX(-50%);
-      top: calc(14px + var(--safe-t) + 300px + 10px);
-      width: 92%;
-      max-width: 420px;
-      text-align:center;
-      z-index:3;
-      pointer-events:auto;
+    #status, #songLabel{
+      overflow:hidden;
+      white-space:nowrap;
+      text-overflow:ellipsis;
     }
-
-    #listenersLabel{ font-size:13px; color:#fff; opacity:.95; margin-bottom:4px; }
-
-    #btnPlay{
-      padding:12px 18px;
-      border-radius:999px;
-      border:none;
-      background:#f5c85b;
-      color:#000;
-      font-size:14px;
-      font-weight:900;
-      letter-spacing:.08em;
-      text-transform:uppercase;
-      min-width:200px;
-      box-shadow:0 0 10px rgba(0,0,0,0.7);
-      cursor:pointer;
-    }
-
-    #status{ margin-top:8px; font-size:13px; color:#fff; opacity:.92; }
-    #songLabel{ margin-top:4px; font-size:13px; color:#fff; opacity:.95; }
 
     /* =========================
        ZONA DEBAJO DEL ARO
@@ -147,10 +217,11 @@
       position:absolute;
       left:10px;
       right:10px;
-      top: calc(14px + var(--safe-t) + 300px + 120px);
-      bottom: calc(96px + var(--safe-b) + 64px);
+      top: calc(10px + var(--safe-t) + var(--studio-h) + 64px);
+      bottom: calc(76px + var(--safe-b) + 64px);
       display:grid;
-      grid-template-columns: 1.3fr 0.7fr;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      grid-template-rows:minmax(0, 1fr);
       gap:10px;
       z-index:4;
       pointer-events:auto;
@@ -158,27 +229,66 @@
     }
 
     /* CHAT */
-    #chatPanel{
-      border-radius:14px;
-      background: rgba(0,0,0,0.25);
-      border:1px solid rgba(245,200,91,0.18);
-      overflow:hidden;
-      display:flex;
-      flex-direction:column;
-      min-height:0;
+    /* Los wrappers no dibujan marcos: solo sus paneles de contenido visibles. */
+    #chatPanel, #rightPanel{ display:contents; }
+    #fansActions{
+      position:fixed;
+      left:5vw;
+      top:calc(10px + var(--safe-t) + var(--studio-h) - 50px);
+      width:43vw;
+      z-index:6;
+      margin:0;
+    }
+    #fansActions #superFansBtn{
+      width:100%;
+      min-height:44px;
+      padding:6px 7px;
+      border:1px solid #f5c85b;
+      border-radius:999px;
+      background:rgba(0,0,0,.76);
+      color:#ffd54f;
+      box-shadow:none;
+      font-size:12px;
+      line-height:1.15;
+    }
+    #btnSpotify{
+      position:fixed;
+      right:5vw;
+      top:calc(10px + var(--safe-t) + var(--studio-h) - 50px);
+      width:43vw !important;
+      min-height:44px;
+      margin:0 !important;
+      padding:6px 7px !important;
+      border:1px solid #19d968 !important;
+      border-radius:999px !important;
+      background:rgba(0,0,0,.76) !important;
+      color:#fff !important;
+      font-size:12px;
+      line-height:1.15;
+      z-index:6;
     }
 
     #chatBox{
+      grid-column:1;
+      grid-row:1;
+      border-radius:14px;
+      border:1px solid rgba(245,200,91,.3);
+      background:rgba(0,0,0,.48);
       padding:10px;
       overflow-y:auto;
       min-height:0;
       flex:1;
-      font-size:12px;
+      font-size:14px;
+      line-height:1.35;
       color:#fff;
     }
+    #chatBox:has(> .chatInfo:only-child){
+      border-color:transparent;
+      background:transparent;
+    }
 
-    .chatInfo{ font-size:11px; opacity:.75; margin-bottom:6px; }
-    .chatLine{ margin-bottom:6px; line-height:1.25; word-break:break-word; }
+    .chatInfo{ font-size:12px; opacity:.8; margin-bottom:8px; }
+    .chatLine{ margin-bottom:8px; line-height:1.35; word-break:break-word; }
     .chatUserName{ font-weight:900; margin-right:6px; }
     .chatUserName.admin{ color:#ffd86b; text-shadow:0 0 6px rgba(255,216,107,.7); }
     .chatSys{ color:#f5c85b; opacity:.95; font-style:italic; }
@@ -192,10 +302,13 @@
     }
 
     #fansPanel{
+      grid-column:2;
+      grid-row:1;
+      align-self:start;
       border-radius:14px;
-      background: rgba(0,0,0,0.25);
+      background: rgba(0,0,0,0.48);
       border:1px solid rgba(245,200,91,0.18);
-      padding:10px 10px;
+      padding:5px 6px;
       overflow:hidden;
       pointer-events:none;
       min-height:0;
@@ -203,22 +316,24 @@
 
     #likeRanking{
       color:#fff;
-      font-size:12px;
+      font-size:14px;
       text-shadow:0 0 6px rgba(0,0,0,0.9);
     }
     .likeTitle{
+      font-size:14px;
       font-weight:900;
       letter-spacing:.06em;
       text-transform:uppercase;
-      margin-bottom:8px;
+      margin-bottom:5px;
       opacity:.95;
     }
     .likeRow{
       display:flex;
       justify-content:space-between;
-      gap:8px;
-      margin-bottom:6px;
+      gap:4px;
+      margin-bottom:3px;
       opacity:.95;
+      line-height:1.2;
     }
     .likeName{
       max-width:110px;
@@ -296,7 +411,7 @@
       display:flex;
       align-items:center;
       gap:8px;
-      background: linear-gradient(to top, rgba(0,0,0,0.90), rgba(0,0,0,0.12));
+      background: linear-gradient(to top, rgba(0,0,0,0.58), rgba(0,0,0,0.06));
       pointer-events:auto;
     }
 
@@ -337,10 +452,104 @@
       font-weight:900;
     }
 
-    #btnFB{ background: radial-gradient(circle at top, #7ad9ff, #2b8cff); color:#000; }
-    #btnWA{ background: radial-gradient(circle at top, #9dff7a, #2bdc66); color:#000; font-size:16px; }
     #btnGift{ background: radial-gradient(circle at top, #ffd54f, #ff7ad9); color:#000; }
     #btnName{ background: radial-gradient(circle at top, #f5c85b, #ffd54f); color:#000; font-size:16px; }
+
+    /* Compartir: reemplaza los accesos individuales de Facebook y WhatsApp. */
+    #btnShare{
+      flex:0 0 auto;
+      min-width:66px;
+      height:38px;
+      padding:0 8px;
+      border:1px solid #f5c85b;
+      border-radius:999px;
+      background:linear-gradient(180deg,rgba(255,216,107,.96),rgba(207,145,24,.96));
+      color:#171000;
+      font-family:inherit;
+      font-size:10px;
+      line-height:1;
+      font-weight:900;
+      cursor:pointer;
+      box-shadow:0 0 9px rgba(245,200,91,.3);
+      white-space:nowrap;
+    }
+    #shareOverlay{
+      display:none;
+      position:fixed;
+      inset:0;
+      z-index:30000;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      background:rgba(0,0,0,.82);
+      -webkit-backdrop-filter:blur(5px);
+      backdrop-filter:blur(5px);
+    }
+    #shareCard{
+      position:relative;
+      width:min(92vw,390px);
+      max-height:88dvh;
+      overflow:auto;
+      padding:26px 20px 20px;
+      border:1.5px solid #f5c85b;
+      border-radius:20px;
+      background:linear-gradient(155deg,#17120a,#050505 65%);
+      color:#fff;
+      text-align:center;
+      box-shadow:0 0 28px rgba(245,200,91,.3),0 15px 48px rgba(0,0,0,.8);
+    }
+    #shareClose{
+      position:absolute;
+      top:8px;
+      right:10px;
+      width:34px;
+      height:34px;
+      border:1px solid rgba(245,200,91,.65);
+      border-radius:50%;
+      background:#090806;
+      color:#f5c85b;
+      font-size:23px;
+      line-height:1;
+    }
+    #shareTitle{ margin:4px 30px 8px; color:#ffd54f; font-size:20px; font-weight:950; }
+    #shareDescription{ margin:0 0 15px; color:#eee; font-size:14px; line-height:1.4; }
+    #shareDestinations{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:8px;
+      margin:0 0 16px;
+    }
+    .shareDestination{
+      padding:9px 6px;
+      border:1px solid rgba(245,200,91,.48);
+      border-radius:12px;
+      background:rgba(0,0,0,.45);
+      color:#f7dc91;
+      font-size:12px;
+      font-weight:750;
+    }
+    .shareAction{
+      display:block;
+      width:100%;
+      min-height:46px;
+      margin-top:9px;
+      border-radius:999px;
+      font-size:14px;
+      font-weight:900;
+      cursor:pointer;
+    }
+    #shareNativeButton{
+      border:1px solid #ffe17a;
+      background:linear-gradient(180deg,#ffe16b,#e6a921);
+      color:#171000;
+      box-shadow:0 2px 12px rgba(245,200,91,.25);
+    }
+    #shareCopyButton{
+      border:1px solid rgba(245,200,91,.72);
+      background:rgba(0,0,0,.48);
+      color:#f5c85b;
+    }
+    #shareStatus{ min-height:20px; margin-top:11px; color:#f5c85b; font-size:12px; line-height:1.3; }
 
     /* Tap tap corazones */
     .heart{
@@ -411,6 +620,64 @@
       z-index:99999;
       pointer-events:auto;
     }
+    /* ===== Modal Súper Fans: añadido sobre la interfaz existente ===== */
+    #superFansOverlay{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+      background:rgba(0,0,0,.82);
+      z-index:100000;
+      pointer-events:auto;
+    }
+    #superFansModal{
+      position:relative;
+      width:min(92vw, 420px);
+      max-height:calc(100vh - 32px - var(--safe-t) - var(--safe-b));
+      overflow:auto;
+      padding:28px 22px 22px;
+      border:1px solid rgba(245,200,91,.85);
+      border-radius:20px;
+      background:linear-gradient(155deg, rgba(29,24,12,.98), rgba(0,0,0,.98) 58%);
+      color:#fff;
+      text-align:center;
+      box-shadow:0 0 28px rgba(245,200,91,.22), 0 18px 60px rgba(0,0,0,.75);
+    }
+    #superFansClose{
+      position:absolute;
+      top:8px;
+      right:10px;
+      width:38px;
+      height:38px;
+      border:1px solid rgba(245,200,91,.55);
+      border-radius:50%;
+      background:#111;
+      color:#f5c85b;
+      font-size:22px;
+      line-height:1;
+      cursor:pointer;
+    }
+    #superFansCrown{ font-size:34px; color:#f5c85b; margin-bottom:5px; }
+    #superFansTitle{ color:#f5c85b; font-size:clamp(21px, 6vw, 28px); font-weight:950; letter-spacing:.04em; }
+    #superFansSupport{ margin:12px 0 16px; font-size:16px; font-weight:750; }
+    #superFansDetails{ display:grid; gap:9px; margin:0 0 20px; font-size:15px; line-height:1.35; }
+    #superFansSubscribe{
+      width:100%;
+      min-height:54px;
+      padding:13px 14px;
+      border:1px solid #ffe08a;
+      border-radius:14px;
+      background:linear-gradient(135deg,#ffe27a,#f2b927 55%,#d89412);
+      color:#1a1200;
+      font-size:clamp(15px, 4vw, 18px);
+      font-weight:950;
+      box-shadow:0 0 17px rgba(245,200,91,.28);
+      cursor:pointer;
+    }
+    #superFansNote{ margin-top:12px; color:#e7d7ad; font-size:12px; line-height:1.4; }
+    @media (min-width:700px){ #superFansModal{ padding:34px 30px 28px; } }
     .modalBox{
       width:86%;
       max-width:360px;
@@ -598,6 +865,242 @@
       color:#ffd54f;
       opacity:0.95;
     }
+    /* Composición de referencia: estudio a pantalla completa y controles reales encima. */
+    :root{ --studio-h:clamp(320px, 46vh, 410px); }
+    #app::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:0;
+      pointer-events:none;
+      background:url("radio_coravox_vertical_fondo.png") center top / cover no-repeat;
+    }
+    #app::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:1;
+      pointer-events:none;
+      background:linear-gradient(180deg,
+        rgba(0,0,0,.04) 0%,
+        rgba(0,0,0,.06) 40%,
+        rgba(0,0,0,.16) 52%,
+        rgba(0,0,0,.22) 100%);
+    }
+    #center{ z-index:2; }
+    #logo{ display:none; }
+    #controls #songLabel{
+      color:#fff;
+      white-space:normal;
+      overflow:visible;
+      text-overflow:clip;
+      overflow-wrap:anywhere;
+      text-shadow:0 1px 3px #000, 0 0 5px #000;
+    }
+    #status, #songLabel{
+      white-space:normal;
+      overflow:visible;
+      text-overflow:clip;
+      overflow-wrap:anywhere;
+    }
+    #belowZone{
+      background:transparent;
+      top:calc(10px + var(--safe-t) + var(--studio-h) + 90px);
+      grid-template-columns:minmax(0, 1.15fr) minmax(0, .85fr);
+    }
+    #chatBox, #fansPanel{
+      background:rgba(0,0,0,.94);
+      border:1px solid rgba(245,200,91,.24);
+      border-radius:12px;
+      box-shadow:0 2px 12px rgba(0,0,0,.28);
+    }
+    #chatBox{ padding:8px; font-size:12px; }
+    #chatBox:has(> .chatInfo:only-child){
+      border-color:transparent;
+      background:transparent;
+      box-shadow:none;
+    }
+    .chatInfo{ font-size:10px; margin-bottom:5px; }
+    .chatLine{ margin-bottom:3px; line-height:1.18; }
+    #fansPanel{ align-self:stretch; flex:1; min-height:0; padding:6px 7px; }
+    #fansPanel:has(#likeRanking:empty){
+      background:transparent;
+      border-color:transparent;
+      box-shadow:none;
+    }
+    #likeRanking{ font-size:10.5px; }
+    .likeTitle{ font-size:12px; margin-bottom:2px; }
+    .likeRow{ margin-bottom:0; line-height:1; }
+    #fansActions{
+      left:2vw;
+      top:calc(10px + var(--safe-t) + var(--studio-h) - 5px);
+      width:46vw;
+    }
+    #fansActions #superFansBtn{
+      min-height:40px;
+      padding:5px 6px;
+      font-size:11px;
+      white-space:nowrap;
+    }
+    #btnSpotify{
+      right:2vw;
+      top:calc(10px + var(--safe-t) + var(--studio-h) - 5px);
+      width:46vw !important;
+      min-height:40px;
+      padding:5px 6px !important;
+      font-size:11px;
+      white-space:nowrap;
+    }
+    #bottomBar{
+      border:0;
+      background:linear-gradient(to top, rgba(0,0,0,.9), rgba(0,0,0,.5));
+    }
+    #greetingSlot{
+      top:calc(10px + var(--safe-t) + var(--studio-h) + 40px);
+    }
+  
+    /* Ajuste A14: escala visual del fondo y distribución vertical independiente. */
+    #app{ background:url("radio_coravox_vertical_fondo.png") center top / cover no-repeat; }
+    #app::before{
+      inset:-8px 0 0;
+      background-size:auto 92%;
+      background-position:center top;
+    }
+    :root{ --studio-h:clamp(365px, 52vh, 445px); }
+    #controls{ bottom:14px; }
+    #btnPlay{ width:min(58%, 210px); padding:5px 10px; font-size:13px; }
+    #fansActions{ top:calc(10px + var(--safe-t) + var(--studio-h) + 16px); }
+    #btnSpotify{ top:calc(10px + var(--safe-t) + var(--studio-h) + 16px); }
+    #greetingSlot{ top:calc(10px + var(--safe-t) + var(--studio-h) + 70px); }
+    #belowZone{ top:calc(10px + var(--safe-t) + var(--studio-h) + 120px); }
+    #bottomBar{ bottom:44px; }
+    .requestMusicIcon{
+      color:#22ef79;
+      font-size:18px;
+      text-shadow:0 0 8px rgba(34,239,121,.72);
+      vertical-align:-1px;
+    }
+
+    /* Fondo de la referencia completa; los controles vivos se superponen en sus zonas. */
+    :root{ --studio-h:100dvh; }
+    #app{ background:#050308; }
+    #app::before{
+      background-image:url("radio_coravox_fondo_sin_ui.png");
+      background-position:center top;
+      background-size:100% 100%;
+      background-repeat:no-repeat;
+    }
+    #app::after{
+      background:linear-gradient(180deg,transparent 0%,rgba(0,0,0,.04) 55%,rgba(0,0,0,.16) 100%);
+    }
+
+    /* La referencia ocupa toda la pantalla y el reproductor real cae sobre el suyo. */
+    #center{ top:0; height:100%; padding:0; }
+    #halo{ width:100%; height:100%; }
+    #controls{
+      left:4%; right:4%; top:37.8%; bottom:auto;
+      gap:1px; padding:0;
+    }
+    #listenersLabel{
+      position:fixed; left:5%; right:auto;
+      top:calc(10px + var(--safe-t) + .8vh); bottom:auto;
+      padding:4px 9px; font-size:11px;
+    }
+    #btnPlay{
+      width:min(42vw,250px); min-height:44px;
+      padding:7px 10px; font-size:15px;
+    }
+    #status{ font-size:12px; line-height:1.2; }
+    #controls #songLabel{ font-size:12.5px; line-height:1.2; }
+
+    /* Botones de fans y saludo alineados con los botones dibujados en la referencia. */
+    #fansActions{
+      position:fixed; left:5%; top:47.5%; width:42%; z-index:6;
+    }
+    #fansActions #superFansBtn{
+      min-height:42px; padding:4px 8px; font-size:10.5px;
+      line-height:1.08; white-space:normal; overflow-wrap:anywhere;
+      border-color:rgba(255,207,51,.95); background:rgba(0,0,0,.78);
+    }
+    #btnSpotify{
+      right:5%; top:47.5%; width:42% !important;
+      min-height:42px; padding:4px 8px !important; font-size:10.5px;
+      line-height:1.08; white-space:normal; overflow-wrap:anywhere;
+      background:rgba(0,0,0,.86) !important;
+    }
+    #greetingSlot{
+      top:53.4%; left:4%; right:4%; padding:0;
+    }
+    #greetingSlot #coravoxGreetingButton{
+      width:100% !important; max-width:none !important; min-height:6vh;
+      padding:8px 10px !important; font-size:15px !important;
+      border:1px solid #ffd54f !important; border-radius:999px !important;
+      background:rgba(0,0,0,.82) !important; color:#ffd54f !important;
+      box-shadow:0 0 8px rgba(255,190,30,.45) !important;
+    }
+
+    /* Datos reales en paneles discretos sobre la imagen. */
+    #belowZone{
+      left:4%; right:4%; top:60.5%; bottom:17.5%;
+      grid-template-columns:minmax(0,2.05fr) minmax(0,.95fr); gap:7px;
+    }
+    #chatBox, #fansPanel{
+      background:rgba(0,0,0,.84); border-color:rgba(245,200,91,.65);
+      border-radius:12px; box-shadow:0 2px 8px rgba(0,0,0,.35);
+    }
+    #chatBox:has(> .chatInfo:only-child),
+    #fansPanel:has(#likeRanking:empty){
+      background:rgba(0,0,0,.84); border-color:rgba(245,200,91,.65);
+      box-shadow:0 2px 8px rgba(0,0,0,.35);
+    }
+    #chatBox{ padding:6px; font-size:10.5px; line-height:1.15; }
+    .chatInfo{ font-size:9px; margin-bottom:3px; }
+    .chatLine{ margin-bottom:2px; line-height:1.15; }
+    #fansPanel{ padding:5px 6px; }
+    #likeRanking{ font-size:10px; }
+    .likeTitle{ font-size:11px; margin-bottom:2px; }
+    .likeRow{ margin-bottom:1px; line-height:1.08; }
+
+    /* Barra real sobre la fila de escritura de la imagen; conserva los botones y destinos. */
+    #bottomBar{
+      left:0; right:0; top:84%; bottom:auto; height:7.5vh;
+      padding:0 3vw; gap:1vw; background:transparent;
+    }
+    #chatInput{ min-width:0; padding:9px 10px; font-size:11px; }
+    #chatSend{ flex:0 0 14%; min-width:44px; padding:9px 5px; font-size:11px; }
+    .roundBtn{ flex:0 0 8vw; width:8vw; height:8vw; min-width:30px; min-height:30px; max-height:38px; font-size:16px; }
+    #btnShare{ min-width:64px; height:36px; padding:0 7px; font-size:9px; }
+    @media (max-width:360px){
+      #bottomBar{ padding-left:2vw; padding-right:2vw; gap:2px; }
+      #chatSend{ flex-basis:13%; min-width:40px; }
+      .roundBtn{ flex-basis:7.5vw; width:7.5vw; min-width:27px; min-height:27px; }
+      #btnShare{ min-width:59px; padding:0 5px; font-size:8px; }
+    }
+
+    /* Distribuye los diez puestos por toda la altura del panel Top Fans. */
+    #fansPanel{ display:flex; flex-direction:column; }
+    #likeRanking{
+      display:flex;
+      flex:1 1 auto;
+      flex-direction:column;
+      min-height:0;
+      height:100%;
+      font-size:clamp(10.5px, 3vw, 12px);
+    }
+    .likeTitle{
+      flex:0 0 auto;
+      margin-bottom:clamp(4px, 1.2vh, 8px);
+      font-size:clamp(12px, 3.4vw, 14px);
+    }
+    .likeRow{
+      flex:1 1 0;
+      min-height:0;
+      align-items:center;
+      margin:0;
+      line-height:1.12;
+    }
+    .likeName{ flex:1 1 auto; min-width:0; max-width:none; }
+    .likeCount{ flex:0 0 auto; margin-left:4px; }
   </style>
 </head>
 
@@ -606,29 +1109,30 @@
 
   <div id="center">
     <div id="halo">
-      <img id="logo" src="logo_coravox.png" alt="Radio Coravox" />
+      <img id="logo" src="radio_coravox_studio.png" alt="Estudio en vivo de Radio Coravox" />
+      <div id="controls">
+        <div id="listenersLabel">👥 Oyentes: 0</div>
+        <button id="btnPlay" type="button">▶ Escuchar</button>
+        <div id="status">Listo para conectar…</div>
+        <div id="songLabel">🎵 Ahora suena: —</div>
+      </div>
     </div>
   </div>
 
-  <div id="controls">
-    <div id="listenersLabel">👥 Oyentes: 0</div>
-    <button id="btnPlay" type="button">▶ Escuchar</button>
-    <div id="status">Listo para conectar…</div>
-    <div id="songLabel">🎵 Ahora suena: —</div>
-  </div>
+  <div id="greetingSlot"></div>
 
   <div id="belowZone">
     <div id="chatPanel">
-   <div id="fansActions">
+      <div id="fansActions">
         <button id="superFansBtn" type="button">⭐ Unete al Club de Fans (Aqui)</button>
-      </div>   
+      </div>
       <div id="chatBox"></div>
     </div>
 
     <div id="rightPanel">
       <button id="btnSpotify" style="background:#1DB954; color:white; font-weight:bold; border:none; padding:10px; border-radius:8px; width:100%; cursor:pointer; margin-bottom:10px;">
-  🟢 Pide tu Canción (Aqui)
-</button>
+        <span class="requestMusicIcon" aria-hidden="true">♫</span> Pide tu Canción (Aqui)
+      </button>
 
       <div id="fansPanel">
         <div id="likeRanking"></div>
@@ -641,11 +1145,29 @@
     <button id="chatSend" type="button">Enviar</button>
 
     <button id="btnName" class="roundBtn" type="button" title="Cambiar nombre">👤</button>
-    <button id="btnFB" class="roundBtn" type="button" title="Facebook">f</button>
-    <button id="btnWA" class="roundBtn" type="button" title="WhatsApp">W</button>
     <button id="btnGift" class="roundBtn" type="button" title="Regalito">🎁</button>
+    <button id="btnShare" type="button" title="Compartir Radio Coravox">Compartir</button>
   </div>
 
+</div>
+
+<!-- Centralita para compartir Radio Coravox -->
+<div id="shareOverlay" aria-hidden="true">
+  <section id="shareCard" role="dialog" aria-modal="true" aria-labelledby="shareTitle">
+    <button id="shareClose" type="button" aria-label="Cerrar">×</button>
+    <div id="shareTitle">📲 Comparte Radio Coravox</div>
+    <p id="shareDescription">Invita a alguien a escuchar música romántica, rancheras y banda.</p>
+    <div id="shareDestinations" aria-label="Opciones disponibles">
+      <div class="shareDestination">💬 WhatsApp</div>
+      <div class="shareDestination">📘 Facebook</div>
+      <div class="shareDestination">✉️ Mensajes SMS</div>
+      <div class="shareDestination">📧 Correo</div>
+      <div class="shareDestination" style="grid-column:1/-1">📱 Otras aplicaciones instaladas</div>
+    </div>
+    <button id="shareNativeButton" class="shareAction" type="button">Elegir aplicación para compartir</button>
+    <button id="shareCopyButton" class="shareAction" type="button">Copiar enlace de Google Play</button>
+    <div id="shareStatus" role="status" aria-live="polite"></div>
+  </section>
 </div>
 
 <!-- Nombre -->
@@ -688,6 +1210,23 @@
   </div>
 </div>
 
+<!-- Modal Súper Fans: se superpone sin navegar ni reiniciar la radio. -->
+<div id="superFansOverlay" aria-hidden="true">
+  <section id="superFansModal" role="dialog" aria-modal="true" aria-labelledby="superFansTitle">
+    <button id="superFansClose" type="button" aria-label="Cerrar">×</button>
+    <div id="superFansCrown" aria-hidden="true">♛</div>
+    <h2 id="superFansTitle">HAZTE SÚPER FANS</h2>
+    <div id="superFansSupport">Apoya a Radio Coravox</div>
+    <div id="superFansDetails">
+      <div><strong>$1 USD al mes</strong></div>
+      <div>Cobro automático cada mes</div>
+      <div>Puedes cancelar cuando quieras</div>
+    </div>
+    <button id="superFansSubscribe" type="button">SUSCRIBIRME POR $1/MES</button>
+    <div id="superFansNote">Cobro automático · Puedes cancelar cuando quieras</div>
+  </section>
+</div>
+
 <!-- ✅ BOTÓN CONECTADOS -->
 <button id="presenceBtn" type="button">Conectados: 0</button>
 
@@ -703,805 +1242,24 @@
 </div>
 
 <div id="modalSpotify" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.9); z-index:9999; align-items:center; justify-content:center; padding:20px;">
-    <div style="background:#111; border:2px solid #1DB954; border-radius:15px; padding:20px; width:100%; max-width:300px;">
-        <h3 style="color:#1DB954; margin-bottom:10px;">Pedido Musical</h3>
-        <input id="inputCancion" type="text" placeholder="Artista - Canción" style="width:100%; padding:10px; border-radius:5px; border:1px solid #333; background:#000; color:#fff;">
-        <button id="btnEnviarSpotify" style="width:100%; padding:10px; background:#1DB954; color:white; border:none; border-radius:5px; font-weight:bold; margin-top:10px;">ENVIAR A CABINA</button>
-        <button onclick="document.getElementById('modalSpotify').style.display='none'" style="width:100%; margin-top:10px; background:none; border:none; color:#777;">Cancelar</button>
-    </div>
-</div>    
+  <div style="background:#111; border:2px solid #1DB954; border-radius:15px; padding:20px; width:100%; max-width:300px;">
+    <h3 style="color:#1DB954; margin-bottom:10px;">Pedido Musical</h3>
+    <input id="inputCancion" type="text" placeholder="Artista - Canción" style="width:100%; padding:10px; border-radius:5px; border:1px solid #333; background:#000; color:#fff;">
+    <button id="btnEnviarSpotify" style="width:100%; padding:10px; background:#1DB954; color:white; border:none; border-radius:5px; font-weight:bold; margin-top:10px;">ENVIAR A CABINA</button>
+    <button onclick="document.getElementById('modalSpotify').style.display='none'" style="width:100%; margin-top:10px; background:none; border:none; color:#777;">Cancelar</button>
+  </div>
+</div>
 
 <audio id="player"></audio>
 
 <!-- Firebase -->
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
+<script defer src="app.js"></script>
 
-<script>
-  /* ======== CONFIG ======== */
-  var STREAM_URL = "https://a13.my-control-panel.com/listen/radio_coravox/radio.mp3";
-  var META_URL   = "https://a13.my-control-panel.com/api/nowplaying/radio_coravox";
 
-  var SUPER_FANS_URL = "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-02N26347CY290173YNFQSTTY";
-  var DONATE_URL     = "https://www.paypal.com/donate/?hosted_button_id=7W9NHUDF5X3WG";
 
-  var CASHAPP_URL = "https://cash.app/coravox";
-  var ZELLE_EMAIL = "vis-party@hotmail.com";
-  var BTC_ADDRESS = "3QYuSZarVNTgHuo9UmPxWMmxLgeWyu9Juo";
 
-  var PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.example.radiocoravox";
-
-  /* ======== Firebase (ARREGLADO) ======== */
-  var firebaseConfig = {
-    apiKey: "AIzaSyC8jq2iODj6DwfTSktgZ7ia84oeMxxPjNE",
-    authDomain: "coravox-602a0.firebaseapp.com",
-    projectId: "coravox-602a0",
-    storageBucket: "coravox-602a0.firebasestorage.app",
-    messagingSenderId: "629472102664",
-    appId: "1:629472102664:web:56e539689983458ada84bd"
-  };
-  firebase.initializeApp(firebaseConfig);
-
-  var auth = firebase.auth();
-
-  // ✅ refs globales (se asignan DESPUÉS del login anónimo)
-  var db = null;
-  var messagesRef = null;
-  var likesRef = null;
-  var presenceRef = null;
-  var cfgRef = null;
-
-  // ======== UI ========
-  var audio = document.getElementById("player");
-  var btnPlay = document.getElementById("btnPlay");
-  var statusText = document.getElementById("status");
-  var listenersLabel = document.getElementById("listenersLabel");
-  var songLabel = document.getElementById("songLabel");
-  var likeRankingBox = document.getElementById("likeRanking");
-  var chatBox = document.getElementById("chatBox");
-  var chatInput = document.getElementById("chatInput");
-  var chatSend = document.getElementById("chatSend");
-
-  var superFansBtn = document.getElementById("superFansBtn");
- 
-  var loveOverlay = document.getElementById("loveOverlay");
-  var closeLove = document.getElementById("closeLove");
-
-  var payPaypal = document.getElementById("payPaypal");
-  var payCashApp = document.getElementById("payCashApp");
-  var payZelle = document.getElementById("payZelle");
-  var payBtc = document.getElementById("payBtc");
-
-  var btnFB = document.getElementById("btnFB");
-  var btnWA = document.getElementById("btnWA");
-  var btnGift = document.getElementById("btnGift");
-  var btnName = document.getElementById("btnName");
-
-  var nameOverlay = document.getElementById("nameOverlay");
-  var nameInput = document.getElementById("nameInput");
-  var nameOk = document.getElementById("nameOk");
-
-  var pinOverlay = document.getElementById("pinOverlay");
-  var pinInput = document.getElementById("pinInput");
-  var pinOk = document.getElementById("pinOk");
-  var pinError = document.getElementById("pinError");
-
-  /* ======== Colores por usuario ======== */
-  var colorPalette = ["#f5c85b","#ff7ad9","#7ad9ff","#9dff7a","#ffb27a","#c7a6ff","#ff6b6b"];
-  var userColors = {};
-
-  function hashString(str){
-    var h=0;
-    for (var i=0;i<str.length;i++){
-      h = (h<<5) - h + str.charCodeAt(i);
-      h |= 0;
-    }
-    return Math.abs(h);
-  }
-  function getColorForUser(user){
-    if(!user) user="Oyente";
-    if(userColors[user]) return userColors[user];
-    var idx = hashString(user) % colorPalette.length;
-    userColors[user] = colorPalette[idx];
-    return userColors[user];
-  }
-
-  /* ======== Admin / Nick ======== */
-  var ADMIN_NAME="Coravox";
-  var ADMIN_PIN="2486";
-  var nickname=null;
-  var isAdmin=false;
-  var pendingAdminName=null;
-
-  function setStatus(t){ if(statusText) statusText.textContent=t; }
-
-  function applyNickname(nm, forceAdmin){
-    nickname = (nm && nm.trim()) ? nm.trim() : "Oyente";
-    isAdmin = forceAdmin ? true : (nickname.toLowerCase() === ADMIN_NAME.toLowerCase());
-    try{
-      localStorage.setItem("rcx_nickname", nickname);
-      localStorage.setItem("rcx_is_admin", isAdmin ? "1":"0");
-    }catch(e){}
-    // ✅ ping si ya está listo
-    pingPresence();
-  }
-
-  async function sendJoinMessage(name) {
-    try {
-      if(!messagesRef) return;
-      await messagesRef.add({
-        usuario: "Sistema",
-        mensaje: "👋 " + name + " se conectó.",
-        rol: "system",
-        tipo: "system",
-        creado: firebase.firestore.FieldValue.serverTimestamp()
-      });
-    } catch (e) { console.log("join msg error", e);}
-  }
-
-  (function(){
-    try{
-      var stored = localStorage.getItem("rcx_nickname");
-      var storedAdmin = localStorage.getItem("rcx_is_admin");
-      if(stored){
-        applyNickname(stored, storedAdmin==="1");
-      } else {
-        nameOverlay.style.display="flex";
-      }
-    }catch(e){
-      nameOverlay.style.display="flex";
-    }
-  })();
-
-  nameOk.addEventListener("click", function(){
-    var val=(nameInput.value||"Oyente").trim();
-    if(!val) val="Oyente";
-
-    if(val.toLowerCase()===ADMIN_NAME.toLowerCase()){
-      pendingAdminName=ADMIN_NAME;
-      nameOverlay.style.display="none";
-      pinOverlay.style.display="flex";
-      pinError.style.display="none";
-      pinInput.value="";
-      return;
-    }
-    applyNickname(val,false);
-    nameOverlay.style.display="none";
-    sendJoinMessage(nickname || "Oyente");
-  });
-
-  pinOk.addEventListener("click", function(){
-    var pin=pinInput.value.trim();
-    if(pin===ADMIN_PIN && pendingAdminName){
-      applyNickname(pendingAdminName,true);
-      pendingAdminName=null;
-      pinOverlay.style.display="none";
-      sendJoinMessage(nickname || ADMIN_NAME);
-    } else {
-      pinError.style.display="block";
-      applyNickname("Oyente",false);
-    }
-  });
-
-  btnName.addEventListener("click", function(){
-    nameOverlay.style.display="flex";
-  });
-
-  /* ======== Audio ======== */
-  var isPlaying=false;
-  btnPlay.addEventListener("click", async function(e){
-    e.preventDefault();
-    try{
-      if(!isPlaying){
-        var url = STREAM_URL + "?t=" + Date.now();
-        audio.pause();
-        audio.removeAttribute("src");
-        audio.load();
-        audio.src = url;
-
-        setStatus("Conectando con Radio Coravox…");
-        var p=audio.play();
-        if(p) await p;
-
-        isPlaying=true;
-        btnPlay.textContent="⏸ Pausar";
-        setStatus("Conectado: Radio Coravox en vivo.");
-        document.body.classList.add("playing");
-      } else {
-        audio.pause();
-        isPlaying=false;
-        btnPlay.textContent="▶ Escuchar";
-        setStatus("Pausado.");
-        document.body.classList.remove("playing");
-      }
-    }catch(err){
-      console.log(err);
-      setStatus("Error al conectar con el streaming.");
-      isPlaying=false;
-      btnPlay.textContent="▶ Escuchar";
-      document.body.classList.remove("playing");
-    }
-  });
-
-  function updateMeta(){
-    fetch(META_URL).then(r=>r.json()).then(function(data){
-      var listeners=(data.listeners && data.listeners.current) ? data.listeners.current : 0;
-      var title="—";
-      if (data.now_playing && data.now_playing.song){
-        var s=data.now_playing.song;
-        title=(s.title && s.title.trim()!=="") ? s.title : (s.text || "—");
-      }
-      var parts=title.split(" - ");
-      if(parts.length>1) title=parts[parts.length-1].trim();
-
-      listenersLabel.textContent="👥 Oyentes: " + listeners;
-      songLabel.textContent="🎵 Ahora suena: " + title;
-    }).catch(()=>{});
-  }
-  updateMeta();
-  setInterval(updateMeta,15000);
-
-  /* ========= Presence (ARREGLADO: sin usar db antes de tiempo) ========= */
-  var presenceBtn = document.getElementById("presenceBtn");
-  var presenceOverlay = document.getElementById("presenceOverlay");
-  var presenceClose = document.getElementById("presenceClose");
-  var presenceList = document.getElementById("presenceList");
-
-  function getSessionId() {
-    try {
-      var s = localStorage.getItem("rcx_session_id");
-      if (s) return s;
-      s = "s_" + Math.random().toString(36).slice(2) + "_" + Date.now();
-      localStorage.setItem("rcx_session_id", s);
-      return s;
-    } catch (e) {
-      return "s_" + Math.random().toString(36).slice(2) + "_" + Date.now();
-    }
-  }
-  var sessionId = getSessionId();
-
-  var presenceDoc = null; // ✅ se crea cuando presenceRef esté listo
-
-  var PRESENCE_TTL_MS = 45000;
-  var PRESENCE_PING_MS = 20000;
-
-  async function pingPresence() {
-    try {
-      if(!presenceDoc) return;
-      var name = nickname || "Oyente";
-      await presenceDoc.set({
-        name: name,
-        admin: !!isAdmin,
-        lastSeen: firebase.firestore.FieldValue.serverTimestamp()
-      }, { merge: true });
-    } catch (e) {
-      console.log("presence ping error", e);
-    }
-  }
-
-  function renderPresence(docs) {
-    var now = Date.now();
-    var online = [];
-
-    docs.forEach(function(d) {
-      var data = d.data() || {};
-      var ts = data.lastSeen;
-      var ms = 0;
-      try { if (ts && typeof ts.toMillis === "function") ms = ts.toMillis(); } catch(e) {}
-
-      if (ms && (now - ms) <= PRESENCE_TTL_MS) {
-        online.push({
-          id: d.id,
-          name: data.name || "Oyente",
-          admin: !!data.admin,
-          ms: ms
-        });
-      }
-    });
-
-    online.sort(function(a,b){ return b.ms - a.ms; });
-
-    if (presenceBtn) presenceBtn.textContent = "Conectados: " + online.length;
-
-    if (presenceList) {
-      presenceList.innerHTML = "";
-      if (online.length === 0) {
-        presenceList.innerHTML = "<div style='opacity:.85;padding:10px 0;'>Nadie conectado aún.</div>";
-        return;
-      }
-
-      online.forEach(function(u) {
-        var row = document.createElement("div");
-        row.className = "presenceItem";
-
-        var left = document.createElement("div");
-        left.className = "presenceNameRow";
-
-        var dot = document.createElement("div");
-        dot.className = "presenceDot";
-
-        var nm = document.createElement("div");
-        nm.className = "presenceName";
-        nm.textContent = u.name;
-
-        left.appendChild(dot);
-        left.appendChild(nm);
-
-        var right = document.createElement("div");
-        if (u.admin) {
-          right.className = "presenceBadge";
-          right.textContent = "ADMIN";
-        } else {
-          right.textContent = "";
-        }
-
-        row.appendChild(left);
-        row.appendChild(right);
-        presenceList.appendChild(row);
-      });
-    }
-  }
-
-  if (presenceBtn) {
-    presenceBtn.addEventListener("click", function(e){
-      e.preventDefault(); e.stopPropagation();
-      if (!presenceOverlay) return;
-      presenceOverlay.style.display = "flex";
-    }, true);
-  }
-  if (presenceClose) {
-    presenceClose.addEventListener("click", function(){
-      if (presenceOverlay) presenceOverlay.style.display = "none";
-    }, true);
-  }
-  if (presenceOverlay) {
-    presenceOverlay.addEventListener("click", function(e){
-      if (e.target && e.target.id === "presenceOverlay") {
-        presenceOverlay.style.display = "none";
-      }
-    }, true);
-  }
-
-  document.addEventListener("visibilitychange", function() {
-    if (!document.hidden) pingPresence();
-  });
-
-  /* ======== Chat ======== */
-  function renderChat(docs){
-    chatBox.innerHTML="";
-    var info=document.createElement("div");
-    info.className="chatInfo";
-    info.textContent="Chat en vivo";
-    chatBox.appendChild(info);
-
-    docs.forEach(function(d){
-      var line=document.createElement("div");
-      line.className="chatLine";
-
-      if(d.tipo==="system"){
-        line.classList.add("chatSys");
-        line.textContent=d.mensaje || "";
-      } else {
-        var name=(d.usuario||"Oyente");
-        var msg=(d.mensaje||"");
-        var spanName=document.createElement("span");
-        spanName.className="chatUserName"+((d.rol==="admin")?" admin":"");
-        spanName.textContent=name+":";
-        if(d.rol!=="admin"){
-          spanName.style.color = getColorForUser(name);
-        }
-
-        var spanMsg=document.createElement("span");
-        spanMsg.textContent=" "+msg;
-
-        line.appendChild(spanName);
-        line.appendChild(spanMsg);
-      }
-      chatBox.appendChild(line);
-    });
-    chatBox.scrollTop=chatBox.scrollHeight;
-  }
-
-  /* ======== TAP TAP PRUEBA 1 ======== */
-var tapTapsRef = null;
-
-function publishTapTap(){
-  if(!tapTapsRef){
-    console.log("TAP TAP: referencia no lista");
-    return;
-  }
-
-  tapTapsRef.add({
-    senderId: firebase.auth().currentUser.uid,
-    createdAt: firebase.firestore.FieldValue.serverTimestamp() 
-  }).then(function(doc){
-    console.log("❤️ TAP TAP enviado:", doc.id);
-  }).catch(function(e){
-    console.error("❌ TAP TAP error:", e);
-  });
-}
-  
-  /* ======== Likes tap-tap ======== */
-  function registerLike(){
-    if(!likesRef) return;
-    var user = nickname || "Oyente";
-    likesRef.doc(user).set({
-      usuario:user,
-      likes: firebase.firestore.FieldValue.increment(1),
-      updated: firebase.firestore.FieldValue.serverTimestamp()
-    }, { merge:true }).catch(function(e){ console.log("like error", e); });
-  }
-
-  function spawnHeartAt(x,y){
-    var h=document.createElement("div");
-    h.className="heart";
-    h.textContent="❤";
-    h.style.left=x+"px";
-    h.style.top=y+"px";
-    document.body.appendChild(h);
-    registerLike();
-    publishTapTap();
-    setTimeout(()=>{ if(h.parentNode) h.parentNode.removeChild(h); }, 1700);
-  }
-
-  document.addEventListener("click", function(e){
-    if (e.target.closest && (
-      e.target.closest("#bottomBar") ||
-      e.target.closest("#nameOverlay") ||
-      e.target.closest("#pinOverlay") ||
-      e.target.closest("#loveOverlay") ||
-      e.target.closest("#requestOverlay") ||
-      e.target.closest("#controls") ||
-      e.target.closest("#fansActions") ||
-      e.target.closest("#presenceOverlay") ||
-      e.target.closest("#presenceBtn")
-    )) return;
-
-    var tag=(e.target.tagName||"").toLowerCase();
-    if(tag==="button" || tag==="input" || tag==="iframe") return;
-
-    spawnHeartAt(e.clientX, e.clientY);
-  }, true);
-
-  /* ======== Admin commands ======== */
-  async function resetTopFans() {
-    try {
-      if(!likesRef || !messagesRef || !db) return;
-      const snap = await likesRef.get();
-      const batch = db.batch();
-      snap.forEach((doc) => batch.delete(doc.ref));
-      await batch.commit();
-
-      await messagesRef.add({
-        usuario: "Sistema",
-        mensaje: "✅ TOP FANS reiniciado por Coravox.",
-        rol: "system",
-        tipo: "system",
-        creado: firebase.firestore.FieldValue.serverTimestamp()
-      });
-    } catch (err) {
-      console.log("resetfans error:", err);
-    }
-  }
-
-  async function clearChat() {
-    try {
-      if(!messagesRef || !db) return;
-      const snap = await messagesRef.get();
-      const batch = db.batch();
-      snap.forEach((doc) => batch.delete(doc.ref));
-      await batch.commit();
-
-      await messagesRef.add({
-        usuario: "Sistema",
-        mensaje: "🧹 Chat limpiado por Coravox.",
-        rol: "system",
-        tipo: "system",
-        creado: firebase.firestore.FieldValue.serverTimestamp()
-      });
-    } catch (err) {
-      console.log("clearchat error:", err);
-    }
-  }
-
-  async function sendMessage(){
-    var t = (chatInput.value || "").trim();
-    if (!t) return;
-
-    if (isAdmin) {
-      var lower = t.toLowerCase();
-      if (lower === "resetfans" || lower === "/resetfans") {
-        chatInput.value = "";
-        await resetTopFans();
-        return;
-      }
-      if (lower === "clearchat" || lower === "/clearchat") {
-        chatInput.value = "";
-        await clearChat();
-        return;
-      }
-    }
-
-    chatInput.value = "";
-    if(!messagesRef) return;
-
-    messagesRef.add({
-      usuario: nickname || "Oyente",
-      mensaje: t,
-      rol: isAdmin ? "admin" : "user",
-      tipo: "mensaje",
-      creado: firebase.firestore.FieldValue.serverTimestamp()
-    });
-  }
-
-  chatSend.addEventListener("click", function(e){ e.preventDefault(); sendMessage(); });
-  chatInput.addEventListener("keydown", function(e){ if(e.key==="Enter"){ e.preventDefault(); sendMessage(); } });
-
-  /* ======== Botones ======== */
-  btnWA.addEventListener("click", function(){
-    var text="🔥 Descarga Radio Coravox:\n"+PLAY_STORE_URL;
-    window.location.href="https://wa.me/?text="+encodeURIComponent(text);
-  });
-  btnFB.addEventListener("click", function(){
-    window.location.href="https://www.facebook.com/sharer/sharer.php?u="+encodeURIComponent(PLAY_STORE_URL);
-  });
-
-  btnGift.addEventListener("click", function(){
-    loveOverlay.style.display="flex";
-  });
-
-  superFansBtn.addEventListener("click", function(){
-    window.location.href = SUPER_FANS_URL;
-  });
-
-  /* ======== Pagos ======== */
-  function copyToClipboardWebView(text, okMsg){
-    try{
-      var ta=document.createElement("textarea");
-      ta.value=text;
-      ta.setAttribute("readonly","");
-      ta.style.position="fixed";
-      ta.style.left="-9999px";
-      ta.style.top="0";
-      ta.style.opacity="0";
-      document.body.appendChild(ta);
-      ta.focus(); ta.select();
-      var ok=false;
-      try{ ok=document.execCommand("copy"); }catch(e){ ok=false; }
-      document.body.removeChild(ta);
-      if(ok) alert(okMsg);
-      else prompt("Copia manualmente:", text);
-    }catch(e){
-      prompt("Copia manualmente:", text);
-    }
-  }
-
-  payPaypal.addEventListener("click", function(e){
-    e.preventDefault(); e.stopPropagation();
-    window.location.href = DONATE_URL;
-  }, true);
-
-  payCashApp.addEventListener("click", function(e){
-    e.preventDefault(); e.stopPropagation();
-    window.location.href = CASHAPP_URL;
-  }, true);
-
-  payZelle.addEventListener("click", function(e){
-    e.preventDefault(); e.stopPropagation();
-    copyToClipboardWebView(ZELLE_EMAIL, "💙 Correo Zelle copiado:\n" + ZELLE_EMAIL);
-  }, true);
-
-  payBtc.addEventListener("click", function(e){
-    e.preventDefault(); e.stopPropagation();
-    copyToClipboardWebView(BTC_ADDRESS, "🧡 Dirección Bitcoin copiada:\n" + BTC_ADDRESS);
-  }, true);
-
-  closeLove.addEventListener("click", function(){
-    loveOverlay.style.display="none";
-  });
-  loveOverlay.addEventListener("click", function(e){
-    if(e.target && e.target.id==="loveOverlay") loveOverlay.style.display="none";
-  });
-
-  /* ======== Globos arriba (DESDE FIRESTORE) ======== */
-  var adVariants = ["variant-gold","variant-blue","variant-pink"];
-
-  var adsEnabledLocal = true;
-  var adsIntervalMs = 20000;
-  var adsMessagesLocal = [];
-  var adsTimer = null;
-  var adsIndex = 0;
-
-  function showAdBubble(){
-    if(!adsEnabledLocal) return;
-    if(!adsMessagesLocal.length) return;
-
-    var msg = adsMessagesLocal[adsIndex % adsMessagesLocal.length];
-    adsIndex++;
-
-    var variant = adVariants[Math.floor(Math.random()*adVariants.length)];
-    var b = document.createElement("div");
-    b.className = "adBubble " + variant;
-    b.textContent = msg;
-
-    var left = Math.floor(Math.random()*(Math.max(40, window.innerWidth-280))) + 20;
-    var top  = Math.floor(Math.random()*60) + 20;
-
-    b.style.left = left + "px";
-    b.style.top  = top + "px";
-
-    document.body.appendChild(b);
-
-    setTimeout(()=>b.classList.add("adBubble-show"), 60);
-    setTimeout(()=>b.classList.add("adBubble-hide"), 4600);
-    setTimeout(()=>{ if(b.parentNode) b.parentNode.removeChild(b); }, 5600);
-  }
-
-  function restartAdsTimer(){
-    if(adsTimer) clearInterval(adsTimer);
-    setTimeout(showAdBubble, 2500);
-    adsTimer = setInterval(showAdBubble, adsIntervalMs);
-  }
-
-  /* ======== TAP TAP - CORAZON RECIBIDO ======== */
-function spawnRemoteHeartAt(x, y){
-  var h = document.createElement("div");
-
-  h.className = "heart";
-  h.textContent = "❤";
-
-  h.style.left = x + "px";
-  h.style.top = y + "px";
-
-  document.body.appendChild(h);
-
-  setTimeout(function(){
-    if(h.parentNode){
-      h.parentNode.removeChild(h);
-    }
-  }, 1700);
-}
-  /* ========= INICIO REAL (cuando ya está el login anónimo) ========= */
-  function initFirestoreRealtime(){
-    // ✅ presence doc listo
-    presenceDoc = presenceRef.doc(sessionId);
-
-    // ✅ presence realtime
-    presenceRef.onSnapshot(function(snapshot) {
-      renderPresence(snapshot.docs);
-    });
-
-    // ❤️ TAP TAP RECIBIDOS EN TIEMPO REAL
-tapTapsRef.onSnapshot(function(snapshot){
-
-  snapshot.docChanges().forEach(function(change){
-
-    if(change.type !== "added") return;
-
-    var data = change.doc.data();
-
-    // No mostrar nuestro propio Tap Tap
-    if(data.senderId === firebase.auth().currentUser.uid){
-      return;
-    }
-
-    var x = window.innerWidth * (0.20 + Math.random() * 0.60);
-    var y = window.innerHeight * (0.20 + Math.random() * 0.50);
-
-    spawnRemoteHeartAt(x, y);
-
-  });
- });
-    
-    // ✅ top fans realtime
-    likesRef.orderBy("likes","desc").limit(10).onSnapshot(function(snapshot){
-      likeRankingBox.innerHTML="";
-      var t=document.createElement("div");
-      t.className="likeTitle";
-      t.textContent="TOP FANS ❤";
-      likeRankingBox.appendChild(t);
-
-      var idx=0;
-      snapshot.forEach(function(doc){
-        idx++;
-        var d=doc.data();
-        var row=document.createElement("div");
-        row.className="likeRow";
-        row.innerHTML="<span class='likeName'>"+idx+". "+(d.usuario||doc.id)+"</span><span class='likeCount'>"+(d.likes||0)+"</span>";
-        likeRankingBox.appendChild(row);
-      });
-    });
-
-    // ✅ chat realtime
-    messagesRef.orderBy("creado","desc").limit(40).onSnapshot(function(snapshot){
-      var arr=[];
-      snapshot.forEach(doc=>arr.push(doc.data()));
-      arr.reverse();
-      renderChat(arr);
-    });
-
-    // ✅ globos config realtime
-    cfgRef.onSnapshot(function(snap){
-      var data = snap.exists ? (snap.data()||{}) : {};
-
-      adsEnabledLocal = (data.adsEnabled === true);
-      var sec = Number(data.adsIntervalSec || 20);
-      if(!sec || sec < 5) sec = 20;
-      adsIntervalMs = sec * 1000;
-
-      adsMessagesLocal = Array.isArray(data.adsMessages) ? data.adsMessages.slice() : [];
-
-      if(!adsEnabledLocal){
-        if(adsTimer) clearInterval(adsTimer);
-        adsTimer = null;
-        return;
-      }
-      restartAdsTimer();
-    });
-
-    // ✅ pings
-    setTimeout(pingPresence, 800);
-    setInterval(pingPresence, PRESENCE_PING_MS);
-
-    // ✅ si ya había nickname guardado, manda join UNA VEZ
-    try{
-      var stored = localStorage.getItem("rcx_nickname");
-      if(stored){
-        sendJoinMessage(stored);
-      }
-    }catch(e){}
-  }
-
-  // ✅ Login anónimo primero, luego refs, luego init
-  auth.onAuthStateChanged(function(user){
-    if(!user) return;
-
-    db = firebase.firestore();
-    messagesRef = db.collection("mensajes-chat");
-    likesRef    = db.collection("likes-ranking");
-    tapTapsRef = db.collection("tap-taps");
-    presenceRef = db.collection("presence");
-    cfgRef      = db.collection("config").doc("global");
-
-    initFirestoreRealtime();
-  });
-
-  auth.signInAnonymously().catch(function(e){
-    console.log("auth anon error", e);
-    alert("Error login anónimo: " + (e.message || e));
-  });
-
-  // Abrir el modal
-document.getElementById("btnSpotify").onclick = () => {
-    document.getElementById("modalSpotify").style.display = 'flex';
-};
-
-// Enviar el pedido a Firebase
-document.getElementById("btnEnviarSpotify").onclick = () => {
-    let cancion = document.getElementById("inputCancion").value.trim();
-    if(cancion) {
-        // Usamos tu base de datos actual
-        db.collection("pedidos_spotify").add({
-            cancion: cancion,
-            oyente: nickname, // Tu variable de nombre actual
-            atendido: false,
-            fecha: firebase.firestore.FieldValue.serverTimestamp()
-        }).then(() => {
-            alert("¡Pedido enviado!");
-            document.getElementById("modalSpotify").style.display = 'none';
-            document.getElementById("inputCancion").value = "";
-        });
-    }
-};
-
-
-</script>
-
-<img src="LOCUTOR.png" style="position: fixed; bottom: 59%; left: 3%; width: 70px; z-index: 9999; pointer-events: none; filter: drop-shadow(0px 0px 8px rgba(245,200,91,0.6));">
-<img src="LOCUTURA.png" style="position: fixed; bottom: 59%; right: 3%; width: 70px; z-index: 9999; pointer-events: none; filter: drop-shadow(0px 0px 8px rgba(245,200,91,0.6));">
-
-
-  
 </body>
 </html>
+
+
+
