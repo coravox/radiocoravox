@@ -28,10 +28,10 @@ El repositorio usa runners macOS estándar de GitHub Actions. Como el repositori
 
 1. En GitHub abre **Settings → Actions → General** y confirma que Actions esté habilitado.
 2. Sube los cambios únicamente a `ios/wkwebview-native-playback`.
-3. El workflow `.github/workflows/ios-build.yml` se ejecuta al cambiar los archivos iOS. También puedes abrir **Actions → iOS simulator build → Run workflow** y seleccionar esa rama.
+3. El workflow `.github/workflows/ios-build.yml` compila automáticamente cada push a esa rama. Para repetir el build sin editar archivos, desde Windows puedes crear un commit vacío: `git commit --allow-empty -m "Rebuild iOS simulator"` y luego `git push origin ios/wkwebview-native-playback`.
 4. El build compila para simulador sin firma y publica el `.app` como artefacto durante 7 días. Este artefacto sirve para confirmar compilación y no se puede instalar directamente en un iPhone.
 
-El workflow de distribución `.github/workflows/ios-testflight.yml` se ejecuta manualmente y exporta un IPA firmado. Sus secretos sólo se consultan en el entorno GitHub `ios-distribution`; el workflow no se ejecuta desde `main` y no imprime esos valores.
+El workflow `.github/workflows/ios-testflight.yml` sólo firma cuando el mensaje de un commit en la rama iOS incluye `[ios-ipa]` o `[testflight]`. GitHub sólo permite `workflow_dispatch` cuando el workflow está en la rama predeterminada; como este trabajo no debe entrar en `main`, uso el mensaje de commit para mantener el control en la rama iOS. Los secretos sólo se consultan al crear un IPA y no se imprimen.
 
 ## Firma segura y generación del IPA para TestFlight
 
@@ -57,7 +57,7 @@ Secrets del entorno:
 
 La codificación Base64 no cifra los archivos; guárdalos sólo como GitHub Environment Secrets. No los pegues en el YAML ni en archivos de configuración. El workflow crea un llavero temporal en el runner, instala la identidad de firma y el perfil, archiva la app, exporta el IPA y destruye el runner al finalizar.
 
-Para generar el IPA, abre **Actions → iOS signed IPA for TestFlight → Run workflow**, selecciona la rama iOS y deja `upload_to_testflight` desactivado para obtener sólo el artefacto. Actívalo cuando hayas añadido la clave API de App Store Connect y quieras que el mismo workflow suba el build a TestFlight.
+Para generar un IPA sin subirlo, haz un commit en la rama iOS cuyo mensaje incluya `[ios-ipa]`; el IPA firmado quedará como artefacto de GitHub. Para subir también a TestFlight, usa `[testflight]` en el mensaje; el workflow requiere además los secretos de la clave API de App Store Connect. No uses esos marcadores hasta que el entorno esté configurado.
 
 ## Instalar y probar en iPhone
 

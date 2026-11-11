@@ -1,20 +1,16 @@
 name: iOS signed IPA for TestFlight
 
 on:
-  workflow_dispatch:
-    inputs:
-      upload_to_testflight:
-        description: Upload the exported IPA to App Store Connect after export
-        required: true
-        type: boolean
-        default: false
+  push:
+    branches:
+      - ios/wkwebview-native-playback
 
 permissions:
   contents: read
 
 jobs:
   archive:
-    if: github.ref == 'refs/heads/ios/wkwebview-native-playback'
+    if: github.ref == 'refs/heads/ios/wkwebview-native-playback' && (contains(github.event.head_commit.message, '[ios-ipa]') || contains(github.event.head_commit.message, '[testflight]'))
     environment: ios-distribution
     runs-on: macos-26
     steps:
@@ -97,7 +93,7 @@ jobs:
           retention-days: 14
 
       - name: Upload build to TestFlight
-        if: ${{ inputs.upload_to_testflight }}
+        if: contains(github.event.head_commit.message, '[testflight]')
         env:
           API_KEY_ID: ${{ secrets.APP_STORE_CONNECT_API_KEY_ID }}
           API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}

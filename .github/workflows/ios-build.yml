@@ -4,10 +4,6 @@ on:
   push:
     branches:
       - ios/wkwebview-native-playback
-    paths:
-      - "RadioCoravox-iOS/**"
-      - ".github/workflows/ios-build.yml"
-  workflow_dispatch:
 
 permissions:
   contents: read
