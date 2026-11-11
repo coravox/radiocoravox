@@ -1,36 +1,86 @@
 # Radio Coravox para iOS
 
-Proyecto iOS independiente en Swift + WKWebView. La interfaz y el cliente web se toman de la rama `main` del repositorio `coravox/radiocoravox`; el fondo faltante en la raíz web se incorpora desde los recursos Android locales. La aplicación Android no se modifica.
+Proyecto iOS independiente para la rama `ios/wkwebview-native-playback`. Swift y WKWebView reutilizan la interfaz web, los recursos y los servicios existentes. El proyecto Android y la configuración compartida de Firebase quedan fuera de esta carpeta.
 
-## Funciones preparadas
+## Requisitos y estado
 
-- WKWebView carga recursos locales empaquetados y conserva las conexiones web a Firebase, streaming, chat, TapTap, Top Fans, pedidos y saludos.
-- Swift usa AVPlayer para el stream y mantiene la reproducción en segundo plano con AVAudioSession.
-- La pantalla bloqueada recibe título/artist de la API now-playing y los controles de reproducir/pausar se registran con MPRemoteCommandCenter.
-- La app intenta reconectar el stream con espera exponencial cuando AVPlayer informa una interrupción o error.
-- El diseño web existente usa viewport y safe areas; objetivo configurado para iPhone y iPad.
+- Xcode 26 o posterior para generar binarios aceptados por App Store Connect. El proyecto tiene iOS 15 como versión mínima y destino universal para iPhone/iPad.
+- No hay dependencias Swift Package Manager. El cliente web conserva el SDK Firebase 8.10.1 que carga desde Google CDN.
+- En iOS, `AVAudioRecorder` graba los saludos como WAV PCM mono, 22.05 kHz y 16 bits. La web convierte los bytes en `audio/wav` y conserva la subida existente a Firebase Storage (`saludos/{uid}/slot-{0-2}.wav`) con autenticación anónima y metadatos actuales.
+- La página conserva un grabador `getUserMedia` como alternativa para navegador; WKWebView iOS usa el grabador nativo para no depender de `file://`.
+- El App Store URL está vacío deliberadamente en `Info.plist` (`CoravoxAppStoreURL`). El botón muestra “App Store: enlace pendiente” hasta que se publique la ficha. Android sigue usando el enlace oficial de Google Play en sus propios archivos.
+- El icono universal de 1024×1024 está en `Assets.xcassets/AppIcon.appiconset` y se construye desde el logotipo oficial sobre fondo opaco.
 
-## Compilar en una Mac
+## Abrir y ejecutar en una Mac
 
-1. Copia esta carpeta a una Mac compatible con Xcode 26 o posterior. Para subir a App Store Connect, Apple exige Xcode 26 o posterior y un SDK de iOS 26; el Xcode estable más reciente listado al preparar esta guía es Xcode 27.2. Revisa los [requisitos de sistema de Xcode](https://developer.apple.com/xcode/system-requirements/) antes de elegir la versión y macOS.
+1. Descarga el repositorio y cambia a `ios/wkwebview-native-playback`.
 2. Abre `RadioCoravox/RadioCoravox.xcodeproj`.
-3. Selecciona el target RadioCoravox y cambia el Bundle Identifier provisional `com.radiocoravox.ios` por uno propiedad de tu equipo.
-4. Selecciona tu Team en Signing & Capabilities y deja activado Automatically manage signing.
-5. Conecta un iPhone, selecciónalo como destino y pulsa Run. Para el simulador se puede usar cualquier iPhone simulator instalado.
-6. En el dispositivo, concede el permiso de micrófono cuando pruebes los saludos. El audio de fondo está declarado en Info.plist con UIBackgroundModes = audio.
-7. Prueba streaming, lock screen, llamadas/interrupciones, reconexión, metadata, chat, TapTap, ranking, pedidos, saludos, rotación y iPad antes de distribuir.
+3. Selecciona el esquema compartido `RadioCoravox` y el destino de iPhone o iPad.
+4. Para instalar en un dispositivo conectado, inicia sesión en Xcode con tu Apple Account, asigna un Team en **Signing & Capabilities**, y cambia el Bundle Identifier provisional `com.radiocoravox.ios` por un identificador que controles.
+5. Conecta y confía en el iPhone; activa **Developer Mode** cuando iOS lo solicite y pulsa **Run**.
+6. Prueba el micrófono aceptando el permiso del sistema. Comprueba grabación, reproducción previa, subida, audio en segundo plano, pantalla bloqueada, llamadas/interrupciones, reconexión y orientación.
 
-El proyecto tiene iOS 15 como mínimo y no requiere dependencias externas de Swift Package Manager. Los SDK web de Firebase los carga el propio cliente web existente. Todavía no incluye un catálogo de icono de app (`AppIcon`), que habrá que añadir antes de distribuir.
+Una cuenta Apple gratuita permite ejecutar una compilación de desarrollo en tus propios dispositivos. TestFlight y App Store requieren una membresía Apple Developer Program activa.
 
-## Preparar TestFlight y App Store
+## Compilación remota gratuita con GitHub Actions
 
-- Registrar el Bundle ID y el equipo de firma en Apple Developer.
-- Verificar privacidad, política de privacidad, derechos del streaming, descripciones y capturas en App Store Connect.
-- Probar grabación y permisos en hardware real, incluyendo consentimiento de micrófono.
-- Revisar con el equipo de Firebase si desean añadir un registro de app iOS al proyecto actual; este scaffold mantiene el cliente web y no cambia Firebase.
-- En Xcode, Archive, distribuir a App Store Connect y completar la revisión de TestFlight/App Store.
+El repositorio usa runners macOS estándar de GitHub Actions. Como el repositorio es público, los builds estándar de macOS son gratuitos. No hace falta añadir una tarjeta, contratar Codemagic ni guardar claves para la compilación del simulador.
 
-## Limitaciones conocidas de esta primera estructura
+1. En GitHub abre **Settings → Actions → General** y confirma que Actions esté habilitado.
+2. Sube los cambios únicamente a `ios/wkwebview-native-playback`.
+3. El workflow `.github/workflows/ios-build.yml` se ejecuta al cambiar los archivos iOS. También puedes abrir **Actions → iOS simulator build → Run workflow** y seleccionar esa rama.
+4. El build compila para simulador sin firma y publica el `.app` como artefacto durante 7 días. Este artefacto sirve para confirmar compilación y no se puede instalar directamente en un iPhone.
 
-Windows no incluye Xcode ni el SDK de iOS: desde este equipo se pueden editar y versionar los archivos, pero la compilación y pruebas en iPhone requieren Mac con Xcode o un runner Mac compatible. La grabación de voz desde WebKit cargado desde archivos locales debe confirmarse en dispositivo; si WebKit no autoriza `getUserMedia` para el origen local, habrá que mover ese flujo a grabación nativa en Swift con subida compatible con Firebase Storage. El proyecto aún necesita una compilación y prueba física antes de considerarlo funcional o listo para publicación.
+El workflow de distribución `.github/workflows/ios-testflight.yml` se ejecuta manualmente y exporta un IPA firmado. Sus secretos sólo se consultan en el entorno GitHub `ios-distribution`; el workflow no se ejecuta desde `main` y no imprime esos valores.
 
+## Firma segura y generación del IPA para TestFlight
+
+Antes de usar el workflow de distribución necesitas:
+
+1. Membresía Apple Developer Program, App ID y ficha creada en App Store Connect con el mismo Bundle Identifier.
+2. Certificado **Apple Distribution** exportado como `.p12` con contraseña y perfil de aprovisionamiento **App Store Connect** coincidente.
+3. En **GitHub → Settings → Environments**, crea el entorno `ios-distribution` y limita sus despliegues a la rama `ios/wkwebview-native-playback`.
+4. Añade al entorno las siguientes variables y secretos. Nunca subas certificados, perfiles, archivos `.p8`, contraseñas o claves al repositorio.
+
+Variables del entorno:
+
+- `IOS_TEAM_ID`: Team ID de Apple.
+- `IOS_BUNDLE_ID`: identificador de paquete registrado.
+
+Secrets del entorno:
+
+- `IOS_CERTIFICATE_P12_BASE64`: contenido del certificado `.p12` codificado en Base64.
+- `IOS_CERTIFICATE_PASSWORD`: contraseña del `.p12`.
+- `IOS_PROVISIONING_PROFILE_BASE64`: perfil `.mobileprovision` codificado en Base64.
+- `IOS_KEYCHAIN_PASSWORD`: contraseña aleatoria para el llavero temporal del runner.
+- Para enviar el IPA automáticamente a TestFlight: `APP_STORE_CONNECT_API_KEY_ID`, `APP_STORE_CONNECT_ISSUER_ID` y `APP_STORE_CONNECT_API_KEY_P8_BASE64` (clave API `.p8` codificada en Base64, con permisos mínimos necesarios).
+
+La codificación Base64 no cifra los archivos; guárdalos sólo como GitHub Environment Secrets. No los pegues en el YAML ni en archivos de configuración. El workflow crea un llavero temporal en el runner, instala la identidad de firma y el perfil, archiva la app, exporta el IPA y destruye el runner al finalizar.
+
+Para generar el IPA, abre **Actions → iOS signed IPA for TestFlight → Run workflow**, selecciona la rama iOS y deja `upload_to_testflight` desactivado para obtener sólo el artefacto. Actívalo cuando hayas añadido la clave API de App Store Connect y quieras que el mismo workflow suba el build a TestFlight.
+
+## Instalar y probar en iPhone
+
+La vía recomendada sin una Mac propia es TestFlight:
+
+1. Ejecuta el workflow firmado con `upload_to_testflight` activado.
+2. Espera a que Apple procese el build en App Store Connect y habilita el grupo de testers.
+3. Instala TestFlight desde App Store en el iPhone, acepta la invitación y pulsa **Instalar** en la versión de Radio Coravox.
+4. Prueba audio con pantalla bloqueada, controles de reproducción, interrupciones, reconexión, metadata, chat, TapTap, Top Fans, Club de Fans, pedidos y saludos con micrófono.
+
+Un IPA exportado para App Store Connect no se instala tocándolo en el iPhone: se instala a través de TestFlight. La instalación directa fuera de TestFlight requiere un perfil de desarrollo/Ad Hoc, dispositivo registrado y firma compatible; no está configurada en este workflow.
+
+## Enlaces de tienda
+
+La página web determina el destino según la plataforma. iOS lee `CoravoxAppStoreURL` de `Info.plist`, actualmente vacío, y deshabilita la copia del enlace hasta que la ficha exista. Tras publicar la app, coloca en esa clave la URL real de App Store; no hace falta cambiar el enlace Google Play de Android.
+
+## Seguridad y Firebase
+
+- El workflow básico sólo recibe permiso `contents: read` y no accede a secretos.
+- El workflow firmado se activa manualmente y sólo en la rama iOS. Los secretos se alojan en el entorno `ios-distribution`.
+- El código web incluye la configuración cliente Firebase existente. La API key cliente no es una contraseña de servidor; las reglas Firestore/Storage son las que deben limitar operaciones. Este proyecto no contiene credenciales de cuenta de servicio, claves privadas Firebase ni cambios a reglas/configuración compartida.
+- No guardes certificados Apple ni claves de App Store Connect en Git, issues, logs o artefactos. Rota cualquier secreto que se haya expuesto accidentalmente.
+
+## Limitaciones conocidas
+
+Windows puede editar y subir el código; no puede ejecutar Xcode ni probar el micrófono o el audio de fondo. El simulador remoto comprueba compilación, pero la grabación de voz, la reproducción bloqueada, el comportamiento real de Firebase y TestFlight requieren una prueba en iPhone físico. La URL de App Store, el Bundle Identifier final, la firma Apple y sus secretos aún deben configurarse por el propietario de la cuenta.

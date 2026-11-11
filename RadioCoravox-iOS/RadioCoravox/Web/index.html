@@ -1101,6 +1101,21 @@
     }
     .likeName{ flex:1 1 auto; min-width:0; max-width:none; }
     .likeCount{ flex:0 0 auto; margin-left:4px; }
+
+    /* En iPad mantiene los paneles legibles y centrados en vez de estirarlos de borde a borde. */
+    @media (min-width:700px){
+      #belowZone{ left:50%; right:auto; width:min(92vw,960px); transform:translateX(-50%); }
+      #bottomBar{ left:50%; right:auto; width:min(96vw,960px); transform:translateX(-50%); }
+    }
+
+    /* En teléfonos apaisados conserva espacio para chat, controles y campo de mensaje. */
+    @media (orientation:landscape) and (max-height:520px){
+      :root{ --studio-h:clamp(150px,54vh,230px); }
+      #center{ top:calc(2px + var(--safe-t)); }
+      #controls{ bottom:34px; }
+      #belowZone{ top:56%; bottom:21%; }
+      #bottomBar{ top:81%; bottom:auto; height:12vh; padding-bottom:calc(4px + var(--safe-b)); }
+    }
   </style>
 </head>
 

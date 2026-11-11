@@ -12,6 +12,10 @@
 
   var PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.radiocoravox.app";
 
+  function currentStoreURL(){
+    return window.CoravoxPlatform === "ios" ? String(window.CoravoxAppStoreURL || "").trim() : PLAY_STORE_URL;
+  }
+
   /* ======== Firebase (ARREGLADO) ======== */
   var firebaseConfig = {
     apiKey: "AIzaSyC8jq2iODj6DwfTSktgZ7ia84oeMxxPjNE",
@@ -598,10 +602,16 @@ function publishTapTap(){
   }
 
   function shareInvitationText(){
+    var storeURL = currentStoreURL();
+    var storeName = window.CoravoxPlatform === "ios" ? "App Store" : "Google Play";
     return "❤️📻 ¡Te invito a escuchar Radio Coravox!\n\n"+
       "🎶 Música romántica, rancheras y banda para acompañarte dondequiera que estés.\n\n"+
-      "📲 Descarga nuestra aplicación gratis en Google Play:\n"+PLAY_STORE_URL;
+      (storeURL ? "📲 Descarga nuestra aplicación en "+storeName+":\n"+storeURL : "📲 Radio Coravox para iPhone estará disponible en App Store próximamente.");
   }
+
+  shareCopyButton.textContent = window.CoravoxPlatform === "ios" ?
+    (currentStoreURL() ? "Abrir App Store" : "App Store: enlace pendiente") : "Copiar enlace de Google Play";
+  shareCopyButton.disabled = window.CoravoxPlatform === "ios" && !currentStoreURL();
 
   btnShare.addEventListener("click", function(){
     shareStatus.textContent="";
@@ -623,7 +633,7 @@ function publishTapTap(){
     var invitation=shareInvitationText();
     if(window.CoravoxPlayback && typeof window.CoravoxPlayback.shareApp==="function"){
       shareStatus.textContent="Elige una aplicación en el menú de compartir.";
-      if(!window.CoravoxPlayback.shareApp(eventId)){
+      if(!window.CoravoxPlayback.shareApp(eventId, invitation)){
         shareStatus.textContent="No se pudo abrir el selector de aplicaciones.";
       }
       return;
@@ -638,12 +648,25 @@ function publishTapTap(){
   });
 
   async function copyStoreLink(){
+    var storeURL = currentStoreURL();
+    if(!storeURL){
+      shareStatus.textContent="El enlace de App Store se añadirá cuando la aplicación esté publicada.";
+      return;
+    }
+    if(window.CoravoxPlatform === "ios"){
+      if(window.CoravoxPlayback && window.CoravoxPlayback.openStore){
+        window.CoravoxPlayback.openStore(storeURL);
+      } else {
+        window.location.assign(storeURL);
+      }
+      return;
+    }
     try{
       if(navigator.clipboard && navigator.clipboard.writeText){
-        await navigator.clipboard.writeText(PLAY_STORE_URL);
+        await navigator.clipboard.writeText(storeURL);
       } else {
         var temporaryInput=document.createElement("textarea");
-        temporaryInput.value=PLAY_STORE_URL;
+        temporaryInput.value=storeURL;
         temporaryInput.setAttribute("readonly", "");
         temporaryInput.style.position="fixed";
         temporaryInput.style.opacity="0";
@@ -1182,6 +1205,7 @@ document.getElementById("btnEnviarSpotify").onclick = () => {
   var sendButton = document.getElementById('coravoxGreetingSend');
   var stream = null, context = null, source = null, processor = null, mute = null;
   var chunks = [], timer = null, startedAt = 0, recordedBlob = null, previewUrl = null;
+  var nativeRecorderPending = false, nativeRecorderActive = false;
   var MAX_SECONDS = 30, SAMPLE_RATE = 22050;
 
   function setStatus(text, error) { status.textContent = text; status.style.color = error ? '#ff8d8d' : '#f5c85b'; }
@@ -1218,8 +1242,15 @@ document.getElementById("btnEnviarSpotify").onclick = () => {
     return new Blob([buffer], { type: 'audio/wav' });
   }
   async function stopRecording() {
-    if (!processor) return;
     clearTimeout(timer); timer = null;
+    if (nativeRecorderPending || nativeRecorderActive) {
+      nativeRecorderPending = false;
+      nativeRecorderActive = false;
+      if (window.CoravoxPlayback && window.CoravoxPlayback.endGreetingRecording) window.CoravoxPlayback.endGreetingRecording();
+      setStatus('Preparando el saludo grabado…');
+      return;
+    }
+    if (!processor) return;
     processor.onaudioprocess = null;
     try { processor.disconnect(); source.disconnect(); mute.disconnect(); } catch (_) {}
     if (stream) stream.getTracks().forEach(function(track) { track.stop(); });
@@ -1234,6 +1265,13 @@ document.getElementById("btnEnviarSpotify").onclick = () => {
   }
   async function startRecording() {
     clearPreview(); chunks = [];
+    if (window.CoravoxPlayback && window.CoravoxPlayback.nativeGreetingRecording) {
+      nativeRecorderPending = true;
+      recordButton.disabled = true;
+      setStatus('Solicitando acceso al micrófono…');
+      window.CoravoxPlayback.beginGreetingRecording();
+      return;
+    }
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.AudioContext && !window.webkitAudioContext) {
       setStatus('Este dispositivo no permite grabar desde la app. Actualiza el sistema o prueba desde un dispositivo compatible.', true); return;
     }
@@ -1277,6 +1315,46 @@ document.getElementById("btnEnviarSpotify").onclick = () => {
       setStatus('El sistema abrió el micrófono, pero no pudo iniciar la grabación (' + processorError + ').', true);
     }
   }
+
+  window.coravoxNativeGreetingStarted = function(success, message){
+    nativeRecorderPending = false;
+    if(!success){
+      nativeRecorderActive = false;
+      recordButton.disabled = false;
+      setStatus(message || 'No se pudo iniciar la grabación.', true);
+      return;
+    }
+    nativeRecorderActive = true;
+    recordButton.style.display = 'none'; recordButton.disabled = false;
+    stopButton.style.display = 'block';
+    setStatus('Grabando… '+MAX_SECONDS+' segundos como máximo.');
+    timer = setTimeout(stopRecording, MAX_SECONDS * 1000);
+  };
+
+  window.coravoxNativeGreetingFinished = function(audioBase64, error){
+    clearTimeout(timer); timer = null;
+    nativeRecorderPending = false; nativeRecorderActive = false;
+    stopButton.style.display = 'none';
+    if(error || !audioBase64){
+      recordButton.style.display = 'block'; recordButton.disabled = false;
+      setStatus(error || 'No se pudo guardar el saludo.', true);
+      return;
+    }
+    try{
+      var binary = atob(audioBase64), bytes = new Uint8Array(binary.length);
+      for(var i=0;i<binary.length;i++) bytes[i] = binary.charCodeAt(i);
+      recordedBlob = new Blob([bytes], {type:'audio/wav'});
+      previewUrl = URL.createObjectURL(recordedBlob);
+      preview.src = previewUrl; preview.style.display = 'block';
+      recordButton.style.display = 'none';
+      againButton.style.display = 'block';
+      sendButton.style.display = 'block'; sendButton.disabled = false; sendButton.style.opacity = '1';
+      setStatus('Grabación lista. Escúchala antes de enviarla.');
+    }catch(decodeError){
+      recordButton.style.display = 'block'; recordButton.disabled = false;
+      setStatus('No se pudo preparar el archivo de audio.', true);
+    }
+  };
   async function signedInUser() {
     if (firebase.auth().currentUser) return firebase.auth().currentUser;
     var result = await firebase.auth().signInAnonymously();
@@ -1328,9 +1406,9 @@ document.getElementById("btnEnviarSpotify").onclick = () => {
   stopButton.addEventListener('click', stopRecording);
   againButton.addEventListener('click', function() { clearPreview(); recordButton.style.display = 'block'; recordButton.disabled = false; againButton.disabled = false; setStatus('Graba un nuevo saludo cuando estés listo.'); });
   sendButton.addEventListener('click', sendGreeting);
-  document.getElementById('coravoxGreetingClose').addEventListener('click', async function() { if (processor) await stopRecording(); clearPreview(); overlay.style.display = 'none'; });
-  overlay.addEventListener('click', async function(event) { if (event.target === overlay) { if (processor) await stopRecording(); clearPreview(); overlay.style.display = 'none'; } });
-  window.addEventListener('beforeunload', function() { if (stream) stream.getTracks().forEach(function(track) { track.stop(); }); if (previewUrl) URL.revokeObjectURL(previewUrl); });
+  document.getElementById('coravoxGreetingClose').addEventListener('click', async function() { if (processor || nativeRecorderPending || nativeRecorderActive) await stopRecording(); clearPreview(); overlay.style.display = 'none'; });
+  overlay.addEventListener('click', async function(event) { if (event.target === overlay) { if (processor || nativeRecorderPending || nativeRecorderActive) await stopRecording(); clearPreview(); overlay.style.display = 'none'; } });
+  window.addEventListener('beforeunload', function() { if (nativeRecorderPending || nativeRecorderActive) window.CoravoxPlayback.endGreetingRecording(); if (stream) stream.getTracks().forEach(function(track) { track.stop(); }); if (previewUrl) URL.revokeObjectURL(previewUrl); });
   window.__coravoxGreetingInstalled = !!(
     document.getElementById('coravoxGreetingButton') &&
     document.getElementById('coravoxGreetingOverlay') &&

@@ -18,6 +18,8 @@
   <true/>
   <key>NSMicrophoneUsageDescription</key>
   <string>Radio Coravox usa el micrófono para grabar saludos de voz que tú eliges enviar al aire.</string>
+  <key>CoravoxAppStoreURL</key>
+  <string></string>
   <key>UIBackgroundModes</key>
   <array>
     <string>audio</string>

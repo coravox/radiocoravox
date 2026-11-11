@@ -7,13 +7,21 @@ import WebKit
 final class RadioViewController: UIViewController, WKNavigationDelegate, WKScriptMessageHandler, WKUIDelegate {
     private var webView: WKWebView!
     private let radio = RadioPlayer()
+    private lazy var greetingRecorder = GreetingRecorder(
+        setRecordingMode: { [weak self] recording in self?.radio.setRecordingMode(recording) },
+        onStarted: { [weak self] success, error in self?.notifyGreetingStarted(success: success, error: error) },
+        onFinished: { [weak self] audioBase64, error in self?.notifyGreetingFinished(audioBase64: audioBase64, error: error) }
+    )
     private var currentSong = "Radio Coravox en vivo"
 
     override func loadView() {
         let controller = WKUserContentController()
         controller.add(self, name: "coravox")
+        let storeURL = Self.javascriptString(Bundle.main.object(forInfoDictionaryKey: "CoravoxAppStoreURL") as? String ?? "")
         let hook = """
         (function() {
+          window.CoravoxPlatform = 'ios';
+          window.CoravoxAppStoreURL = \(storeURL);
           function install() {
             if (window.__coravoxIOSHook) return;
             window.__coravoxIOSHook = true;
@@ -22,18 +30,23 @@ final class RadioViewController: UIViewController, WKNavigationDelegate, WKScrip
               window.webkit.messageHandlers.coravox.postMessage({type:'open', url:String(url)});
               return true;
             };
-            window.CoravoxPlayback.shareApp = function(eventId) {
-              window.webkit.messageHandlers.coravox.postMessage({type:'share', eventId:String(eventId || '')});
+            window.CoravoxPlayback.openStore = function(url) {
+              window.webkit.messageHandlers.coravox.postMessage({type:'openStore', url:String(url)});
+              return true;
+            };
+            window.CoravoxPlayback.shareApp = function(eventId, text) {
+              window.webkit.messageHandlers.coravox.postMessage({type:'share', eventId:String(eventId || ''), text:String(text || '')});
               return true;
             };
             window.CoravoxPlayback.reportShareDiagnostic = function(stage) {
               window.webkit.messageHandlers.coravox.postMessage({type:'shareDiagnostic', stage:String(stage || '')});
             };
+            window.CoravoxPlayback.nativeGreetingRecording = true;
             window.CoravoxPlayback.beginGreetingRecording = function() {
-              window.webkit.messageHandlers.coravox.postMessage({type:'micStart'});
+              window.webkit.messageHandlers.coravox.postMessage({type:'recordStart'});
             };
             window.CoravoxPlayback.endGreetingRecording = function() {
-              window.webkit.messageHandlers.coravox.postMessage({type:'micStop'});
+              window.webkit.messageHandlers.coravox.postMessage({type:'recordStop'});
             };
             document.addEventListener('click', function(event) {
               var button = event.target && event.target.closest ? event.target.closest('#btnPlay') : null;
@@ -121,14 +134,18 @@ final class RadioViewController: UIViewController, WKNavigationDelegate, WKScrip
             if radio.isPlaying { radio.pause() } else { radio.play() }
         case "open":
             if let text = body["url"] as? String, let url = URL(string: text) { openExternal(url) }
+        case "openStore":
+            if let text = body["url"] as? String, let url = URL(string: text), url.scheme == "https" {
+                UIApplication.shared.open(url)
+            }
         case "share":
-            presentShare(eventId: body["eventId"] as? String ?? "")
+            presentShare(eventId: body["eventId"] as? String ?? "", text: body["text"] as? String ?? "Escucha Radio Coravox")
         case "shareDiagnostic":
             NSLog("Radio Coravox share diagnostic: %@", body["stage"] as? String ?? "")
-        case "micStart":
-            radio.setRecordingMode(true)
-        case "micStop":
-            radio.setRecordingMode(false)
+        case "recordStart":
+            greetingRecorder.start()
+        case "recordStop":
+            greetingRecorder.stop()
         default:
             break
         }
@@ -136,8 +153,7 @@ final class RadioViewController: UIViewController, WKNavigationDelegate, WKScrip
 
     private func openExternal(_ url: URL) { present(SFSafariViewController(url: url), animated: true) }
 
-    private func presentShare(eventId: String) {
-        let text = "Escucha Radio Coravox en vivo. Música, chat y buena compañía."
+    private func presentShare(eventId: String, text: String) {
         let sheet = UIActivityViewController(activityItems: [text], applicationActivities: nil)
         sheet.completionWithItemsHandler = { [weak self] activity, completed, _, _ in
             guard completed, let activity else { return }
@@ -152,6 +168,19 @@ final class RadioViewController: UIViewController, WKNavigationDelegate, WKScrip
             popover.sourceRect = CGRect(x: webView.bounds.midX, y: webView.bounds.midY, width: 1, height: 1)
         }
         present(sheet, animated: true)
+    }
+
+    private func notifyGreetingStarted(success: Bool, error: String?) {
+        let safeError = Self.javascriptString(error ?? "")
+        let script = "window.coravoxNativeGreetingStarted && window.coravoxNativeGreetingStarted(\(success ? "true" : "false"), \(safeError));"
+        webView.evaluateJavaScript(script)
+    }
+
+    private func notifyGreetingFinished(audioBase64: String?, error: String?) {
+        let safeAudio = Self.javascriptString(audioBase64 ?? "")
+        let safeError = Self.javascriptString(error ?? "")
+        let script = "window.coravoxNativeGreetingFinished && window.coravoxNativeGreetingFinished(\(safeAudio), \(safeError));"
+        webView.evaluateJavaScript(script)
     }
 
     func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
@@ -331,6 +360,125 @@ private final class RadioPlayer {
         } else if type == .ended {
             let options = AVAudioSession.InterruptionOptions(rawValue: info[AVAudioSessionInterruptionOptionKey] as? UInt ?? 0)
             if shouldResumeAfterInterruption && options.contains(.shouldResume) { play() }
+        }
+    }
+}
+
+private final class GreetingRecorder: NSObject, AVAudioRecorderDelegate {
+    private let setRecordingMode: (Bool) -> Void
+    private let onStarted: (Bool, String?) -> Void
+    private let onFinished: (String?, String?) -> Void
+    private var recorder: AVAudioRecorder?
+    private var recordingURL: URL?
+    private var permissionRequestPending = false
+
+    init(
+        setRecordingMode: @escaping (Bool) -> Void,
+        onStarted: @escaping (Bool, String?) -> Void,
+        onFinished: @escaping (String?, String?) -> Void
+    ) {
+        self.setRecordingMode = setRecordingMode
+        self.onStarted = onStarted
+        self.onFinished = onFinished
+    }
+
+    func start() {
+        guard recorder == nil else { return }
+        let session = AVAudioSession.sharedInstance()
+        do {
+            try session.setCategory(.playAndRecord, mode: .default, options: [.defaultToSpeaker])
+            try session.setActive(true)
+        } catch {
+            onStarted(false, "No se pudo preparar el micrófono.")
+            return
+        }
+        permissionRequestPending = true
+        session.requestRecordPermission { [weak self] allowed in
+            DispatchQueue.main.async {
+                guard let self else { return }
+                guard self.permissionRequestPending else { return }
+                self.permissionRequestPending = false
+                guard allowed else {
+                    self.setRecordingMode(false)
+                    self.onStarted(false, "Permite el acceso al micrófono en Ajustes para grabar un saludo.")
+                    return
+                }
+                self.beginRecording()
+            }
+        }
+    }
+
+    private func beginRecording() {
+        let url = FileManager.default.temporaryDirectory.appendingPathComponent("coravox-greeting-\(UUID().uuidString).wav")
+        let settings: [String: Any] = [
+            AVFormatIDKey: kAudioFormatLinearPCM,
+            AVSampleRateKey: 22_050,
+            AVNumberOfChannelsKey: 1,
+            AVLinearPCMBitDepthKey: 16,
+            AVLinearPCMIsBigEndianKey: false,
+            AVLinearPCMIsFloatKey: false,
+            AVLinearPCMIsNonInterleaved: false
+        ]
+        do {
+            let audioRecorder = try AVAudioRecorder(url: url, settings: settings)
+            audioRecorder.delegate = self
+            audioRecorder.isMeteringEnabled = false
+            guard audioRecorder.prepareToRecord(), audioRecorder.record() else {
+                throw NSError(domain: "RadioCoravox.AudioRecorder", code: 1, userInfo: [NSLocalizedDescriptionKey: "No se pudo iniciar la grabación."])
+            }
+            recorder = audioRecorder
+            recordingURL = url
+            setRecordingMode(true)
+            onStarted(true, nil)
+        } catch {
+            setRecordingMode(false)
+            onStarted(false, "No se pudo iniciar la grabación de audio.")
+        }
+    }
+
+    func stop() {
+        if permissionRequestPending {
+            permissionRequestPending = false
+            setRecordingMode(false)
+            return
+        }
+        guard let currentRecorder = recorder, let url = recordingURL else { return }
+        recorder = nil
+        recordingURL = nil
+        currentRecorder.stop()
+        setRecordingMode(false)
+        deliverRecording(at: url)
+    }
+
+    func audioRecorderDidFinishRecording(_ recorder: AVAudioRecorder, successfully flag: Bool) {
+        guard self.recorder === recorder, let url = recordingURL else { return }
+        self.recorder = nil
+        recordingURL = nil
+        setRecordingMode(false)
+        if flag { deliverRecording(at: url) }
+        else {
+            try? FileManager.default.removeItem(at: url)
+            onFinished(nil, "La grabación se interrumpió antes de terminar.")
+        }
+    }
+
+    func audioRecorderEncodeErrorDidOccur(_ recorder: AVAudioRecorder, error: Error?) {
+        guard self.recorder === recorder else { return }
+        self.recorder = nil
+        let url = recordingURL
+        recordingURL = nil
+        setRecordingMode(false)
+        if let url { try? FileManager.default.removeItem(at: url) }
+        onFinished(nil, "No se pudo guardar el saludo como WAV.")
+    }
+
+    private func deliverRecording(at url: URL) {
+        defer { try? FileManager.default.removeItem(at: url) }
+        do {
+            let audioBase64 = try Data(contentsOf: url).base64EncodedString()
+            onFinished(audioBase64, nil)
+        } catch {
+            onFinished(nil, "No se pudo leer el archivo de audio grabado.")
         }
     }
 }
