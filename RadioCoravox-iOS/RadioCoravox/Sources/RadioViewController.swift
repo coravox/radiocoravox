@@ -26,10 +26,6 @@ final class RadioViewController: UIViewController, WKNavigationDelegate, WKScrip
             if (window.__coravoxIOSHook) return;
             window.__coravoxIOSHook = true;
             window.CoravoxPlayback = window.CoravoxPlayback || {};
-            window.CoravoxPlayback.openSubscription = function(url) {
-              window.webkit.messageHandlers.coravox.postMessage({type:'open', url:String(url)});
-              return true;
-            };
             window.CoravoxPlayback.openStore = function(url) {
               window.webkit.messageHandlers.coravox.postMessage({type:'openStore', url:String(url)});
               return true;
@@ -132,8 +128,6 @@ final class RadioViewController: UIViewController, WKNavigationDelegate, WKScrip
         switch type {
         case "toggle":
             if radio.isPlaying { radio.pause() } else { radio.play() }
-        case "open":
-            if let text = body["url"] as? String, let url = URL(string: text) { openExternal(url) }
         case "openStore":
             if let text = body["url"] as? String, let url = URL(string: text), url.scheme == "https" {
                 UIApplication.shared.open(url)
