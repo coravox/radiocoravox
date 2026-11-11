@@ -231,26 +231,6 @@
     /* CHAT */
     /* Los wrappers no dibujan marcos: solo sus paneles de contenido visibles. */
     #chatPanel, #rightPanel{ display:contents; }
-    #fansActions{
-      position:fixed;
-      left:5vw;
-      top:calc(10px + var(--safe-t) + var(--studio-h) - 50px);
-      width:43vw;
-      z-index:6;
-      margin:0;
-    }
-    #fansActions #superFansBtn{
-      width:100%;
-      min-height:44px;
-      padding:6px 7px;
-      border:1px solid #f5c85b;
-      border-radius:999px;
-      background:rgba(0,0,0,.76);
-      color:#ffd54f;
-      box-shadow:none;
-      font-size:12px;
-      line-height:1.15;
-    }
     #btnSpotify{
       position:fixed;
       right:5vw;
@@ -344,18 +324,6 @@
     .likeCount{ font-weight:900; }
 
     /* BOTONES BAJO TOP FANS */
-    #fansActions{
-      border-radius:0;
-      padding:0;
-      margin-bottom:8px;
-      display:block;
-      flex-direction:row;
-      align-items: center;
-      gap:14px;
-      pointer-events:auto;
-      background:transparent;
-      border:none;
-    }
 
     .pulseLink{
       border:none;
@@ -373,25 +341,6 @@
       0%{ transform:scale(1); opacity:0.85; }
       50%{ transform:scale(1.06); opacity:1; }
       100%{ transform:scale(1); opacity:0.85; }
-    }
-
-  #superFansBtn{
-     width:100%;
-     background: linear-gradient(135deg, #1e90ff, #0b63c5);
-     color:#fff;
-     font-weight:600;
-     font-size:13px;
-     border:none;
-     padding:10px;
-     border-radius:10px;
-     cursor:pointer;
-     text-align:center;
-     box-shadow:0 0 12px rgba(30,144,255,0.5);
-     animation:none;
-     transform:none;
-     transition:none;
-     -webkit-tap-highlight-color: transparent;
-     touch-action: manipulation;
     }
 
     #requestSongBtn{
@@ -451,8 +400,6 @@
       font-size:18px;
       font-weight:900;
     }
-
-    #btnGift{ background: radial-gradient(circle at top, #ffd54f, #ff7ad9); color:#000; }
     #btnName{ background: radial-gradient(circle at top, #f5c85b, #ffd54f); color:#000; font-size:16px; }
 
     /* Compartir: reemplaza los accesos individuales de Facebook y WhatsApp. */
@@ -610,7 +557,7 @@
     .adBubble-hide{ opacity:0; transform:translateY(-15px) scale(0.8); }
 
     /* Modales */
-    #loveOverlay, #requestOverlay, #nameOverlay, #pinOverlay{
+    #requestOverlay, #nameOverlay, #pinOverlay{
       position:fixed;
       inset:0;
       display:none;
@@ -620,64 +567,6 @@
       z-index:99999;
       pointer-events:auto;
     }
-    /* ===== Modal Súper Fans: añadido sobre la interfaz existente ===== */
-    #superFansOverlay{
-      position:fixed;
-      inset:0;
-      display:none;
-      align-items:center;
-      justify-content:center;
-      padding:16px;
-      background:rgba(0,0,0,.82);
-      z-index:100000;
-      pointer-events:auto;
-    }
-    #superFansModal{
-      position:relative;
-      width:min(92vw, 420px);
-      max-height:calc(100vh - 32px - var(--safe-t) - var(--safe-b));
-      overflow:auto;
-      padding:28px 22px 22px;
-      border:1px solid rgba(245,200,91,.85);
-      border-radius:20px;
-      background:linear-gradient(155deg, rgba(29,24,12,.98), rgba(0,0,0,.98) 58%);
-      color:#fff;
-      text-align:center;
-      box-shadow:0 0 28px rgba(245,200,91,.22), 0 18px 60px rgba(0,0,0,.75);
-    }
-    #superFansClose{
-      position:absolute;
-      top:8px;
-      right:10px;
-      width:38px;
-      height:38px;
-      border:1px solid rgba(245,200,91,.55);
-      border-radius:50%;
-      background:#111;
-      color:#f5c85b;
-      font-size:22px;
-      line-height:1;
-      cursor:pointer;
-    }
-    #superFansCrown{ font-size:34px; color:#f5c85b; margin-bottom:5px; }
-    #superFansTitle{ color:#f5c85b; font-size:clamp(21px, 6vw, 28px); font-weight:950; letter-spacing:.04em; }
-    #superFansSupport{ margin:12px 0 16px; font-size:16px; font-weight:750; }
-    #superFansDetails{ display:grid; gap:9px; margin:0 0 20px; font-size:15px; line-height:1.35; }
-    #superFansSubscribe{
-      width:100%;
-      min-height:54px;
-      padding:13px 14px;
-      border:1px solid #ffe08a;
-      border-radius:14px;
-      background:linear-gradient(135deg,#ffe27a,#f2b927 55%,#d89412);
-      color:#1a1200;
-      font-size:clamp(15px, 4vw, 18px);
-      font-weight:950;
-      box-shadow:0 0 17px rgba(245,200,91,.28);
-      cursor:pointer;
-    }
-    #superFansNote{ margin-top:12px; color:#e7d7ad; font-size:12px; line-height:1.4; }
-    @media (min-width:700px){ #superFansModal{ padding:34px 30px 28px; } }
     .modalBox{
       width:86%;
       max-width:360px;
@@ -931,17 +820,6 @@
     #likeRanking{ font-size:10.5px; }
     .likeTitle{ font-size:12px; margin-bottom:2px; }
     .likeRow{ margin-bottom:0; line-height:1; }
-    #fansActions{
-      left:2vw;
-      top:calc(10px + var(--safe-t) + var(--studio-h) - 5px);
-      width:46vw;
-    }
-    #fansActions #superFansBtn{
-      min-height:40px;
-      padding:5px 6px;
-      font-size:11px;
-      white-space:nowrap;
-    }
     #btnSpotify{
       right:2vw;
       top:calc(10px + var(--safe-t) + var(--studio-h) - 5px);
@@ -969,7 +847,6 @@
     :root{ --studio-h:clamp(365px, 52vh, 445px); }
     #controls{ bottom:14px; }
     #btnPlay{ width:min(58%, 210px); padding:5px 10px; font-size:13px; }
-    #fansActions{ top:calc(10px + var(--safe-t) + var(--studio-h) + 16px); }
     #btnSpotify{ top:calc(10px + var(--safe-t) + var(--studio-h) + 16px); }
     #greetingSlot{ top:calc(10px + var(--safe-t) + var(--studio-h) + 70px); }
     #belowZone{ top:calc(10px + var(--safe-t) + var(--studio-h) + 120px); }
@@ -1014,14 +891,6 @@
     #controls #songLabel{ font-size:12.5px; line-height:1.2; }
 
     /* Botones de fans y saludo alineados con los botones dibujados en la referencia. */
-    #fansActions{
-      position:fixed; left:5%; top:47.5%; width:42%; z-index:6;
-    }
-    #fansActions #superFansBtn{
-      min-height:42px; padding:4px 8px; font-size:10.5px;
-      line-height:1.08; white-space:normal; overflow-wrap:anywhere;
-      border-color:rgba(255,207,51,.95); background:rgba(0,0,0,.78);
-    }
     #btnSpotify{
       right:5%; top:47.5%; width:42% !important;
       min-height:42px; padding:4px 8px !important; font-size:10.5px;
@@ -1138,9 +1007,6 @@
 
   <div id="belowZone">
     <div id="chatPanel">
-      <div id="fansActions">
-        <button id="superFansBtn" type="button">⭐ Unete al Club de Fans (Aqui)</button>
-      </div>
       <div id="chatBox"></div>
     </div>
 
@@ -1160,7 +1026,6 @@
     <button id="chatSend" type="button">Enviar</button>
 
     <button id="btnName" class="roundBtn" type="button" title="Cambiar nombre">👤</button>
-    <button id="btnGift" class="roundBtn" type="button" title="Regalito">🎁</button>
     <button id="btnShare" type="button" title="Compartir Radio Coravox">Compartir</button>
   </div>
 
@@ -1206,40 +1071,6 @@
     <button id="pinOk" class="modalBtn" type="button">Confirmar</button>
     <div id="pinError">PIN incorrecto.</div>
   </div>
-</div>
-
-<!-- Regalito modal -->
-<div id="loveOverlay">
-  <div class="modalBox">
-    <div class="modalTitle">🎁 Enviar Regalito</div>
-    <div style="margin-top:6px;font-size:13px;color:#fff;opacity:.95">
-      Elige tu método de apoyo 💛
-    </div>
-    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
-      <button id="payPaypal" class="modalBtn" type="button" style="width:auto;padding:10px 14px">PayPal</button>
-      <button id="payCashApp" class="modalBtn" type="button" style="width:auto;padding:10px 14px">Cash App</button>
-      <button id="payZelle" class="modalBtn" type="button" style="width:auto;padding:10px 14px">Zelle (copiar)</button>
-      <button id="payBtc" class="modalBtn" type="button" style="width:auto;padding:10px 14px">Bitcoin (copiar)</button>
-      <button id="closeLove" class="modalBtn" type="button" style="width:auto;padding:10px 14px;background:#222;color:#f5c85b;border:1px solid rgba(245,200,91,.5)">Cerrar</button>
-    </div>
-  </div>
-</div>
-
-<!-- Modal Súper Fans: se superpone sin navegar ni reiniciar la radio. -->
-<div id="superFansOverlay" aria-hidden="true">
-  <section id="superFansModal" role="dialog" aria-modal="true" aria-labelledby="superFansTitle">
-    <button id="superFansClose" type="button" aria-label="Cerrar">×</button>
-    <div id="superFansCrown" aria-hidden="true">♛</div>
-    <h2 id="superFansTitle">HAZTE SÚPER FANS</h2>
-    <div id="superFansSupport">Apoya a Radio Coravox</div>
-    <div id="superFansDetails">
-      <div><strong>$1 USD al mes</strong></div>
-      <div>Cobro automático cada mes</div>
-      <div>Puedes cancelar cuando quieras</div>
-    </div>
-    <button id="superFansSubscribe" type="button">SUSCRIBIRME POR $1/MES</button>
-    <div id="superFansNote">Cobro automático · Puedes cancelar cuando quieras</div>
-  </section>
 </div>
 
 <!-- ✅ BOTÓN CONECTADOS -->
