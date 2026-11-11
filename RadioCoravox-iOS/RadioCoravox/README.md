@@ -12,7 +12,7 @@ Proyecto iOS independiente en Swift + WKWebView. La interfaz y el cliente web se
 
 ## Compilar en una Mac
 
-1. Copia esta carpeta a una Mac con Xcode 15 o posterior.
+1. Copia esta carpeta a una Mac compatible con Xcode 26 o posterior. Para subir a App Store Connect, Apple exige Xcode 26 o posterior y un SDK de iOS 26; el Xcode estable más reciente listado al preparar esta guía es Xcode 27.2. Revisa los [requisitos de sistema de Xcode](https://developer.apple.com/xcode/system-requirements/) antes de elegir la versión y macOS.
 2. Abre `RadioCoravox/RadioCoravox.xcodeproj`.
 3. Selecciona el target RadioCoravox y cambia el Bundle Identifier provisional `com.radiocoravox.ios` por uno propiedad de tu equipo.
 4. Selecciona tu Team en Signing & Capabilities y deja activado Automatically manage signing.
@@ -20,7 +20,7 @@ Proyecto iOS independiente en Swift + WKWebView. La interfaz y el cliente web se
 6. En el dispositivo, concede el permiso de micrófono cuando pruebes los saludos. El audio de fondo está declarado en Info.plist con UIBackgroundModes = audio.
 7. Prueba streaming, lock screen, llamadas/interrupciones, reconexión, metadata, chat, TapTap, ranking, pedidos, saludos, rotación y iPad antes de distribuir.
 
-El proyecto tiene iOS 15 como mínimo y no requiere dependencias externas de Swift Package Manager. Los SDK web de Firebase los carga el propio cliente web existente.
+El proyecto tiene iOS 15 como mínimo y no requiere dependencias externas de Swift Package Manager. Los SDK web de Firebase los carga el propio cliente web existente. Todavía no incluye un catálogo de icono de app (`AppIcon`), que habrá que añadir antes de distribuir.
 
 ## Preparar TestFlight y App Store
 

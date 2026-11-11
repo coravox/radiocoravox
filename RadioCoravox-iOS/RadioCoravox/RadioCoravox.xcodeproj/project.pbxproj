@@ -11,7 +11,6 @@
     100000000000000000000005 = { isa = PBXGroup; children = (100000000000000000000015, 100000000000000000000016); path = Sources; sourceTree = "<group>"; };
     100000000000000000000006 = { isa = PBXFileReference; lastKnownFileType = folder; path = Web; sourceTree = "<group>"; };
     100000000000000000000007 = { isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-    100000000000000000000008 = { isa = PBXFileReference; lastKnownFileType = wrapper.xcodeproj; path = RadioCoravox.xcodeproj; sourceTree = "<group>"; };
     100000000000000000000009 = { isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = RadioCoravox.app; sourceTree = BUILT_PRODUCTS_DIR; };
     100000000000000000000015 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
     100000000000000000000016 = { isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RadioViewController.swift; sourceTree = "<group>"; };

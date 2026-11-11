@@ -177,7 +177,7 @@ final class RadioViewController: UIViewController, WKNavigationDelegate, WKScrip
 
     @available(iOS 15.0, *)
     func webView(_ webView: WKWebView, requestMediaCapturePermissionFor origin: WKSecurityOrigin, initiatedByFrame frame: WKFrameInfo, type: WKMediaCaptureType, decisionHandler: @escaping (WKPermissionDecision) -> Void) {
-        decisionHandler(type == .microphone || type == .cameraAndMicrophone ? .grant : .deny)
+        decisionHandler(type == .microphone ? .grant : .deny)
     }
 }
 
