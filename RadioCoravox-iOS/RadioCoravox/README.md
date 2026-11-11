@@ -4,6 +4,8 @@ Proyecto iOS independiente para la rama `ios/wkwebview-native-playback`. Swift y
 
 ## Requisitos y estado
 
+- iOS no muestra opciones de colaboración económica: PayPal, Cash App, Zelle y Bitcoin están desactivados hasta confirmar que el receptor cumple los criterios de Apple para aceptar esos aportes dentro de esta app. Radio Coravox sigue gratuita, sin suscripciones, pagos ni funciones bloqueadas.
+
 - Xcode 26 o posterior para generar binarios aceptados por App Store Connect. El proyecto tiene iOS 15 como versión mínima y destino universal para iPhone/iPad.
 - No hay dependencias Swift Package Manager. El cliente web conserva el SDK Firebase 8.10.1 que carga desde Google CDN.
 - En iOS, `AVAudioRecorder` graba los saludos como WAV PCM mono, 22.05 kHz y 16 bits. La web convierte los bytes en `audio/wav` y conserva la subida existente a Firebase Storage (`saludos/{uid}/slot-{0-2}.wav`) con autenticación anónima y metadatos actuales.
