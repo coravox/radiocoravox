@@ -3,13 +3,6 @@
   var STREAM_URL = "https://a13.my-control-panel.com/listen/radio_coravox/radio.mp3";
   var META_URL   = "https://a13.my-control-panel.com/api/nowplaying/radio_coravox";
 
-  var SUPER_FANS_URL = "https://www.paypal.com/webapps/billing/plans/subscribe?plan_id=P-02N26347CY290173YNFQSTTY";
-  var DONATE_URL     = "https://www.paypal.com/donate/?hosted_button_id=7W9NHUDF5X3WG";
-
-  var CASHAPP_URL = "https://cash.app/coravox";
-  var ZELLE_EMAIL = "vis-party@hotmail.com";
-  var BTC_ADDRESS = "3QYuSZarVNTgHuo9UmPxWMmxLgeWyu9Juo";
-
   var PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=com.radiocoravox.app";
 
   function currentStoreURL(){
@@ -49,20 +42,6 @@
   var chatInput = document.getElementById("chatInput");
   var chatSend = document.getElementById("chatSend");
 
-  var superFansBtn = document.getElementById("superFansBtn");
-  var superFansOverlay = document.getElementById("superFansOverlay");
-  var superFansClose = document.getElementById("superFansClose");
-  var superFansSubscribe = document.getElementById("superFansSubscribe");
-  var superFansCheckoutPending = false;
-
-  var loveOverlay = document.getElementById("loveOverlay");
-  var closeLove = document.getElementById("closeLove");
-
-  var payPaypal = document.getElementById("payPaypal");
-  var payCashApp = document.getElementById("payCashApp");
-  var payZelle = document.getElementById("payZelle");
-  var payBtc = document.getElementById("payBtc");
-
   var btnShare = document.getElementById("btnShare");
   var shareOverlay = document.getElementById("shareOverlay");
   var shareClose = document.getElementById("shareClose");
@@ -71,7 +50,6 @@
   var shareStatus = document.getElementById("shareStatus");
   var announcedShareEvents = Object.create(null);
   var pendingShareNotices = [];
-  var btnGift = document.getElementById("btnGift");
   var btnName = document.getElementById("btnName");
 
   var nameOverlay = document.getElementById("nameOverlay");
@@ -354,10 +332,6 @@
 
   document.addEventListener("visibilitychange", function() {
     if (!document.hidden) {
-      if(superFansCheckoutPending){
-        superFansCheckoutPending = false;
-        closeSuperFansModal();
-      }
       pingPresence();
     }
   });
@@ -506,8 +480,6 @@ function publishTapTap(){
       e.target.closest("#bottomBar") ||
       e.target.closest("#nameOverlay") ||
       e.target.closest("#pinOverlay") ||
-      e.target.closest("#loveOverlay") ||
-      e.target.closest("#superFansOverlay") ||
       e.target.closest("#requestOverlay") ||
       e.target.closest("#controls") ||
       e.target.closest("#fansActions") ||
@@ -746,98 +718,6 @@ function publishTapTap(){
   window.coravoxShareLaunchFailed=function(){
     shareStatus.textContent="No se pudo abrir el selector de aplicaciones.";
   };
-
-  btnGift.addEventListener("click", function(){
-    loveOverlay.style.display="flex";
-  });
-
-  superFansBtn.addEventListener("click", function(){
-    superFansOverlay.style.display="flex";
-    superFansOverlay.setAttribute("aria-hidden", "false");
-    superFansClose.focus();
-  });
-
-  function closeSuperFansModal(){
-    superFansOverlay.style.display="none";
-    superFansOverlay.setAttribute("aria-hidden", "true");
-    superFansBtn.focus();
-  }
-  superFansClose.addEventListener("click", closeSuperFansModal);
-  superFansOverlay.addEventListener("click", function(e){
-    if(e.target === superFansOverlay) closeSuperFansModal();
-  });
-  document.addEventListener("keydown", function(e){
-    if(e.key === "Escape" && superFansOverlay.style.display === "flex"){
-      closeSuperFansModal();
-    }
-  });
-  superFansSubscribe.addEventListener("click", function(e){
-    e.preventDefault();
-    e.stopPropagation();
-    var opened = false;
-    try{
-      if(window.CoravoxPlayback && typeof window.CoravoxPlayback.openSubscription === "function" &&
-         window.CoravoxPlayback.openSubscription(SUPER_FANS_URL)) opened = true;
-    }catch(err){}
-    if(!opened){
-      var checkout = window.open(SUPER_FANS_URL, "_blank");
-      if(checkout){
-        checkout.opener = null;
-        opened = true;
-      }
-    }
-    if(opened) superFansCheckoutPending = true;
-    else setStatus("No se pudo abrir PayPal. Inténtalo de nuevo.");
-  });
-
-  /* ======== Pagos ======== */
-  function copyToClipboardWebView(text, okMsg){
-    try{
-      var ta=document.createElement("textarea");
-      ta.value=text;
-      ta.setAttribute("readonly","");
-      ta.style.position="fixed";
-      ta.style.left="-9999px";
-      ta.style.top="0";
-      ta.style.opacity="0";
-      document.body.appendChild(ta);
-      ta.focus(); ta.select();
-      var ok=false;
-      try{ ok=document.execCommand("copy"); }catch(e){ ok=false; }
-      document.body.removeChild(ta);
-      if(ok) alert(okMsg);
-      else prompt("Copia manualmente:", text);
-    }catch(e){
-      prompt("Copia manualmente:", text);
-    }
-  }
-
-  payPaypal.addEventListener("click", function(e){
-    e.preventDefault(); e.stopPropagation();
-    window.location.href = DONATE_URL;
-  }, true);
-
-  payCashApp.addEventListener("click", function(e){
-    e.preventDefault(); e.stopPropagation();
-    window.location.href = CASHAPP_URL;
-  }, true);
-
-  payZelle.addEventListener("click", function(e){
-    e.preventDefault(); e.stopPropagation();
-    copyToClipboardWebView(ZELLE_EMAIL, "💙 Correo Zelle copiado:\n" + ZELLE_EMAIL);
-  }, true);
-
-  payBtc.addEventListener("click", function(e){
-    e.preventDefault(); e.stopPropagation();
-    copyToClipboardWebView(BTC_ADDRESS, "🧡 Dirección Bitcoin copiada:\n" + BTC_ADDRESS);
-  }, true);
-
-  closeLove.addEventListener("click", function(){
-    loveOverlay.style.display="none";
-  });
-  loveOverlay.addEventListener("click", function(e){
-    if(e.target && e.target.id==="loveOverlay") loveOverlay.style.display="none";
-  });
 
   /* ======== Globos arriba (DESDE FIRESTORE) ======== */
   var adVariants = ["variant-gold","variant-blue","variant-pink"];
